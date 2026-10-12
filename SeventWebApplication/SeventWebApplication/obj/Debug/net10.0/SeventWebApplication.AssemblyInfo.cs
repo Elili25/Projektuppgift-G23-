@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SeventWebApplication")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+14e17e732acae5c509e5b92256e86ef2c5a49c6f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d5f085f1bf5335205a0897fc44e53a7eafcf9a60")]
 [assembly: System.Reflection.AssemblyProductAttribute("SeventWebApplication")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SeventWebApplication")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
