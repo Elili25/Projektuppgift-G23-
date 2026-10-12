@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\easli\\source\\repos\\SeventWebApplication\\SeventWebApplication\\SeventWebApplication.csproj",
+      "projectUniqueName": "C:\\Users\\easli\\OneDrive\\Documents\\GitHub\\Projektuppgift-G23-\\SeventWebApplication\\SeventWebApplication\\SeventWebApplication.csproj",
       "projectName": "SeventWebApplication",
-      "projectPath": "C:\\Users\\easli\\source\\repos\\SeventWebApplication\\SeventWebApplication\\SeventWebApplication.csproj",
+      "projectPath": "C:\\Users\\easli\\OneDrive\\Documents\\GitHub\\Projektuppgift-G23-\\SeventWebApplication\\SeventWebApplication\\SeventWebApplication.csproj",
       "packagesPath": "C:\\Users\\easli\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\easli\\source\\repos\\SeventWebApplication\\SeventWebApplication\\obj\\",
+      "outputPath": "C:\\Users\\easli\\OneDrive\\Documents\\GitHub\\Projektuppgift-G23-\\SeventWebApplication\\SeventWebApplication\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
