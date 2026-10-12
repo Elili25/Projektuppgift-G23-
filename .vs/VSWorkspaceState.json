@@ -1,7 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Sevent"
   ],
-  "SelectedNode": "\\Sevent.slnx",
+  "SelectedNode": "\\Sevent\\MainForm.cs",
   "PreviewInSolutionExplorer": false
 }
