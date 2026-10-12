@@ -1,5 +1,5 @@
-```css
-/* ASP.NET Core MVC + Sevent */
+
+/* ASP.NET Core MVC + Sevent — Void Purple Modern */
 html {
     font-size: 14px;
     position: relative;
@@ -16,8 +16,8 @@ body {
     margin: 0;
     margin-bottom: 60px;
     font-family: "Segoe UI", Arial, sans-serif;
-    color: var(--text);
-    background: var(--background);
+    color: var(--text, #392C59);
+    background: var(--background, #F5F5F8);
     line-height: 1.5;
 }
 
@@ -28,13 +28,148 @@ body {
 .form-control:focus,
 .form-check-input:focus,
 .form-select:focus {
-    box-shadow: 0 0 0 0.15rem #fff, 0 0 0 0.3rem var(--primary);
+    box-shadow: 0 0 0 0.15rem #fff, 0 0 0 0.3rem var(--primary, #7C5CFF);
 }
+
+/* Links */
+a {
+    color: var(--primary, #7C5CFF);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+    a:hover {
+        color: var(--primary-hover, #6845ED);
+    }
+
+    a.navbar-brand {
+        white-space: normal;
+        text-align: center;
+        word-break: break-all;
+        color: var(--text, #392C59);
+    }
+
+/* Primary buttons */
+.btn-primary {
+    color: #fff;
+    background-color: var(--primary, #7C5CFF);
+    border-color: var(--primary, #7C5CFF);
+}
+
+    .btn-primary:hover,
+    .btn-primary:focus-visible {
+        color: #fff;
+        background-color: var(--primary-hover, #6845ED);
+        border-color: var(--primary-hover, #6845ED);
+    }
+
+    .btn-primary:active,
+    .btn-primary.active,
+    .show > .btn-primary.dropdown-toggle {
+        color: #fff;
+        background-color: var(--primary-hover, #6845ED);
+        border-color: var(--primary-hover, #6845ED);
+    }
+
+    .btn-primary:disabled,
+    .btn-primary.disabled {
+        color: #fff;
+        background-color: var(--primary, #7C5CFF);
+        border-color: var(--primary, #7C5CFF);
+        opacity: 0.6;
+    }
+
+/* Secondary buttons */
+.btn-secondary {
+    color: var(--text, #392C59);
+    background-color: var(--lavender, #E7E0F5);
+    border-color: var(--lavender, #E7E0F5);
+}
+
+    .btn-secondary:hover {
+        color: var(--text, #392C59);
+        background-color: var(--surface-hover, #F0ECFA);
+        border-color: var(--accent, #8E79C6);
+    }
+
+/* Outline buttons */
+.btn-outline-primary {
+    color: var(--primary, #7C5CFF);
+    border-color: var(--primary, #7C5CFF);
+}
+
+    .btn-outline-primary:hover,
+    .btn-outline-primary:active {
+        color: #fff;
+        background-color: var(--primary, #7C5CFF);
+        border-color: var(--primary, #7C5CFF);
+    }
+
+/* Navigation pills */
+.nav-pills .nav-link {
+    color: var(--text, #392C59);
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+    .nav-pills .nav-link:hover {
+        color: var(--primary, #7C5CFF);
+        background-color: var(--surface-hover, #F0ECFA);
+    }
+
+    .nav-pills .nav-link.active,
+    .nav-pills .show > .nav-link {
+        color: #fff;
+        background-color: var(--primary, #7C5CFF);
+        border-color: var(--primary, #7C5CFF);
+    }
+
+/* Borders */
+.border-top {
+    border-top: 1px solid var(--lavender, #E7E0F5);
+}
+
+.border-bottom {
+    border-bottom: 1px solid var(--lavender, #E7E0F5);
+}
+
+/* Shadows */
+.box-shadow {
+    box-shadow: 0 .25rem .75rem rgba(57, 44, 89, 0.08);
+}
+
+/* Form controls */
+.form-control,
+.form-select {
+    color: var(--text, #392C59);
+    background-color: var(--surface, #FFFFFF);
+    border-color: var(--lavender, #E7E0F5);
+}
+
+    .form-control::placeholder {
+        color: var(--text-muted, #8E879D);
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        color: var(--text, #392C59);
+        background-color: var(--surface, #FFFFFF);
+        border-color: var(--primary, #7C5CFF);
+    }
+
+.form-check-input {
+    border-color: var(--accent, #8E79C6);
+}
+
+    .form-check-input:checked {
+        background-color: var(--primary, #7C5CFF);
+        border-color: var(--primary, #7C5CFF);
+    }
 
 /* Bootstrap floating labels */
 .form-floating > .form-control-plaintext::placeholder,
 .form-floating > .form-control::placeholder {
-    color: var(--text-muted);
+    color: var(--text-muted, #8E879D);
     text-align: end;
 }
 
@@ -43,4 +178,63 @@ body {
     text-align: start;
 }
 
-```
+/* Cards and surfaces */
+.card {
+    color: var(--text, #392C59);
+    background-color: var(--surface, #FFFFFF);
+    border-color: var(--lavender, #E7E0F5);
+}
+
+.card-header,
+.card-footer {
+    background-color: var(--surface-hover, #F0ECFA);
+    border-color: var(--lavender, #E7E0F5);
+}
+
+/* Tables */
+.table {
+    color: var(--text, #392C59);
+    border-color: var(--lavender, #E7E0F5);
+}
+
+    .table thead th {
+        color: var(--text, #392C59);
+        background-color: var(--surface-hover, #F0ECFA);
+    }
+
+.table-hover tbody tr:hover {
+    color: var(--text, #392C59);
+    background-color: var(--surface-hover, #F0ECFA);
+}
+
+/* Alerts */
+.alert-primary {
+    color: #392C59;
+    background-color: #E7E0F5;
+    border-color: #D3C7EF;
+}
+
+/* Validation */
+.validation-summary-errors,
+.field-validation-error {
+    color: #B4234D;
+}
+
+/* Policy button */
+button.accept-policy {
+    font-size: 1rem;
+    line-height: inherit;
+}
+
+/* Footer */
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+    color: var(--text-muted, #8E879D);
+    background-color: var(--surface, #FFFFFF);
+    border-top: 1px solid var(--lavender, #E7E0F5);
+}
+
