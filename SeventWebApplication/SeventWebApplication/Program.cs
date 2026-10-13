@@ -30,9 +30,7 @@ namespace SeventWebApplication
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
-            // Appsettings Loading
-            builder.Services.Configure<AppSettings>(
-            builder.Configuration.GetSection("AppSettings"));
+
 
             app.Run();
         }
