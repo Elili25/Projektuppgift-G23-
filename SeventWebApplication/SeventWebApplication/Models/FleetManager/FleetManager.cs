@@ -43,11 +43,29 @@ public class FleetManager
 
     public bool IsAvailable(Vehicle vehicle, DateTime startTime, DateTime endTime)
     {
-        
+        foreach(var booking in _bookings)
+        {
+            if (booking.vehicle.regnum != vehicle.regnum)
+                continue
+
+            // Checks if startTime is inside the booking
+            if (startTime.CompareTo(booking.startTime) > 0 && startTime.CompareTo(booking.endTime) < 0)
+                return false;
+            // Checks if endTime is inside the booking
+            if (endTime.CompareTo(booking.startTime) > 0 && endTime.CompareTo(booking.endTime) < 0)
+                return false;
+            // If startTime is before the booking startTime AND endTime is after the booking endTime
+            if (startTime.CompareTo(booking) < 0 && endTime.CompareTo(booking.endTime) > 0)
+                return false;
+
+        }
+        return true;
     }
 
-    public void RegisterBooking(Booking booking)
+    public void RegisterBooking(Booking booking)// vill nog ha några andra inputs?
     {
-        //TODO: Implementera när booking är klar
+        // TODO: Implementera när booking är klar
+
+        _bookings.Add(booking)//Temp
     }
 }
