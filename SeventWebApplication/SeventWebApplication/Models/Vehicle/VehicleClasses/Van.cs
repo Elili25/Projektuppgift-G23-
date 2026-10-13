@@ -1,17 +1,25 @@
 ﻿namespace SeventWebApplication.Models.Vehicle
 {
-    public class Van : Vehicle, IPassengerVehicle, IVehicleWithEngine,
-                                IVehicleTransmissionType, ICargoVehicle
+    public class Van : Vehicle, IPassengerVehicle, IVehicleWithEngine, IVehicleTransmissionType, ICargoVehicle
     {
         public int PassengerCapacity { get; set; }
-        public string FuelType { get; set; }
-        public string TransmissionType { get; set; }
+        public FuelType FuelType { get; set; }
+        public TransmissionType TransmissionType { get; set; }
         public double CargoCapacityM3 { get; set; }
         public double MaxPayloadKg { get; set; }
-
-        public Van(string regNr, string brand, string model, int year, int horsePower,
-                   int passengerCapacity, string fuelType, string transmissionType,
-                   double cargoCapacityM3, double maxPayloadKg)
+        public Van
+            (
+            string regNr,
+            string brand,
+            string model,
+            int year,
+            int horsePower,
+            int passengerCapacity,
+            FuelType fuelType,
+            TransmissionType transmissionType,
+            double cargoCapacityM3,
+            double maxPayloadKg
+            )
             : base(regNr, brand, model, year, horsePower)
         {
             PassengerCapacity = passengerCapacity;
@@ -21,9 +29,10 @@
             MaxPayloadKg = maxPayloadKg;
         }
 
+        //fixa här nedan senare detta är placeholder för nu
         public override decimal GetBasePrice() => 900m;
 
         public override string GetDescription() =>
-            $"{Brand} {Model} ({Year}) - Cargo: {CargoCapacityM3}m³ - Payload: {MaxPayloadKg}kg";
+            $"{Brand} {Model} ({Year}) - {FuelType} - {TransmissionType} - Cargo: {CargoCapacityM3}m³ - Payload: {MaxPayloadKg}kg";
     }
 }

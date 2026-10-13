@@ -5,14 +5,26 @@
         public int BatteryCapacityKwh { get; set; }
         public int RangeKm { get; set; }
 
-        public ElectricCar(string regNr, string brand, string model, int year, int horsePower,
-                           int passengerCapacity, int batteryCapacityKwh, int rangeKm)
-            : base(regNr, brand, model, year, horsePower, passengerCapacity, "Electric", "Automatic")
+        public ElectricCar
+            (
+            string regNr,
+            string brand,
+            string model,
+            int year,
+            int horsePower,
+            int passengerCapacity,
+            int batteryCapacityKwh,
+            int rangeKm
+            )
+            : base(regNr, brand, model, year, horsePower, passengerCapacity,
+                   FuelType.Electric, TransmissionType.Automatic)  // ← enums istället för strings
         {
             BatteryCapacityKwh = batteryCapacityKwh;
             RangeKm = rangeKm;
         }
 
+
+        //fixa här nedan senare detta är placeholder för nu
         public override decimal GetBasePrice() => 700m;
 
         public override string GetDescription() =>
