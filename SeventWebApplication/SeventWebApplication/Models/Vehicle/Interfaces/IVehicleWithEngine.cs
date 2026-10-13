@@ -2,6 +2,6 @@
 {
     public interface IVehicleWithEngine
     {
-        string FuelType { get; set; }
+        FuelType FuelType { get; set; }
     }
 }

@@ -2,6 +2,6 @@
 {
     public interface IVehicleTransmissionType
     {
-        string TransmissionType { get; set; }
+        TransmissionType TransmissionType { get; set; }
     }
 }
