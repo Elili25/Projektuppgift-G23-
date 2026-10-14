@@ -31,9 +31,6 @@
             HorsePower = horsePower;
         }
 
-        //fixa här nedan senare detta är placeholder för nu
-        public abstract decimal GetBasePrice();
-        public abstract string GetDescription();
 
     }
 }

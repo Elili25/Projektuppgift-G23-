@@ -2,14 +2,8 @@
 {
     public interface IVehicleFactory
     {
-        Vehicle CreateStandard(
-            string regNr,
-            string brand,
-            string model,
-            int year,
-            int horsePower,
-            FuelType fuelType
-        );
 
     }
+
+
 }
