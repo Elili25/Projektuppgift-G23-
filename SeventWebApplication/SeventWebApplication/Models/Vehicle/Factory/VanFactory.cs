@@ -3,10 +3,17 @@
     public class VanFactory : IElectricVehicleFactory
     {
         public Vehicle CreateStandard(
-            string regNr, string brand, string model,
-            int year, int horsePower, FuelType fuelType,
-            TransmissionType transmissionType, int passengerCapacity,
-            double cargoCapacityM3, double maxPayloadKg)
+            string regNr, 
+            string brand, 
+            string model,
+            int year, 
+            int horsePower, 
+            FuelType fuelType,
+            TransmissionType transmissionType, 
+            int passengerCapacity,
+            double cargoCapacityM3, 
+            double maxPayloadKg
+            )
         {
             return new Van(regNr, brand, model, year, horsePower,
                 passengerCapacity, fuelType, transmissionType,
