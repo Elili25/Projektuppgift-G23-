@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using SeventWebApplication.Models.VehicleNs;
 using SeventWebApplication.Models.Addon;
-#if false
 using SeventWebApplication.Models.Booking.Enums;
 
 namespace SeventWebApplication.Models.Booking
@@ -15,12 +14,12 @@ namespace SeventWebApplication.Models.Booking
         //public vehicle vehicle { get; set; } 
 
         
-        public string BookingId { get; set; }
-        public string UserId { get; set; }
+        public string BookingId { get; set; } = Guid.NewGuid().ToString();
+        public string UserId { get; set; } 
         public Vehicle Vehicle { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public IAddon Addon { get; set; } = new();
+        public IAddon Addon { get; set; }
         public IPricingStrategy PricingStrategy { get; set; }
 
 
@@ -35,8 +34,7 @@ namespace SeventWebApplication.Models.Booking
             Addon = addon;
             PricingStrategy = pricingStrategy;
         }
-    }
-}
+ 
 
 public decimal GetTotalPrice()
 {
@@ -44,4 +42,5 @@ public decimal GetTotalPrice()
 }
 
 // Status of the booking with Clone() method
-#endif
+}
+}
