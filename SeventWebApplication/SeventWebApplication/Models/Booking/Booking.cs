@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;	
 using System.Linq;
-using SeventWebApplication.Models.Vehicle;
+using SeventWebApplication.Models.VehicleNs;
 using SeventWebApplication.Models.Addon;
+#if false
 using SeventWebApplication.Models.Booking.Enums;
 
 namespace SeventWebApplication.Models.Booking
@@ -43,3 +44,4 @@ public decimal GetTotalPrice()
 }
 
 // Status of the booking with Clone() method
+#endif

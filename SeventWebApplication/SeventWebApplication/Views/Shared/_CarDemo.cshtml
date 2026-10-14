@@ -3,71 +3,57 @@
     <meta name="claude:viewport-fit-sides" content="cover">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
     <style>
-        :root {
-            --bg: #f5f4f8;
-            --surface: #ffffff;
-            --border: #e2dff0;
-            --fg: #1a1625;
-            --fg-muted: #6b6080;
-            --accent: #6c47c9;
-            --accent-light: #ede9ff;
-            --green: #16a34a;
-            --green-light: #dcfce7;
-            --code-bg: #f0edfb;
-            --shadow: 0 1px 4px rgba(108,71,201,.08), 0 4px 16px rgba(108,71,201,.06);
-        }
-        @media (prefers-color-scheme: dark) {
-            : root:not([data-theme="light"])
-
-        {
-            --bg: #120f1e;
-            --surface: #1e1830;
-            --border: #2e2848;
-            --fg: #f0edf9;
-            --fg-muted: #9b94be;
-            --accent: #9b7fef;
-            --accent-light: #2a2050;
-            --green: #4ade80;
-            --green-light: #052e16;
-            --code-bg: #1a1530;
-            --shadow: 0 1px 4px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.2);
-            color-scheme: dark;
-        }
-
-        }
-
-        :root[data-theme="dark"] {
-            --bg: #120f1e;
-            --surface: #1e1830;
-            --border: #2e2848;
-            --fg: #f0edf9;
-            --fg-muted: #9b94be;
-            --accent: #9b7fef;
-            --accent-light: #2a2050;
-            --green: #4ade80;
-            --green-light: #052e16;
-            --code-bg: #1a1530;
-            --shadow: 0 1px 4px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.2);
-            color-scheme: dark;
-        }
-
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
+        .cardemocomponent {
+            --cardemo-bg: #f5f4f8;
+            --cardemo-surface: #ffffff;
+            --cardemo-border: #e2dff0;
+            --cardemo-fg: #1a1625;
+            --cardemo-fg-muted: #6b6080;
+            --cardemo-accent: #6c47c9;
+            --cardemo-accent-light: #ede9ff;
+            --cardemo-green: #16a34a;
+            --cardemo-green-light: #dcfce7;
+            --cardemo-code-bg: #f0edfb;
+            --cardemo-shadow: 0 1px 4px rgba(108,71,201,.08), 0 4px 16px rgba(108,71,201,.06);
             font-family: 'Inter', system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--fg);
+            background: var(--cardemo-bg);
+            color: var(--cardemo-fg);
             padding-block: 40px;
             padding-left: max(16px, env(safe-area-inset-left, 0px));
             padding-right: max(16px, env(safe-area-inset-right, 0px));
-            min-height: 100%;
         }
 
-        .wrap {
+        @@media (prefers-color-scheme: dark) {
+            .cardemocomponent:not([data-theme="light"]) {
+                --cardemo-bg: #120f1e;
+                --cardemo-surface: #1e1830;
+                --cardemo-border: #2e2848;
+                --cardemo-fg: #f0edf9;
+                --cardemo-fg-muted: #9b94be;
+                --cardemo-accent: #9b7fef;
+                --cardemo-accent-light: #2a2050;
+                --cardemo-green: #4ade80;
+                --cardemo-green-light: #052e16;
+                --cardemo-code-bg: #1a1530;
+                --cardemo-shadow: 0 1px 4px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.2);
+            }
+        }
+
+        .cardemocomponent[data-theme="dark"] {
+            --cardemo-bg: #120f1e;
+            --cardemo-surface: #1e1830;
+            --cardemo-border: #2e2848;
+            --cardemo-fg: #f0edf9;
+            --cardemo-fg-muted: #9b94be;
+            --cardemo-accent: #9b7fef;
+            --cardemo-accent-light: #2a2050;
+            --cardemo-green: #4ade80;
+            --cardemo-green-light: #052e16;
+            --cardemo-code-bg: #1a1530;
+            --cardemo-shadow: 0 1px 4px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.2);
+        }
+
+        .cardemocomponent .wrap {
             max-width: 600px;
             margin: 0 auto;
             display: flex;
@@ -75,114 +61,116 @@
             gap: 24px;
         }
 
-        header {
+        .cardemocomponent header {
             text-align: center;
         }
 
-            header h1 {
+            .cardemocomponent header h1 {
                 font-size: 1.5rem;
                 font-weight: 700;
                 letter-spacing: -.02em;
                 text-wrap: balance;
             }
 
-            header p {
+            .cardemocomponent header p {
                 margin-top: 6px;
                 font-size: .875rem;
-                color: var(--fg-muted);
+                color: var(--cardemo-fg-muted);
             }
 
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
+        .cardemocomponent .card {
+            background: var(--cardemo-surface);
+            border: 1px solid var(--cardemo-border);
             border-radius: 12px;
             padding: 20px;
-            box-shadow: var(--shadow);
+            box-shadow: var(--cardemo-shadow);
         }
 
-        .card-title {
+        .cardemocomponent .card-title {
             font-size: .7rem;
             font-weight: 600;
             letter-spacing: .08em;
             text-transform: uppercase;
-            color: var(--fg-muted);
+            color: var(--cardemo-fg-muted);
             margin-bottom: 14px;
         }
 
-        .fields {
+        .cardemocomponent .fields {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
 
-        .field {
+        .cardemocomponent .field {
             display: flex;
             flex-direction: column;
             gap: 4px;
         }
 
-            .field label {
+            .cardemocomponent .field label {
                 font-size: .75rem;
                 font-weight: 500;
-                color: var(--fg-muted);
+                color: var(--cardemo-fg-muted);
             }
 
-            .field input, .field select {
+            .cardemocomponent .field input,
+            .cardemocomponent .field select {
                 padding: 8px 10px;
-                border: 1px solid var(--border);
+                border: 1px solid var(--cardemo-border);
                 border-radius: 8px;
                 font-family: inherit;
                 font-size: .875rem;
-                background: var(--bg);
-                color: var(--fg);
+                background: var(--cardemo-bg);
+                color: var(--cardemo-fg);
                 transition: border-color .15s;
                 width: 100%;
             }
 
-                .field input:focus, .field select:focus {
+                .cardemocomponent .field input:focus,
+                .cardemocomponent .field select:focus {
                     outline: none;
-                    border-color: var(--accent);
+                    border-color: var(--cardemo-accent);
                 }
 
-            .field.full {
+            .cardemocomponent .field.full {
                 grid-column: 1 / -1;
             }
 
-        .toggle-row {
+        .cardemocomponent .toggle-row {
             display: flex;
             align-items: center;
             gap: 10px;
             padding: 10px 0;
-            border-top: 1px solid var(--border);
+            border-top: 1px solid var(--cardemo-border);
             margin-top: 4px;
         }
 
-            .toggle-row label {
+            .cardemocomponent .toggle-row label {
                 font-size: .875rem;
                 font-weight: 500;
                 cursor: pointer;
             }
 
-        input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            accent-color: var(--accent);
-            cursor: pointer;
-        }
+            .cardemocomponent .toggle-row input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
+                accent-color: var(--cardemo-accent);
+                cursor: pointer;
+            }
 
-        .electric-fields {
+        .cardemocomponent .electric-fields {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             margin-top: 12px;
             padding-top: 12px;
-            border-top: 1px solid var(--border);
+            border-top: 1px solid var(--cardemo-border);
         }
 
-        button {
+        .cardemocomponent button {
             width: 100%;
             padding: 12px;
-            background: var(--accent);
+            background: var(--cardemo-accent);
             color: #fff;
             border: none;
             border-radius: 10px;
@@ -193,74 +181,72 @@
             transition: opacity .15s, transform .1s;
         }
 
-            button:hover {
+            .cardemocomponent button:hover {
                 opacity: .88;
             }
 
-            button:active {
+            .cardemocomponent button:active {
                 transform: scale(.98);
             }
 
-        .log {
+        .cardemocomponent .log {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
 
-        .log-empty {
+        .cardemocomponent .log-empty {
             text-align: center;
-            color: var(--fg-muted);
+            color: var(--cardemo-fg-muted);
             font-size: .875rem;
             padding: 20px 0;
         }
 
-        .entry {
-            background: var(--code-bg);
-            border: 1px solid var(--border);
-            border-left: 3px solid var(--green);
+        .cardemocomponent .entry {
+            background: var(--cardemo-code-bg);
+            border: 1px solid var(--cardemo-border);
+            border-left: 3px solid var(--cardemo-green);
             border-radius: 8px;
             padding: 12px 14px;
             font-family: 'JetBrains Mono', monospace;
             font-size: .78rem;
             line-height: 1.7;
-            color: var(--fg);
-            animation: slide-in .2s ease;
+            color: var(--cardemo-fg);
+            animation: cardemo-slide-in .2s ease;
         }
 
-            .entry .tag {
+            .cardemocomponent .entry .tag {
                 display: inline-block;
                 font-size: .65rem;
                 font-weight: 600;
                 letter-spacing: .06em;
                 text-transform: uppercase;
-                background: var(--green-light);
-                color: var(--green);
+                background: var(--cardemo-green-light);
+                color: var(--cardemo-green);
                 border-radius: 4px;
                 padding: 1px 6px;
                 margin-bottom: 6px;
             }
 
-            .entry .electric-tag {
-                background: var(--accent-light);
-                color: var(--accent);
+            .cardemocomponent .entry .electric-tag {
+                background: var(--cardemo-accent-light);
+                color: var(--cardemo-accent);
             }
 
-        @keyframes slide-in {
-            from
+        @@keyframes cardemo-slide-in {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
 
-        {
-            opacity: 0;
-            transform: translateY(-6px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 
+<div class="cardemocomponent">
     <div class="wrap">
         <header>
             <h1>CarFactory Demo</h1>
@@ -315,7 +301,7 @@
             </div>
         </div>
     </div>
-
+    </div>
     <script>
         const el = id => document.getElementById(id);
 
