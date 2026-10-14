@@ -11,10 +11,5 @@
             FuelType fuelType
         );
 
-        Vehicle CreateElectric(
-            Vehicle baseVehicle,
-            int batteryCapacityKwh,
-            int rangeKm
-        );
     }
 }
