@@ -1,4 +1,4 @@
-﻿namespace SeventWebApplication.Models.Vehicle
+namespace SeventWebApplication.Models.VehicleNs
 {
     public interface ICargoVehicle
     {
