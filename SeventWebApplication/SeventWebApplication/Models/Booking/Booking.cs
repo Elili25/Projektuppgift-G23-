@@ -21,6 +21,9 @@ namespace SeventWebApplication.Models.Booking
         public DateTime EndDate { get; set; }
         public IAddon Addon { get; set; }
         public IPricingStrategy PricingStrategy { get; set; }
+        // Status BookingStatus
+        // Notes 
+        // ApprovedBy
 
 
         // Add booking constructor 
