@@ -1,4 +1,4 @@
-Ôªøusing System;
+using System;
 #if false
 public class FleetManager
 {
@@ -21,7 +21,7 @@ public class FleetManager
     {
         if(vehicle.regnum.Count() != 6 || vehicle.regnum.Count() != 7) 
         {
-            // Ge en varning att det inte √§r ett svenskt regnummer?
+            // Ge en varning att det inte ‰r ett svenskt regnummer?
         }
         _vehicles.Add(vehicle.RegistrationNumber, vehicle);
     }
@@ -62,9 +62,9 @@ public class FleetManager
         return true;
     }
 
-    public void RegisterBooking(Booking booking)// vill nog ha n√•gra andra inputs?
+    public void RegisterBooking(Booking booking)// vill nog ha nÂgra andra inputs?
     {
-        // TODO: Implementera n√§r booking √§r klar
+        // TODO: Implementera n‰r booking ‰r klar
 
         _bookings.Add(booking)//Temp
     }

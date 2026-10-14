@@ -1,4 +1,4 @@
-﻿namespace SeventWebApplication.Models.Vehicle
+namespace SeventWebApplication.Models.VehicleNs
 {
     public class VanFactory : IElectricVehicleFactory
     {
@@ -23,7 +23,7 @@
         public Vehicle CreateElectric(Vehicle baseVehicle, int batteryCapacityKwh, int rangeKm)
         {
             if (baseVehicle is not Van van)
-                throw new ArgumentException("BaseVehicle måste vara en Van", nameof(baseVehicle));
+                throw new ArgumentException("BaseVehicle m�ste vara en Van", nameof(baseVehicle));
 
             return new ElectricVan(van, batteryCapacityKwh, rangeKm);
         }
