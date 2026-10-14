@@ -1,0 +1,247 @@
+<title>Car Factory Demo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #f5f4f8;
+    --surface: #ffffff;
+    --border: #e2dff0;
+    --fg: #1a1625;
+    --fg-muted: #6b6080;
+    --accent: #6c47c9;
+    --accent-light: #ede9ff;
+    --green: #16a34a;
+    --green-light: #dcfce7;
+    --code-bg: #f0edfb;
+    --shadow: 0 1px 4px rgba(108,71,201,.08), 0 4px 16px rgba(108,71,201,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #120f1e;
+      --surface: #1e1830;
+      --border: #2e2848;
+      --fg: #f0edf9;
+      --fg-muted: #9b94be;
+      --accent: #9b7fef;
+      --accent-light: #2a2050;
+      --green: #4ade80;
+      --green-light: #052e16;
+      --code-bg: #1a1530;
+      --shadow: 0 1px 4px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.2);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #120f1e;
+    --surface: #1e1830;
+    --border: #2e2848;
+    --fg: #f0edf9;
+    --fg-muted: #9b94be;
+    --accent: #9b7fef;
+    --accent-light: #2a2050;
+    --green: #4ade80;
+    --green-light: #052e16;
+    --code-bg: #1a1530;
+    --shadow: 0 1px 4px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.2);
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    padding-block: 40px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    min-height: 100%;
+  }
+
+  .wrap { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+
+  header { text-align: center; }
+  header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; text-wrap: balance; }
+  header p { margin-top: 6px; font-size: .875rem; color: var(--fg-muted); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .card-title {
+    font-size: .7rem; font-weight: 600; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--fg-muted); margin-bottom: 14px;
+  }
+
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: .75rem; font-weight: 500; color: var(--fg-muted); }
+  .field input, .field select {
+    padding: 8px 10px; border: 1px solid var(--border);
+    border-radius: 8px; font-family: inherit; font-size: .875rem;
+    background: var(--bg); color: var(--fg);
+    transition: border-color .15s;
+    width: 100%;
+  }
+  .field input:focus, .field select:focus {
+    outline: none; border-color: var(--accent);
+  }
+  .field.full { grid-column: 1 / -1; }
+
+  .toggle-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-top: 1px solid var(--border); margin-top: 4px;
+  }
+  .toggle-row label { font-size: .875rem; font-weight: 500; cursor: pointer; }
+  input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+
+  .electric-fields {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);
+  }
+
+  button {
+    width: 100%; padding: 12px;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 10px;
+    font-family: inherit; font-size: .9375rem; font-weight: 600;
+    cursor: pointer; transition: opacity .15s, transform .1s;
+  }
+  button:hover { opacity: .88; }
+  button:active { transform: scale(.98); }
+
+  .log { display: flex; flex-direction: column; gap: 8px; }
+  .log-empty { text-align: center; color: var(--fg-muted); font-size: .875rem; padding: 20px 0; }
+
+  .entry {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .78rem;
+    line-height: 1.7;
+    color: var(--fg);
+    animation: slide-in .2s ease;
+  }
+  .entry .tag {
+    display: inline-block; font-size: .65rem; font-weight: 600;
+    letter-spacing: .06em; text-transform: uppercase;
+    background: var(--green-light); color: var(--green);
+    border-radius: 4px; padding: 1px 6px; margin-bottom: 6px;
+  }
+  .entry .electric-tag {
+    background: var(--accent-light); color: var(--accent);
+  }
+
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>CarFactory Demo</h1>
+    <p>Simulerar <code>CarFactory.CreateStandard()</code> och <code>CreateElectric()</code></p>
+  </header>
+
+  <div class="card">
+    <div class="card-title">Fordonsinformation</div>
+    <div class="fields">
+      <div class="field"><label>RegNr</label><input id="regNr" value="ABC123" maxlength="10"/></div>
+      <div class="field"><label>Brand</label><input id="brand" value="Volvo"/></div>
+      <div class="field"><label>Model</label><input id="model" value="V60"/></div>
+      <div class="field"><label>Year</label><input id="year" type="number" value="2024" min="1900" max="2100"/></div>
+      <div class="field"><label>HorsePower</label><input id="hp" type="number" value="190" min="1"/></div>
+      <div class="field"><label>PassengerCapacity</label><input id="seats" type="number" value="5" min="1"/></div>
+      <div class="field"><label>FuelType</label>
+        <select id="fuel">
+          <option>Petrol</option><option>Diesel</option>
+          <option>Hybrid</option><option>Gas</option>
+        </select>
+      </div>
+      <div class="field"><label>TransmissionType</label>
+        <select id="trans">
+          <option>Automatic</option><option>Manual</option><option>SemiAutomatic</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="toggle-row">
+      <input type="checkbox" id="isElectric">
+      <label for="isElectric">Skapa som ElectricCar (CreateElectric)</label>
+    </div>
+
+    <div class="electric-fields" id="electricFields" hidden>
+      <div class="field"><label>BatteryCapacityKwh</label><input id="kwh" type="number" value="82" min="1"/></div>
+      <div class="field"><label>RangeKm</label><input id="range" type="number" value="450" min="1"/></div>
+    </div>
+  </div>
+
+  <button id="createBtn">Skapa bil</button>
+
+  <div class="card">
+    <div class="card-title">Skapade fordon</div>
+    <div class="log" id="log">
+      <div class="log-empty">Inga fordon skapade än — tryck på knappen!</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const el = id => document.getElementById(id);
+
+  el('isElectric').addEventListener('change', e => {
+    el('electricFields').hidden = !e.target.checked;
+  });
+
+  el('createBtn').addEventListener('click', () => {
+    const regNr = el('regNr').value.trim() || 'ABC000';
+    const brand = el('brand').value.trim() || 'Unknown';
+    const model = el('model').value.trim() || 'Unknown';
+    const year  = parseInt(el('year').value) || 2024;
+    const hp    = parseInt(el('hp').value) || 100;
+    const seats = parseInt(el('seats').value) || 5;
+    const fuel  = el('fuel').value;
+    const trans = el('trans').value;
+    const electric = el('isElectric').checked;
+    const kwh   = parseInt(el('kwh').value) || 82;
+    const range = parseInt(el('range').value) || 400;
+
+    const basePrice = 500;
+    const totalPrice = electric ? basePrice + 200 : basePrice;
+
+    const log = el('log');
+    const empty = log.querySelector('.log-empty');
+    if (empty) empty.remove();
+
+    const entry = document.createElement('div');
+    entry.className = 'entry';
+
+    if (electric) {
+      entry.innerHTML = `
+        <span class="tag electric-tag">ElectricCar</span><br>
+        <b>CarFactory.CreateStandard()</b> → Car<br>
+        &nbsp;&nbsp;RegNr: ${regNr} | ${brand} ${model} (${year})<br>
+        &nbsp;&nbsp;${hp} hk | ${seats} säten | ${fuel} | ${trans}<br>
+        <b>CarFactory.CreateElectric(car, ${kwh}, ${range})</b> → ElectricCar<br>
+        &nbsp;&nbsp;Batteri: ${kwh} kWh | Räckvidd: ${range} km<br>
+        &nbsp;&nbsp;GetBasePrice() = 500 + 200 = <b>${totalPrice} kr/dag</b>
+      `;
+    } else {
+      entry.innerHTML = `
+        <span class="tag">Car</span><br>
+        <b>CarFactory.CreateStandard()</b> → Car<br>
+        &nbsp;&nbsp;RegNr: ${regNr} | ${brand} ${model} (${year})<br>
+        &nbsp;&nbsp;${hp} hk | ${seats} säten | ${fuel} | ${trans}<br>
+        &nbsp;&nbsp;GetBasePrice() = <b>${basePrice} kr/dag</b>
+      `;
+    }
+
+    log.prepend(entry);
+  });
+</script>

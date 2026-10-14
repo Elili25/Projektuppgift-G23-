@@ -1,4 +1,4 @@
-﻿namespace SeventWebApplication.Models.Vehicle
+namespace SeventWebApplication.Models.VehicleNs
 {
     public class Car : Vehicle, IPassengerVehicle, IVehicleWithEngine, IVehicleTransmissionType
     {
@@ -24,10 +24,5 @@
             TransmissionType = transmissionType;           
         }
 
-        //fixa här nedan senare detta är placeholder för nu
-        public override decimal GetBasePrice() => 500m;
-
-        public override string GetDescription() =>
-            $"{Brand} {Model} ({Year}) - {FuelType} - {TransmissionType} - {PassengerCapacity} seats";
     }
 }

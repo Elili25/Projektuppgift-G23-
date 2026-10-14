@@ -1,4 +1,4 @@
-﻿namespace SeventWebApplication.Models.Addon
+namespace SeventWebApplication.Models.Addon
 {
     public class GPSAddon : AddonDecorator
     {

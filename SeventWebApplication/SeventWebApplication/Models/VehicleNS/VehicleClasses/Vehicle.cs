@@ -1,4 +1,4 @@
-﻿namespace SeventWebApplication.Models.Vehicle
+namespace SeventWebApplication.Models.VehicleNs
 {
     public abstract class Vehicle
     {
@@ -31,9 +31,6 @@
             HorsePower = horsePower;
         }
 
-        //fixa här nedan senare detta är placeholder för nu
-        public abstract decimal GetBasePrice();
-        public abstract string GetDescription();
 
     }
 }

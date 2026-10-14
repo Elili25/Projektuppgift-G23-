@@ -1,4 +1,4 @@
-﻿namespace SeventWebApplication.Models.Vehicle
+namespace SeventWebApplication.Models.VehicleNs
 {
     public class Van : Vehicle, IPassengerVehicle, IVehicleWithEngine, IVehicleTransmissionType, ICargoVehicle
     {
@@ -29,10 +29,6 @@
             MaxPayloadKg = maxPayloadKg;
         }
 
-        //fixa här nedan senare detta är placeholder för nu
-        public override decimal GetBasePrice() => 900m;
 
-        public override string GetDescription() =>
-            $"{Brand} {Model} ({Year}) - {FuelType} - {TransmissionType} - Cargo: {CargoCapacityM3}m³ - Payload: {MaxPayloadKg}kg";
     }
 }

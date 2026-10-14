@@ -1,4 +1,4 @@
-﻿namespace SeventWebApplication.Models.Vehicle
+namespace SeventWebApplication.Models.VehicleNs
 {
     public class Motorcycle : Vehicle, IVehicleWithEngine
     {
@@ -21,10 +21,6 @@
             FuelType = fuelType;
         }
 
-        //fixa här nedan senare detta är placeholder för nu
-        public override decimal GetBasePrice() => 350m;
 
-        public override string GetDescription() =>
-            $"{Brand} {Model} ({Year}) - {EngineDisplacementCc}cc - {FuelType}";
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace SeventWebApplication.Models
+namespace SeventWebApplication.Models
 {
     public interface IAddon
     {
