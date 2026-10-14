@@ -249,6 +249,8 @@ button.accept-policy {
     background: radial-gradient( ellipse at 15% 0%, rgba(124, 92, 255, 0.16), transparent 55% ), linear-gradient( 135deg, #232039 0%, #1F2430 55%, #19182D 100% );
     border-bottom: 1px solid rgba(142, 121, 198, 0.22) !important;
     box-shadow: 0 4px 18px rgba(25, 18, 50, 0.18) !important;
+    width: 100%;
+    border-radius: 0;
 }
 
 /* Navigation links */

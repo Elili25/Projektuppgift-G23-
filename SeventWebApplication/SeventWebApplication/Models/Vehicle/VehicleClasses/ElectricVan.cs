@@ -1,35 +1,38 @@
 ﻿namespace SeventWebApplication.Models.Vehicle
 {
-    public class ElectricVan : Van, IElectricVehicle
+    public class ElectricVan : IElectricVehicle
     {
+        private readonly Van _van;
+
+        // Elektriska egenskaper
         public int BatteryCapacityKwh { get; set; }
         public int RangeKm { get; set; }
 
-        public ElectricVan
-            (
-            string regNr,
-            string brand,
-            string model,
-            int year,
-            int horsePower,
-            int passengerCapacity,
-            double cargoCapacityM3,
-            double maxPayloadKg,
-            int batteryCapacityKwh,
-            int rangeKm
-            )
-            : base(regNr, brand, model, year, horsePower, passengerCapacity,
-                   FuelType.Electric, TransmissionType.Automatic,
-                   cargoCapacityM3, maxPayloadKg)
+        public ElectricVan(Van van, int batteryCapacityKwh, int rangeKm)
         {
+            _van = van;
             BatteryCapacityKwh = batteryCapacityKwh;
             RangeKm = rangeKm;
         }
 
-        //fixa här nedan senare detta är placeholder för nu
-        public override decimal GetBasePrice() => 1100m;
+        // Delegera allt till _van
+        public string RegNr => _van.RegNr;
+        public string Brand => _van.Brand;
+        public string Model => _van.Model;
+        public int Year => _van.Year;
+        public int HorsePower => _van.HorsePower;
+        public bool IsAvailable => _van.IsAvailable;
+        public int PassengerCapacity => _van.PassengerCapacity;
+        public FuelType FuelType => _van.FuelType;
+        public TransmissionType TransmissionType => _van.TransmissionType;
+        public double CargoCapacityM3 => _van.CargoCapacityM3;
+        public double MaxPayloadKg => _van.MaxPayloadKg;
 
-        public override string GetDescription() =>
-            $"{Brand} {Model} ({Year}) - Electric Van - {BatteryCapacityKwh}kWh - Range: {RangeKm}km";
+        public decimal GetBasePrice() => _van.GetBasePrice() + 200m;
+
+        public string GetDescription() =>
+            $"{Brand} {Model} ({Year}) - Elektrisk - {TransmissionType} " +
+            $"- Batteri: {BatteryCapacityKwh}kWh - Räckvidd: {RangeKm}km " +
+            $"- Cargo: {CargoCapacityM3}m³ - Payload: {MaxPayloadKg}kg";
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System;
-
+#if false
 public class FleetManager
 {
 	private static FleetManager _instance;
@@ -46,7 +46,7 @@ public class FleetManager
         foreach(var booking in _bookings)
         {
             if (booking.vehicle.regnum != vehicle.regnum)
-                continue
+                continue;
 
             // Checks if startTime is inside the booking
             if (startTime.CompareTo(booking.startTime) > 0 && startTime.CompareTo(booking.endTime) < 0)
@@ -69,3 +69,4 @@ public class FleetManager
         _bookings.Add(booking)//Temp
     }
 }
+#endif

@@ -1,33 +1,31 @@
 ﻿namespace SeventWebApplication.Models.Vehicle
 {
-    public class ElectricCar : Car, IElectricVehicle
+    public class ElectricCar : IElectricVehicle
     {
+        // Den wrappade bilen — delegera allt till den
+        private readonly Car _car;
+
+        // Elektriska egenskaper
         public int BatteryCapacityKwh { get; set; }
         public int RangeKm { get; set; }
 
-        public ElectricCar
-            (
-            string regNr,
-            string brand,
-            string model,
-            int year,
-            int horsePower,
-            int passengerCapacity,
-            int batteryCapacityKwh,
-            int rangeKm
-            )
-            : base(regNr, brand, model, year, horsePower, passengerCapacity,
-                   FuelType.Electric, TransmissionType.Automatic)  // ← enums istället för strings
+        public ElectricCar(Car car, int batteryCapacityKwh, int rangeKm)
         {
+            _car = car;
             BatteryCapacityKwh = batteryCapacityKwh;
             RangeKm = rangeKm;
         }
 
+        // Delegera Vehicle-egenskaper till den wrappade bilen
+        public string RegNr => _car.RegNr;
+        public string Brand => _car.Brand;
+        public string Model => _car.Model;
+        public int Year => _car.Year;
+        public bool IsAvailable => _car.IsAvailable;
+        public int PassengerCapacity => _car.PassengerCapacity;
+        public TransmissionType TransmissionType => _car.TransmissionType;
 
-        //fixa här nedan senare detta är placeholder för nu
-        public override decimal GetBasePrice() => 700m;
-
-        public override string GetDescription() =>
-            $"{Brand} {Model} ({Year}) - Electric - {BatteryCapacityKwh}kWh - Range: {RangeKm}km";
+        // Elpris ersätter bensinbilens pris
+        public decimal GetBasePrice() => _car.GetBasePrice() + 200m; // elprispåslag
     }
 }
