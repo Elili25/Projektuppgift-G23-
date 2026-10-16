@@ -7,7 +7,7 @@ public class FleetManager
 	public static FleetManager instance
     {
         // Returns the instance or creates a new one if it doesn't exist
-        get{ return _instance !??= _instance : new FleetManager(); }
+        get{ return _instance !?? _instance : _instance = new FleetManager(); }
     }
 
     private Dictionary<string, Vehicle> _vehicles;// <reg-num, vehicle>
