@@ -1,6 +1,6 @@
 namespace SeventWebApplication.Models.VehicleNs
 {
-    public interface IVehicleWithEngine
+    public interface IFuelType
     {
         FuelType FuelType { get; set; }
     }

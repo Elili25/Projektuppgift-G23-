@@ -1,6 +1,6 @@
 namespace SeventWebApplication.Models.VehicleNs
 {
-    public class Car : Vehicle, IPassengerVehicle, IVehicleWithEngine, IVehicleTransmissionType
+    public class Car : Vehicle, IPassengerVehicle, IFuelType, IVehicleTransmissionType
     {
         public int PassengerCapacity { get; set; }
         public FuelType FuelType { get; set; }
