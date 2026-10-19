@@ -9,6 +9,7 @@ namespace SeventWebApplication.Models.VehicleNs
             : base(van, batteryCapacityKwh, rangeKm)
         {
             _van = van;
+            _van.FuelType = FuelType.Electric;
         }
 
     }
