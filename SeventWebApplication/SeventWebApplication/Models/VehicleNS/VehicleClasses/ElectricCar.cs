@@ -9,6 +9,7 @@
             : base(car, batteryCapacityKwh, rangeKm)
         {
             _car = car;
+            _car.FuelType = FuelType.Electric;
         }
     }
 }
