@@ -1,4 +1,3 @@
-using SeventWebApplication.Models.VehicleNS;
 
 namespace SeventWebApplication.Models.VehicleNS
 {
@@ -39,16 +38,38 @@ namespace SeventWebApplication.Models.VehicleNS
             _yearValidator.ValidateYear(year);
             _horsePowerValidator.ValidateHorsePower(horsePower);
 
-            return new Car(regNr, brand, model, year, horsePower,
-                passengerCapacity, luggageCapacity, fuelType, transmissionType, countryCode);
+            var registrationPlate = new RegistrationPlate(
+                regNr,
+                countryCode);
+
+            return new Car(
+                registrationPlate,
+                brand,
+                model,
+                year,
+                horsePower,
+                passengerCapacity,
+                luggageCapacity,
+                fuelType,
+                transmissionType);
         }
 
-        public Vehicle CreateElectric(Vehicle baseVehicle, int batteryCapacityKwh, int rangeKm)
+        public Vehicle CreateElectric(
+            Vehicle baseVehicle,
+            int batteryCapacityKwh,
+            int rangeKm)
         {
             if (baseVehicle is not Car car)
-                throw new ArgumentException("BaseVehicle måste vara en Car", nameof(baseVehicle));
+            {
+                throw new ArgumentException(
+                    "BaseVehicle måste vara en Car",
+                    nameof(baseVehicle));
+            }
 
-            return new ElectricCar(car, batteryCapacityKwh, rangeKm);
+            return new ElectricCar(
+                car,
+                batteryCapacityKwh,
+                rangeKm);
         }
     }
 }

@@ -1,12 +1,16 @@
+
 namespace SeventWebApplication.Models.VehicleNS
 {
-    public class Car : Vehicle, IPassengerVehicle, IFuelType, IVehicleTransmissionType
+    public class Car : Vehicle,
+        IPassengerVehicle,
+        IFuelType,
+        IVehicleTransmissionType
     {
         public FuelType FuelType { get; set; }
         public TransmissionType TransmissionType { get; set; }
 
         public Car(
-            string regNr,
+            RegistrationPlate registrationPlate,
             string brand,
             string model,
             int year,
@@ -14,9 +18,15 @@ namespace SeventWebApplication.Models.VehicleNS
             int passengerCapacity,
             decimal luggageCapacity,
             FuelType fuelType,
-            TransmissionType transmissionType,
-            CountryCode countryCode)
-            : base(regNr, brand, model, year, horsePower, passengerCapacity, luggageCapacity, countryCode)
+            TransmissionType transmissionType)
+            : base(
+                registrationPlate,
+                brand,
+                model,
+                year,
+                horsePower,
+                passengerCapacity,
+                luggageCapacity)
         {
             FuelType = fuelType;
             TransmissionType = transmissionType;

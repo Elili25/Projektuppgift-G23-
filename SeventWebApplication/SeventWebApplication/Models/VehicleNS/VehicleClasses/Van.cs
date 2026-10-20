@@ -1,6 +1,11 @@
+
 namespace SeventWebApplication.Models.VehicleNS
 {
-    public class Van : Vehicle, IPassengerVehicle, IFuelType, IVehicleTransmissionType, ICargoVehicle
+    public class Van : Vehicle,
+        IPassengerVehicle,
+        IFuelType,
+        IVehicleTransmissionType,
+        ICargoVehicle
     {
         public FuelType FuelType { get; set; }
         public TransmissionType TransmissionType { get; set; }
@@ -8,7 +13,7 @@ namespace SeventWebApplication.Models.VehicleNS
         public double MaxPayloadKg { get; set; }
 
         public Van(
-            string regNr,
+            RegistrationPlate registrationPlate,
             string brand,
             string model,
             int year,
@@ -18,9 +23,15 @@ namespace SeventWebApplication.Models.VehicleNS
             FuelType fuelType,
             TransmissionType transmissionType,
             double cargoCapacityM3,
-            double maxPayloadKg,
-            CountryCode countryCode)
-            : base(regNr, brand, model, year, horsePower, passengerCapacity, luggageCapacity, countryCode)
+            double maxPayloadKg)
+            : base(
+                registrationPlate,
+                brand,
+                model,
+                year,
+                horsePower,
+                passengerCapacity,
+                luggageCapacity)
         {
             FuelType = fuelType;
             TransmissionType = transmissionType;

@@ -35,23 +35,47 @@ namespace SeventWebApplication.Models.VehicleNS
             double maxPayloadKg,
             CountryCode countryCode)
         {
+            // Validera indata
             _regNrValidator.ValidateRegNr(regNr);
             _brandModelValidator.ValidateBrand(brand);
             _brandModelValidator.ValidateModel(model);
             _yearValidator.ValidateYear(year);
             _horsePowerValidator.ValidateHorsePower(horsePower);
 
-            return new Van(regNr, brand, model, year, horsePower,
-                passengerCapacity, luggageCapacity, fuelType, transmissionType,
-                cargoCapacityM3, maxPayloadKg, countryCode);
+            // Skapa registreringsnummer som ett value object
+            var registrationPlate = new RegistrationPlate(regNr, countryCode);
+
+            // Skapa och returnera skåpbilen
+            return new Van(
+                registrationPlate,
+                brand,
+                model,
+                year,
+                horsePower,
+                passengerCapacity,
+                luggageCapacity,
+                fuelType,
+                transmissionType,
+                cargoCapacityM3,
+                maxPayloadKg);
         }
 
-        public Vehicle CreateElectric(Vehicle baseVehicle, int batteryCapacityKwh, int rangeKm)
+        public Vehicle CreateElectric(
+            Vehicle baseVehicle,
+            int batteryCapacityKwh,
+            int rangeKm)
         {
             if (baseVehicle is not Van van)
-                throw new ArgumentException("BaseVehicle måste vara en Van", nameof(baseVehicle));
+            {
+                throw new ArgumentException(
+                    "BaseVehicle måste vara en Van",
+                    nameof(baseVehicle));
+            }
 
-            return new ElectricVan(van, batteryCapacityKwh, rangeKm);
+            return new ElectricVan(
+                van,
+                batteryCapacityKwh,
+                rangeKm);
         }
     }
 }

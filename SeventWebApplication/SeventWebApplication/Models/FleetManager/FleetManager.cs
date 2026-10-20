@@ -19,6 +19,8 @@ public class FleetManager
 	private FleetManager(){}
 
     // Vet inte om den borde ta in en Vehicle eller delar av en Vehicle, som reg-num, typ, etc
+#if false
+
     public void AddVehicle(Vehicle vehicle)
     {
         if(vehicle.RegNr.Count() != 6 || vehicle.RegNr.Count() != 7) 
@@ -27,6 +29,8 @@ public class FleetManager
         }
         _vehicles.Add(vehicle.RegNr, vehicle);
     }
+
+#endif
 
     public IEnumerable<Vehicle> GetAvailableVehicles(DateTime startTime, DateTime endTime)
     {
@@ -47,8 +51,11 @@ public class FleetManager
     {
         foreach(var booking in _bookings)
         {
+            //Regplåtsobjekt
+#if false
             if( booking.Vehicle.RegNr != vehicle.RegNr )
                 continue;
+#endif
 
             // Checks if startDate is inside the booking
             if (startDate.CompareTo(booking.StartDate) > 0 && startDate.CompareTo(booking.EndDate) < 0)
