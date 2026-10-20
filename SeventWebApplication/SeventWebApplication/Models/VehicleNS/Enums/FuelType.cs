@@ -5,7 +5,6 @@ namespace SeventWebApplication.Models.VehicleNS
         Petrol,
         Diesel,
         Electric,
-        Hybrid,
-        Gas
+        Hybrid
     }
 }
