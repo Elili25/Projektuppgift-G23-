@@ -37,13 +37,7 @@ namespace SeventWebApplication.Models.Booking
             Addon = addon;
             PricingStrategy = pricingStrategy;
         }
- 
 
-public decimal GetTotalPrice()
-{
-    return PricingStrategy.CalculatePrice(this);
-}
-
-// Status of the booking with Clone() method
+// Clone() method
 }
 }
