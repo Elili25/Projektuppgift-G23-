@@ -9,35 +9,18 @@ namespace SeventWebApplication.Models.Booking
 {
     public class Booking
     {
-        //public Guid BookingId { get; private set; } = Guid.NewGuid();
-        // creates a unique identifier for each booking instance
-        //public vehicle vehicle { get; set; } 
 
         
-        public string BookingId { get; set; } = Guid.NewGuid().ToString();
-        public string UserId { get; set; } 
-        public Vehicle Vehicle { get; set; }
+        public Guid UserId { get; set; }
+        public Guid BookingId { get; set; }
+        public int VehicleCategoryId { get; set; }
+
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public IAddon Addon { get; set; }
-        public IPricingStrategy PricingStrategy { get; set; }
-        // Status BookingStatus
-        // Notes 
-        // ApprovedBy
+        public BookingStatus Status { get; set; } = BookingStatus.Pending;
+        public string Notes { get; set; }
 
 
-        // Add booking constructor 
-        public Booking(string bookingId, string userId, Vehicle vehicle, DateTime startDate, DateTime endDate, IAddon addon, IPricingStrategy pricingStrategy)
-        {
-            BookingId = bookingId;
-            UserId = userId;
-            Vehicle = vehicle;
-            StartDate = startDate;
-            EndDate = endDate;
-            Addon = addon;
-            PricingStrategy = pricingStrategy;
-        }
-
-// Clone() method
-}
+     
+    }
 }
