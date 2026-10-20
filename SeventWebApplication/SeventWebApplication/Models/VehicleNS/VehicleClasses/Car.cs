@@ -1,28 +1,25 @@
-namespace SeventWebApplication.Models.VehicleNs
+namespace SeventWebApplication.Models.VehicleNS
 {
     public class Car : Vehicle, IPassengerVehicle, IFuelType, IVehicleTransmissionType
     {
-        public int PassengerCapacity { get; set; }
         public FuelType FuelType { get; set; }
-        public TransmissionType TransmissionType { get; set; } 
-        public Car
-            (
-            string regNr, 
-            string brand, 
-            string model, 
-            int year, 
-            int horsePower,         
-            int passengerCapacity, 
+        public TransmissionType TransmissionType { get; set; }
+
+        public Car(
+            string regNr,
+            string brand,
+            string model,
+            int year,
+            int horsePower,
+            int passengerCapacity,
+            decimal luggageCapacity,
             FuelType fuelType,
-            TransmissionType transmissionType
-            )
-            :base(regNr, brand, model, year, horsePower)
-
+            TransmissionType transmissionType,
+            CountryCode countryCode)
+            : base(regNr, brand, model, year, horsePower, passengerCapacity, luggageCapacity, countryCode)
         {
-            PassengerCapacity = passengerCapacity;
-            FuelType = fuelType;                          
-            TransmissionType = transmissionType;           
+            FuelType = fuelType;
+            TransmissionType = transmissionType;
         }
-
     }
 }

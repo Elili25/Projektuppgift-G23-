@@ -1,5 +1,5 @@
 ﻿using SeventWebApplication.Models.Booking;
-using SeventWebApplication.Models.VehicleNs;
+using SeventWebApplication.Models.VehicleNS;
 using System;
 
 public class FleetManager

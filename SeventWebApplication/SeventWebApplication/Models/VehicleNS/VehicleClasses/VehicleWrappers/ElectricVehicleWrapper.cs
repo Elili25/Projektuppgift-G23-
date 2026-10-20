@@ -1,4 +1,6 @@
-namespace SeventWebApplication.Models.VehicleNs
+using SeventWebApplication.Models.VehicleNS;
+
+namespace SeventWebApplication.Models.VehicleNS
 {
     public abstract class ElectricVehicleWrapper : Vehicle, IElectricVehicle
     {
@@ -7,7 +9,15 @@ namespace SeventWebApplication.Models.VehicleNs
         public double BatteryLevelPct { get; set; }
 
         protected ElectricVehicleWrapper(Vehicle vehicle, int kwh, int rangeKm)
-            : base(vehicle.RegNr, vehicle.Brand, vehicle.Model, vehicle.Year, vehicle.HorsePower)
+        : base(
+         vehicle.RegNr,
+         vehicle.Brand,
+         vehicle.Model,
+         vehicle.Year,
+         vehicle.HorsePower,
+         vehicle.PassengerCapacity,
+         vehicle.LuggageCapacity,
+         vehicle.CountryCode)
         {
             BatteryCapacityKwh = kwh;
             RangeKm = rangeKm;

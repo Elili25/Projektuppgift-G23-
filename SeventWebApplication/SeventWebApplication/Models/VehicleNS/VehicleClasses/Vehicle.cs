@@ -1,4 +1,7 @@
-namespace SeventWebApplication.Models.VehicleNs
+using SeventWebApplication.Models.VehicleNS;
+
+namespace SeventWebApplication.Models.VehicleNS
+
 {
     public abstract class Vehicle
     {
@@ -9,10 +12,19 @@ namespace SeventWebApplication.Models.VehicleNs
         public int Year { get; set; }
         public int HorsePower { get; set; }
         public int PassengerCapacity { get; set; }
-        public decimal luggagecapacity { get; set; }    
+        public decimal LuggageCapacity { get; set; }
         public bool IsAvailable { get; set; } = true;
+        public CountryCode CountryCode { get; set; }
 
-        protected Vehicle(string regNr, string brand, string model, int year, int horsePower, int passengerCapacity, decimal luggagecapacity)
+        protected Vehicle(
+            string regNr,
+            string brand,
+            string model,
+            int year,
+            int horsePower,
+            int passengerCapacity,
+            decimal luggageCapacity,
+            CountryCode countryCode)
         {
             if (string.IsNullOrWhiteSpace(regNr))
                 throw new ArgumentException("RegNr cannot be empty.");
@@ -20,7 +32,7 @@ namespace SeventWebApplication.Models.VehicleNs
                 throw new ArgumentException("Brand cannot be empty.");
             if (string.IsNullOrWhiteSpace(model))
                 throw new ArgumentException("Model cannot be empty.");
-            if (year < 1900 || year > DateTime.Now.Year + 1)
+            if (year < 1886 || year > DateTime.Now.Year)
                 throw new ArgumentException("Invalid year.");
             if (horsePower <= 0)
                 throw new ArgumentException("HorsePower must be positive.");
@@ -32,9 +44,8 @@ namespace SeventWebApplication.Models.VehicleNs
             Year = year;
             HorsePower = horsePower;
             PassengerCapacity = passengerCapacity;
-            this.luggagecapacity = luggagecapacity;
+            LuggageCapacity = luggageCapacity;
+            CountryCode = countryCode;
         }
-
-
     }
 }
