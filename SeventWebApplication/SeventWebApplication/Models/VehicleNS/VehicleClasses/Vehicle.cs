@@ -26,16 +26,7 @@ namespace SeventWebApplication.Models.VehicleNS
             decimal luggageCapacity,
             CountryCode countryCode)
         {
-            if (string.IsNullOrWhiteSpace(regNr))
-                throw new ArgumentException("RegNr cannot be empty.");
-            if (string.IsNullOrWhiteSpace(brand))
-                throw new ArgumentException("Brand cannot be empty.");
-            if (string.IsNullOrWhiteSpace(model))
-                throw new ArgumentException("Model cannot be empty.");
-            if (year < 1886 || year > DateTime.Now.Year)
-                throw new ArgumentException("Invalid year.");
-            if (horsePower <= 0)
-                throw new ArgumentException("HorsePower must be positive.");
+
 
             Id = Guid.NewGuid();
             RegNr = regNr;

@@ -1,4 +1,4 @@
 ﻿namespace SeventWebApplication.Models.VehicleNS
 {
-    public enum VehicleType { Car, Van, Motorcycle }
+    public enum VehicleType { Car, Van }
 }
