@@ -1,4 +1,3 @@
-
 namespace SeventWebApplication.Models.VehicleNS
 {
     public abstract class ElectricVehicleWrapper : Vehicle, IElectricVehicle

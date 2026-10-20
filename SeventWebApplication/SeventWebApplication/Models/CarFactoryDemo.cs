@@ -19,7 +19,7 @@ namespace SeventWebApplication.Demo
         }
 
         public Car CreateCar(
-            string regNr, string brand, string model,
+            string regNr, VehicleBrand brand, string model,
             int year, int horsePower,
             int passengerCapacity, decimal luggageCapacity,
             FuelType fuelType, TransmissionType transmissionType,
@@ -35,7 +35,7 @@ namespace SeventWebApplication.Demo
         }
 
         public ElectricCar CreateElectricCar(
-            string regNr, string brand, string model,
+            string regNr, VehicleBrand brand, string model,
             int year, int horsePower,
             int passengerCapacity, decimal luggageCapacity,
             FuelType fuelType, TransmissionType transmissionType,

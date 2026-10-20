@@ -9,17 +9,17 @@ namespace SeventWebApplication.Models.VehicleNS
 
         public RegistrationPlate RegistrationPlate { get; private set; }
 
-        public string Brand { get; set; }
-        public string Model { get; set; }
-        public int Year { get; set; }
-        public int HorsePower { get; set; }
-        public int PassengerCapacity { get; set; }
-        public decimal LuggageCapacity { get; set; }
+        public VehicleBrand Brand { get; private set; }
+        public string Model { get; private set; }
+        public int Year { get; private set; }
+        public int HorsePower { get; private set; }
+        public int PassengerCapacity { get; private set; }
+        public decimal LuggageCapacity { get; private set; }
         public bool IsAvailable { get; set; } = true;
 
         protected Vehicle(
             RegistrationPlate registrationPlate,
-            string brand,
+            VehicleBrand brand,
             string model,
             int year,
             int horsePower,
@@ -32,7 +32,9 @@ namespace SeventWebApplication.Models.VehicleNS
                 ?? throw new ArgumentNullException(
                     nameof(registrationPlate));
 
-            Brand = brand;
+            Brand = brand
+                ?? throw new ArgumentNullException(nameof(brand));
+
             Model = model;
             Year = year;
             HorsePower = horsePower;

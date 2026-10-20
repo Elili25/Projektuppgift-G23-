@@ -1,4 +1,3 @@
-
 namespace SeventWebApplication.Models.VehicleNS
 {
     public class Van : Vehicle,
@@ -14,7 +13,7 @@ namespace SeventWebApplication.Models.VehicleNS
 
         public Van(
             RegistrationPlate registrationPlate,
-            string brand,
+            VehicleBrand brand,
             string model,
             int year,
             int horsePower,
