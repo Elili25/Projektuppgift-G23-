@@ -8,9 +8,11 @@ namespace SeventWebApplication.Models.VehicleNs
         public string Model { get; set; }
         public int Year { get; set; }
         public int HorsePower { get; set; }
+        public int PassengerCapacity { get; set; }
+        public decimal luggagecapacity { get; set; }    
         public bool IsAvailable { get; set; } = true;
 
-        protected Vehicle(string regNr, string brand, string model, int year, int horsePower)
+        protected Vehicle(string regNr, string brand, string model, int year, int horsePower, int passengerCapacity, decimal luggagecapacity)
         {
             if (string.IsNullOrWhiteSpace(regNr))
                 throw new ArgumentException("RegNr cannot be empty.");
@@ -29,6 +31,8 @@ namespace SeventWebApplication.Models.VehicleNs
             Model = model;
             Year = year;
             HorsePower = horsePower;
+            PassengerCapacity = passengerCapacity;
+            this.luggagecapacity = luggagecapacity;
         }
 
 
