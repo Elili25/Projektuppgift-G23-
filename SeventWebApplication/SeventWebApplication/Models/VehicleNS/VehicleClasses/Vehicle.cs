@@ -7,11 +7,7 @@ namespace SeventWebApplication.Models.VehicleNS
     {
         public Guid Id { get; private set; }
 
-        public RegistrationPlate RegistrationPlate
-        {
-            get;
-            private set;
-        }
+        public RegistrationPlate RegistrationPlate { get; private set; }
 
         public string Brand { get; set; }
         public string Model { get; set; }
