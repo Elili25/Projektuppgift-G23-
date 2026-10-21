@@ -2,18 +2,17 @@
 
 public class PriceCatalog
 {
-    private readonly Dictionary<PriceClass, decimal> _baseHourRates = new()
+    private readonly Dictionary<PriceClass, decimal> _baseDayRates = new()
     {
-        [PriceClass.Economy] = 55m,
-        [PriceClass.Standard] = 70m,
-        [PriceClass.Premium] = 95m,
-        [PriceClass.Van] = 110m,
-        [PriceClass.largeVan] = 130m
+        [PriceClass.Economy] = 450m,
+        [PriceClass.Standard] = 650m,
+        [PriceClass.Premium] = 800m,
+        [PriceClass.Luxury] = 1200m,
     };
 
-    public void SetBaseHourRate(PriceClass category, decimal newPrice)
+    public void SetBaseDayRate(PriceClass category, decimal newPrice)
     {
-        if (!_baseHourRates.ContainsKey(category))
+        if (!_baseDayRates.ContainsKey(category))
         {
             throw new KeyNotFoundException("Invalid category");
         }
@@ -23,12 +22,12 @@ public class PriceCatalog
             throw new ArgumentOutOfRangeException(nameof(newPrice), "Price cannot be negative");
         }
 
-        _baseHourRates[category] = newPrice;
+        _baseDayRates[category] = newPrice;
     }
 
-    public decimal GetBaseHourRate(PriceClass category)
+    public decimal GetBaseDayRate(PriceClass category)
     {
-        if (_baseHourRates.TryGetValue(category, out decimal categoryHourlyRate))
+        if (_baseDayRates.TryGetValue(category, out decimal categoryHourlyRate))
         {
             return categoryHourlyRate;
         }

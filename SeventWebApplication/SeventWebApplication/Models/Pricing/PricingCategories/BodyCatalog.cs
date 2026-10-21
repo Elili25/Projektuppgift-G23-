@@ -7,7 +7,8 @@ public class BodyCatalog
         [CarBodyType.Compact] = 0.9m,
         [CarBodyType.Sedan] = 1m,
         [CarBodyType.Estate] = 1.05m,
-        [CarBodyType.SUV] = 1.10m
+        [CarBodyType.SUV] = 1.10m,
+        [CarBodyType.Van] = 2m
     };
 
     public void SetBodyTypeRate(CarBodyType category, decimal newRate)
