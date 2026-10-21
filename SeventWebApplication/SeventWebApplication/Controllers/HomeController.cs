@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SeventWebApplication.Models;
-using SeventWebApplication.Models.VehicleNs;
+using SeventWebApplication.Models.VehicleNS;
 using System.Diagnostics;
 using System.Reflection.Metadata;
 
