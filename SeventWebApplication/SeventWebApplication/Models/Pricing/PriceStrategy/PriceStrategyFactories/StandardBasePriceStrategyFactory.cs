@@ -1,6 +1,13 @@
 ﻿using System;
+using SeventWebApplication.Models.Pricing.PriceStrategy;
 
-public class StandardBasePriceStrategyFactory : BasePriceStrategyFactory
+namespace SeventWebApplication.Models.Pricing.PriceStrategy.PriceStrategyFactories
 {
-    protected override IBasePriceStrategy ChoiceOfStrategy() => new StandardBasePriceStrategy();
+
+
+    public class StandardBasePriceStrategyFactory : BasePriceStrategyFactory
+{
+    protected override IBasePriceStrategy CreatePriceStrategy() => new StandardBasePriceStrategy();
 }
+
+} 

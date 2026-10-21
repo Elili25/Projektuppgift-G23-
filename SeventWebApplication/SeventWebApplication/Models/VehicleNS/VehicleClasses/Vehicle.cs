@@ -1,36 +1,55 @@
-namespace SeventWebApplication.Models.VehicleNs
+namespace SeventWebApplication.Models.VehicleNS
 {
     public abstract class Vehicle
     {
         public Guid Id { get; private set; }
-        public string RegNr { get; set; }
-        public string Brand { get; set; }
-        public string Model { get; set; }
-        public int Year { get; set; }
-        public int HorsePower { get; set; }
+
+        public RegistrationPlate RegistrationPlate { get; private set; }
+
+        public VehicleModel Model { get; private set; }
+
+        public VehicleCategoryType VehicleCategoryType { get; private set; }
+
+        public int Year { get; private set; }
+        public int HorsePower { get; private set; }
+        public int PassengerCapacity { get; private set; }
+        public decimal LuggageCapacity { get; private set; }
+
         public bool IsAvailable { get; set; } = true;
 
-        protected Vehicle(string regNr, string brand, string model, int year, int horsePower)
+        protected Vehicle(
+            RegistrationPlate registrationPlate,
+            VehicleModel model,
+            VehicleCategoryType vehicleCategoryType,
+            int year,
+            int horsePower,
+            int passengerCapacity,
+            decimal luggageCapacity)
         {
-            if (string.IsNullOrWhiteSpace(regNr))
-                throw new ArgumentException("RegNr cannot be empty.");
-            if (string.IsNullOrWhiteSpace(brand))
-                throw new ArgumentException("Brand cannot be empty.");
-            if (string.IsNullOrWhiteSpace(model))
-                throw new ArgumentException("Model cannot be empty.");
-            if (year < 1900 || year > DateTime.Now.Year + 1)
-                throw new ArgumentException("Invalid year.");
-            if (horsePower <= 0)
-                throw new ArgumentException("HorsePower must be positive.");
-
             Id = Guid.NewGuid();
-            RegNr = regNr;
-            Brand = brand;
+
+            RegistrationPlate = registrationPlate
+                ?? throw new ArgumentNullException(nameof(registrationPlate));
+
+            Model = model
+                ?? throw new ArgumentNullException(nameof(model));
+
+            VehicleCategoryType = vehicleCategoryType;
+
+            Year = year;
+            HorsePower = horsePower;
+            PassengerCapacity = passengerCapacity;
+            LuggageCapacity = luggageCapacity;
+        }
+
+        protected Vehicle(RegistrationPlate registrationPlate, VehicleModel model, int year, int horsePower, int passengerCapacity, decimal luggageCapacity)
+        {
+            RegistrationPlate = registrationPlate;
             Model = model;
             Year = year;
             HorsePower = horsePower;
+            PassengerCapacity = passengerCapacity;
+            LuggageCapacity = luggageCapacity;
         }
-
-
     }
 }

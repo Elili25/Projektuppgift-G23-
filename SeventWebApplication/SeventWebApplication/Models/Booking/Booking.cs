@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;	
 using System.Linq;
-using SeventWebApplication.Models.VehicleNs;
+using SeventWebApplication.Models.VehicleNS;
 using SeventWebApplication.Models.Addon;
 
 namespace SeventWebApplication.Models.Booking

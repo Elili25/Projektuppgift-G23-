@@ -1,10 +1,10 @@
 namespace SeventWebApplication.Models.Addon
 {
-    public class StandardCar : IAddon
+    public class VehicleBase : IAddon
     {
         private readonly decimal _standardPrice;
 
-        public StandardCar(decimal standardPrice)
+        public VehicleBase(decimal standardPrice)
         {
             _standardPrice = standardPrice;
         }

@@ -12,7 +12,7 @@ public class BodyCatalog
 
     public void SetBodyTypeRate(CarBodyType category, decimal newRate)
     {
-        if (!_CarbodyTypeRates.ContainsKey(category))
+        if (!_carBodyTypeRates.ContainsKey(category))
         {
             throw new KeyNotFoundException("Invalid category");
         }
@@ -94,4 +94,4 @@ public void removePriceClass(string category)
     }
     _carBodyTypeRates.Remove(category);
 }
-}
+}*/

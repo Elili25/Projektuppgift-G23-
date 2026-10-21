@@ -9,9 +9,15 @@ namespace SeventWebApplication.Models.Addon
             _wrappedAddon = addon;
         }
 
+        public IAddon GetWrappedAddon()
+        {
+            return _wrappedAddon;
+        }
+
         public virtual decimal GetPrice()
         {
             return _wrappedAddon.GetPrice();
         }
     }
+
 }

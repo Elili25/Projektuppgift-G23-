@@ -1,46 +1,89 @@
-using SeventWebApplication.Models.VehicleNs;
 
-namespace SeventWebApplication.Models
+using SeventWebApplication.Models.VehicleNS;
+
+namespace SeventWebApplication.Demo
 {
-    // CarFactoryDemo.cs
-    namespace SeventWebApplication.Demo
+    public class CarFactoryDemo
     {
-        public class CarFactoryDemo
+        private readonly CarFactory _carFactory;
+        private readonly List<Vehicle> _createdVehicles = new();
+
+        public CarFactoryDemo()
         {
-            private readonly CarFactory _carFactory = new CarFactory();
-            private readonly List<Vehicle> _createdVehicles = new List<Vehicle>();
+            var countryValidator = RegNrValidatorFactory.Create(CountryCode.SE);
 
-            public Car CreateCar(
-                string regNr, string brand, string model,
-                int year, int horsePower, FuelType fuelType,
-                TransmissionType transmissionType, int passengerCapacity)
-            {
-                var car = (Car)_carFactory.CreateStandard(
-                    regNr, brand, model, year, horsePower,
-                    fuelType, transmissionType, passengerCapacity);
-
-                _createdVehicles.Add(car);
-                return car;
-            }
-
-            public ElectricCar CreateElectricCar(
-                string regNr, string brand, string model,
-                int year, int horsePower, FuelType fuelType,
-                TransmissionType transmissionType, int passengerCapacity,
-                int batteryCapacityKwh, int rangeKm)
-            {
-                var baseCar = _carFactory.CreateStandard(
-                    regNr, brand, model, year, horsePower,
-                    fuelType, transmissionType, passengerCapacity);
-
-                var electricCar = (ElectricCar)_carFactory.CreateElectric(
-                    baseCar, batteryCapacityKwh, rangeKm);
-
-                _createdVehicles.Add(electricCar);
-                return electricCar;
-            }
-
-            public IReadOnlyList<Vehicle> GetAllCreated() => _createdVehicles.AsReadOnly();
+            _carFactory = new CarFactory(
+                countryValidator,
+                new BrandModelValidator(),
+                new YearValidator(),
+                new HorsePowerValidator()
+            );
         }
+
+        public Car CreateCar(
+            string regNr,
+            VehicleModel model,
+            VehicleCategoryType vehicleCategoryType,
+            int year,
+            int horsePower,
+            int passengerCapacity,
+            decimal luggageCapacity,
+            FuelType fuelType,
+            TransmissionType transmissionType,
+            CountryCode countryCode)
+        {
+            var car = (Car)_carFactory.CreateStandard(
+                regNr,
+                model,
+                vehicleCategoryType,
+                year,
+                horsePower,
+                passengerCapacity,
+                luggageCapacity,
+                fuelType,
+                transmissionType,
+                countryCode);
+
+            _createdVehicles.Add(car);
+            return car;
+        }
+
+        public ElectricCar CreateElectricCar(
+            string regNr,
+            VehicleModel model,
+            VehicleCategoryType vehicleCategoryType,
+            int year,
+            int horsePower,
+            int passengerCapacity,
+            decimal luggageCapacity,
+            FuelType fuelType,
+            TransmissionType transmissionType,
+            CountryCode countryCode,
+            int batteryCapacityKwh,
+            int rangeKm)
+        {
+            var baseCar = _carFactory.CreateStandard(
+                regNr,
+                model,
+                vehicleCategoryType,
+                year,
+                horsePower,
+                passengerCapacity,
+                luggageCapacity,
+                fuelType,
+                transmissionType,
+                countryCode);
+
+            var electricCar = (ElectricCar)_carFactory.CreateElectric(
+                baseCar,
+                batteryCapacityKwh,
+                rangeKm);
+
+            _createdVehicles.Add(electricCar);
+            return electricCar;
+        }
+
+        public IReadOnlyList<Vehicle> GetAllCreated()
+            => _createdVehicles.AsReadOnly();
     }
 }
