@@ -11,8 +11,9 @@ namespace SeventWebApplication.Models.VehicleNS
 
         public VehicleBrand Brand { get; private set; }
         public string Model { get; private set; }
+        public VehicleCategoryType VehicleCategoryType { get; set; }
         public int Year { get; private set; }
-        public int HorsePower { get; private set; }
+        public int HorsePower { get; private set; } 
         public int PassengerCapacity { get; private set; }
         public decimal LuggageCapacity { get; private set; }
         public bool IsAvailable { get; set; } = true;
@@ -20,6 +21,7 @@ namespace SeventWebApplication.Models.VehicleNS
         protected Vehicle(
             RegistrationPlate registrationPlate,
             VehicleBrand brand,
+            VehicleCategoryType vehicleCategoryType,
             string model,
             int year,
             int horsePower,
@@ -35,6 +37,19 @@ namespace SeventWebApplication.Models.VehicleNS
             Brand = brand
                 ?? throw new ArgumentNullException(nameof(brand));
 
+            VehicleCategoryType = vehicleCategoryType;
+
+            Model = model;
+            Year = year;
+            HorsePower = horsePower;
+            PassengerCapacity = passengerCapacity;
+            LuggageCapacity = luggageCapacity;
+        }
+
+        protected Vehicle(RegistrationPlate registrationPlate, VehicleBrand brand, string model, int year, int horsePower, int passengerCapacity, decimal luggageCapacity)
+        {
+            RegistrationPlate = registrationPlate;
+            Brand = brand;
             Model = model;
             Year = year;
             HorsePower = horsePower;

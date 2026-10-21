@@ -3,21 +3,11 @@
     public class VehicleCategory : IVehicleCategory
     {
         public Guid CategoryId { get; private set; }
-        public string Name { get; private set; }
-        public decimal DailyRate { get; private set; }
 
-        public VehicleCategory(string name, decimal dailyRate)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException(nameof(name));
 
-            if (dailyRate < 0)
-                throw new ArgumentOutOfRangeException(nameof(dailyRate));
+        VehicleComfortType VehicleComfortType { get; set; }
 
-            CategoryId = Guid.NewGuid();
-            Name = name;
-            DailyRate = dailyRate;
-        }
+        public string CategoryName => $"{VehicleComfortType}";
 
         public bool Matches(Vehicle vehicle)
         {

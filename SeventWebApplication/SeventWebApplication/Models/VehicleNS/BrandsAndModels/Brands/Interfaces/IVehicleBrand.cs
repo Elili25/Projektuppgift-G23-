@@ -2,7 +2,7 @@
 {
     public interface IVehicleBrand
     {
-        Guid Id { get; }
-        string Name { get; }
+        Guid BrandId { get; }
+        string BrandName { get; }
     }
 }

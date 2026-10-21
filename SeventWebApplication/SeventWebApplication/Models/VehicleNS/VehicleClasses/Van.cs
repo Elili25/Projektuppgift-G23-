@@ -15,6 +15,7 @@ namespace SeventWebApplication.Models.VehicleNS
             RegistrationPlate registrationPlate,
             VehicleBrand brand,
             string model,
+            VehicleCategoryType vehicleCategoryType,
             int year,
             int horsePower,
             int passengerCapacity,
@@ -32,6 +33,7 @@ namespace SeventWebApplication.Models.VehicleNS
                 passengerCapacity,
                 luggageCapacity)
         {
+            VehicleCategoryType = vehicleCategoryType;
             FuelType = fuelType;
             TransmissionType = transmissionType;
             CargoCapacityM3 = cargoCapacityM3;

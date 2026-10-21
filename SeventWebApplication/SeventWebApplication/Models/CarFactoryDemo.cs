@@ -19,14 +19,20 @@ namespace SeventWebApplication.Demo
         }
 
         public Car CreateCar(
-            string regNr, VehicleBrand brand, string model,
-            int year, int horsePower,
-            int passengerCapacity, decimal luggageCapacity,
-            FuelType fuelType, TransmissionType transmissionType,
+            string regNr, 
+            VehicleBrand brand, 
+            string model,
+            VehicleCategoryType vehicleCategoryType,
+            int year, 
+            int horsePower,
+            int passengerCapacity, 
+            decimal luggageCapacity,
+            FuelType fuelType, 
+            TransmissionType transmissionType,
             CountryCode countryCode)
         {
             var car = (Car)_carFactory.CreateStandard(
-                regNr, brand, model, year, horsePower,
+                regNr, brand, model, vehicleCategoryType, year, horsePower,
                 passengerCapacity, luggageCapacity,
                 fuelType, transmissionType, countryCode);
 
@@ -35,7 +41,7 @@ namespace SeventWebApplication.Demo
         }
 
         public ElectricCar CreateElectricCar(
-            string regNr, VehicleBrand brand, string model,
+            string regNr, VehicleBrand brand, string model, VehicleCategoryType vehicleCategoryType,
             int year, int horsePower,
             int passengerCapacity, decimal luggageCapacity,
             FuelType fuelType, TransmissionType transmissionType,
@@ -43,7 +49,7 @@ namespace SeventWebApplication.Demo
             int batteryCapacityKwh, int rangeKm)
         {
             var baseCar = _carFactory.CreateStandard(
-                regNr, brand, model, year, horsePower,
+                regNr, brand, model, vehicleCategoryType, year, horsePower,
                 passengerCapacity, luggageCapacity,
                 fuelType, transmissionType, countryCode);
 

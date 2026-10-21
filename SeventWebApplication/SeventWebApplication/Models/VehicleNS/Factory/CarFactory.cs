@@ -23,6 +23,7 @@ namespace SeventWebApplication.Models.VehicleNS
             string regNr,
             VehicleBrand brand,
             string model,
+            VehicleCategoryType vehicleCategoryType,
             int year,
             int horsePower,
             int passengerCapacity,
@@ -32,7 +33,7 @@ namespace SeventWebApplication.Models.VehicleNS
             CountryCode countryCode)
         {
             _regNrValidator.ValidateRegNr(regNr);
-            _brandModelValidator.ValidateBrand(brand.Name);
+            _brandModelValidator.ValidateBrand(brand.BrandName);
             _brandModelValidator.ValidateModel(model);
             _yearValidator.ValidateYear(year);
             _horsePowerValidator.ValidateHorsePower(horsePower);
@@ -45,6 +46,7 @@ namespace SeventWebApplication.Models.VehicleNS
                 registrationPlate,
                 brand,
                 model,
+                vehicleCategoryType,
                 year,
                 horsePower,
                 passengerCapacity,
