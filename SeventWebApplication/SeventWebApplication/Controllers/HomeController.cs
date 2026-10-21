@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Mvc;
 using SeventWebApplication.Models;
 using SeventWebApplication.Models.VehicleNS;
@@ -10,6 +11,9 @@ namespace SeventWebApplication.Controllers
     {
         public IActionResult Index()
         {
+            // TESTDATA: Lägg till dummybilen.
+            FleetManager.instance.SeedTestVehicle();
+
             return View();
         }
 
@@ -17,6 +21,7 @@ namespace SeventWebApplication.Controllers
         {
             return View();
         }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
@@ -26,32 +31,51 @@ namespace SeventWebApplication.Controllers
 
         [HttpGet]
         //[HttpPost]
-        public IActionResult Search( string query )
+        public IActionResult Search(string query)
         {
+            // GAMMAL KOD – kommenterad eftersom FindVehiclesFromRequest()
+            // inte finns i FleetManager.
 
-            var result = FleetManager.instance.FindVehiclesFromRequest( Request );
+            /*
+            var result = FleetManager.instance.FindVehiclesFromRequest(Request);
 
+            var searchResults = result
+                .Select(vehicle => new VehicleSearchResult(vehicle))
+                .ToList();
 
-            Console.WriteLine( result );
-            Console.WriteLine( ((List<VehicleSearchResult>)Json( result ).Value)[0] );
+            return Json(searchResults);
+            */
 
-            return new JsonResult(result.ToList());
+            // NY KOD – använder FindVehicles(string query) i FleetManager.
+            var result = FleetManager.instance.FindVehicles(query);
+
+            var searchResults = result
+                .Select(vehicle => new VehicleSearchResult(vehicle))
+                .ToList();
+
+            return Json(searchResults);
         }
 
     }
+
+
     public record VehicleSearchResult
     {
-        public VehicleSearchResult(string brand, string model )
+        public VehicleSearchResult(string brand, string model)
         {
-            this.brand = brand;
-            this.model = model;
+            Brand = brand;
+            Model = model;
         }
+
         public VehicleSearchResult(Vehicle vehicle)
         {
-            brand = vehicle.Brand;
-            model = vehicle.Model;
+            Brand = vehicle.Model.Brand.BrandName;
+            Model = vehicle.Model.ModelName;
         }
-        public string brand;
-        public string model;
+
+        // ÄNDRING: Egenskaper i stället för publika fält,
+        // så att JSON-serialiseringen inkluderar värdena.
+        public string Brand { get; init; }
+        public string Model { get; init; }
     }
 }

@@ -438,7 +438,7 @@
                                                                         }
                                                                     </style>
 
-    <!-- Logo -->
+                                                                    <!-- Logo -->
                                                                     <div class="sevent-widget">
 
                                                                     <!-- Search card -->
@@ -655,25 +655,23 @@
                                                                             if (!queryStr)
                                                                                 return;
                                                                             
-                                                                            console.log(`Query: ${queryStr}`);
+Console.log(`Query: ${queryStr}`);
 
-                                                                            var res;
-                                                                            var resJson;
-                                                                            await fetch(`/Home/Search?${queryStr}`)
-                                                                                .then(response => {
-                                                                                    res = response;
-                                                                                    resJson = res.json();
-                                                                                    console.log(res);
-                                                                                    console.log(resJson);
-                                                                                    console.log(JSON.stringify(resJson));
-                                                                                    console.log(JSON.stringify(res));
-
-                                                                                });
-
+var res;
+var resJson;
                                                                             
-                                                                            if (!res.ok) {
-                                                                                throw new Error(`HTTP error: ${response.status}`);
-                                                                            }
+const res = await fetch(`/Home/Search?query=${encodeURIComponent("Volvo")}`);
+
+if (!res.ok) {
+    throw new Error(`HTTP error: ${res.status}`);
+}
+
+const resJson = await res.json();
+
+console.log("Response:", res);
+console.log("JSON-data:", resJson);
+console.log("JSON som text:", JSON.stringify(resJson));
+
                                                                             
                                                                             // Ger tillbaks ett tomt object?
                                                                             //const vehicles = await res.json();
