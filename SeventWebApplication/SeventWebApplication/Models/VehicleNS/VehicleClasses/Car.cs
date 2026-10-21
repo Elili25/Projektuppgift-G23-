@@ -10,7 +10,6 @@ namespace SeventWebApplication.Models.VehicleNS
 
         public Car(
             RegistrationPlate registrationPlate,
-            VehicleBrand brand,
             VehicleModel model,
             VehicleCategoryType vehicleCategoryType,
             int year,
@@ -21,14 +20,13 @@ namespace SeventWebApplication.Models.VehicleNS
             TransmissionType transmissionType)
             : base(
                 registrationPlate,
-                brand,
                 model,
+                vehicleCategoryType,
                 year,
                 horsePower,
                 passengerCapacity,
                 luggageCapacity)
         {
-            VehicleCategoryType = vehicleCategoryType;
             FuelType = fuelType;
             TransmissionType = transmissionType;
         }

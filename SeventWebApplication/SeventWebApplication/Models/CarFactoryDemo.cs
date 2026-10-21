@@ -1,3 +1,4 @@
+
 using SeventWebApplication.Models.VehicleNS;
 
 namespace SeventWebApplication.Demo
@@ -10,6 +11,7 @@ namespace SeventWebApplication.Demo
         public CarFactoryDemo()
         {
             var countryValidator = RegNrValidatorFactory.Create(CountryCode.SE);
+
             _carFactory = new CarFactory(
                 countryValidator,
                 new BrandModelValidator(),
@@ -19,47 +21,69 @@ namespace SeventWebApplication.Demo
         }
 
         public Car CreateCar(
-            string regNr, 
-            VehicleBrand brand, 
+            string regNr,
             VehicleModel model,
             VehicleCategoryType vehicleCategoryType,
-            int year, 
+            int year,
             int horsePower,
-            int passengerCapacity, 
+            int passengerCapacity,
             decimal luggageCapacity,
-            FuelType fuelType, 
+            FuelType fuelType,
             TransmissionType transmissionType,
             CountryCode countryCode)
         {
             var car = (Car)_carFactory.CreateStandard(
-                regNr, brand, model, vehicleCategoryType, year, horsePower,
-                passengerCapacity, luggageCapacity,
-                fuelType, transmissionType, countryCode);
+                regNr,
+                model,
+                vehicleCategoryType,
+                year,
+                horsePower,
+                passengerCapacity,
+                luggageCapacity,
+                fuelType,
+                transmissionType,
+                countryCode);
 
             _createdVehicles.Add(car);
             return car;
         }
 
         public ElectricCar CreateElectricCar(
-            string regNr, VehicleBrand brand, VehicleModel model, VehicleCategoryType vehicleCategoryType,
-            int year, int horsePower,
-            int passengerCapacity, decimal luggageCapacity,
-            FuelType fuelType, TransmissionType transmissionType,
+            string regNr,
+            VehicleModel model,
+            VehicleCategoryType vehicleCategoryType,
+            int year,
+            int horsePower,
+            int passengerCapacity,
+            decimal luggageCapacity,
+            FuelType fuelType,
+            TransmissionType transmissionType,
             CountryCode countryCode,
-            int batteryCapacityKwh, int rangeKm)
+            int batteryCapacityKwh,
+            int rangeKm)
         {
             var baseCar = _carFactory.CreateStandard(
-                regNr, brand, model, vehicleCategoryType, year, horsePower,
-                passengerCapacity, luggageCapacity,
-                fuelType, transmissionType, countryCode);
+                regNr,
+                model,
+                vehicleCategoryType,
+                year,
+                horsePower,
+                passengerCapacity,
+                luggageCapacity,
+                fuelType,
+                transmissionType,
+                countryCode);
 
             var electricCar = (ElectricCar)_carFactory.CreateElectric(
-                baseCar, batteryCapacityKwh, rangeKm);
+                baseCar,
+                batteryCapacityKwh,
+                rangeKm);
 
             _createdVehicles.Add(electricCar);
             return electricCar;
         }
 
-        public IReadOnlyList<Vehicle> GetAllCreated() => _createdVehicles.AsReadOnly();
+        public IReadOnlyList<Vehicle> GetAllCreated()
+            => _createdVehicles.AsReadOnly();
     }
 }

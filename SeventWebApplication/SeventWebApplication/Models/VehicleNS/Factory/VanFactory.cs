@@ -23,7 +23,6 @@ namespace SeventWebApplication.Models.VehicleNS
 
         public Vehicle CreateStandard(
             string regNr,
-            VehicleBrand brand,
             VehicleModel model,
             VehicleCategoryType vehicleCategoryType,
             int year,
@@ -38,7 +37,7 @@ namespace SeventWebApplication.Models.VehicleNS
         {
             // Validera indata
             _regNrValidator.ValidateRegNr(regNr);
-            _brandModelValidator.ValidateBrand(brand.BrandName);
+            _brandModelValidator.ValidateBrand(model.Brand.BrandName);
             _brandModelValidator.ValidateModel(model.ModelName);
             _yearValidator.ValidateYear(year);
             _horsePowerValidator.ValidateHorsePower(horsePower);
@@ -49,7 +48,6 @@ namespace SeventWebApplication.Models.VehicleNS
             // Skapa och returnera skåpbilen
             return new Van(
                 registrationPlate,
-                brand,
                 model,
                 vehicleCategoryType,
                 year,

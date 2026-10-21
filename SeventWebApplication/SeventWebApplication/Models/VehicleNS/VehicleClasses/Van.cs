@@ -13,7 +13,6 @@ namespace SeventWebApplication.Models.VehicleNS
 
         public Van(
             RegistrationPlate registrationPlate,
-            VehicleBrand brand,
             VehicleModel model,
             VehicleCategoryType vehicleCategoryType,
             int year,
@@ -26,14 +25,13 @@ namespace SeventWebApplication.Models.VehicleNS
             double maxPayloadKg)
             : base(
                 registrationPlate,
-                brand,
                 model,
+                vehicleCategoryType,
                 year,
                 horsePower,
                 passengerCapacity,
                 luggageCapacity)
         {
-            VehicleCategoryType = vehicleCategoryType;
             FuelType = fuelType;
             TransmissionType = transmissionType;
             CargoCapacityM3 = cargoCapacityM3;
