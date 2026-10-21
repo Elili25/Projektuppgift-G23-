@@ -4,6 +4,9 @@ namespace SeventWebApplication.Models.Addon
     {
         private readonly decimal _price = 300;
 
+        public decimal Price => _price;
+        //skapa public get för rabatter
+
         public ExtraDriverAddon(IAddon addon) : base(addon) { }
 
         public override decimal GetPrice()
@@ -11,4 +14,5 @@ namespace SeventWebApplication.Models.Addon
             return base.GetPrice() + _price;
         }
     }
+
 }
