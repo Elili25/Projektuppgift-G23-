@@ -1,5 +1,5 @@
 ﻿using System;
-
+namespace SeventWebApplication { 
 public abstract class BasePriceStrategyFactory 
 {
    protected abstract IPricingStrategy CreatePriceStrategy();
@@ -13,4 +13,5 @@ public class basePriceStrategyFactory //Ett simple-factory om vi vill ha en mind
         _ => new StandardPricingStrategy()
 
     };
+}
 }
