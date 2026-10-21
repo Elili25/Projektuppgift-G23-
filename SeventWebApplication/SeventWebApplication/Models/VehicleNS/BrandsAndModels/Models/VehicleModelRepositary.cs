@@ -1,4 +1,5 @@
-﻿using SeventWebApplication.Models.VehicleNS;
+﻿
+using SeventWebApplication.Models.VehicleNS;
 
 namespace SeventWebApplication.Repositories
 {
@@ -16,7 +17,6 @@ namespace SeventWebApplication.Repositories
         {
             ArgumentNullException.ThrowIfNull(model);
 
-            // Kontrollera att märket finns, precis som en foreign key
             var brand = _brandRepository.GetById(model.BrandId);
 
             if (brand == null)
@@ -25,7 +25,6 @@ namespace SeventWebApplication.Repositories
                     $"Det finns inget bilmärke med ID {model.BrandId}.");
             }
 
-            // Förhindra dubbletter av modell-ID
             if (_models.Any(m => m.ModelId == model.ModelId))
             {
                 throw new InvalidOperationException(
@@ -47,9 +46,7 @@ namespace SeventWebApplication.Repositories
 
         public IEnumerable<VehicleModel> GetByBrandId(Guid brandId)
         {
-            return _models
-                .Where(m => m.BrandId == brandId)
-                .ToList();
+            return _models.Where(m => m.BrandId == brandId).ToList();
         }
 
         public void Remove(Guid modelId)
@@ -57,8 +54,43 @@ namespace SeventWebApplication.Repositories
             var model = GetById(modelId);
 
             if (model != null)
-            {
                 _models.Remove(model);
+        }
+
+        public void Seed()
+        {
+            if (_models.Count > 0)
+                return;
+
+            SeedBrandModels("Volvo", "V60", "XC60", "XC90");
+            SeedBrandModels("BMW", "3 Series", "5 Series", "X5");
+            SeedBrandModels("Audi", "A3", "A4", "Q5");
+            SeedBrandModels("Volkswagen", "Golf", "Passat", "Tiguan");
+            SeedBrandModels("Toyota", "Corolla", "Yaris", "RAV4");
+            SeedBrandModels("Mercedes-Benz", "C-Class", "E-Class", "GLC");
+        }
+
+        private void SeedBrandModels(string brandName, params string[] modelNames)
+        {
+            var brand = _brandRepository.GetAll()
+                .FirstOrDefault(b =>
+                    string.Equals(
+                        b.BrandName,
+                        brandName,
+                        StringComparison.OrdinalIgnoreCase));
+
+            if (brand == null)
+            {
+                throw new InvalidOperationException(
+                    $"Bilmärket '{brandName}' måste seedas innan modellerna.");
+            }
+
+            foreach (var modelName in modelNames)
+            {
+                var model = new VehicleModel(modelName, brand.BrandId)
+                {
+                    Brand = brand
+                };
             }
         }
     }

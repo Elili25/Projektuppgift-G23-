@@ -1,4 +1,5 @@
-﻿namespace SeventWebApplication.Models.VehicleNS
+﻿
+namespace SeventWebApplication.Models.VehicleNS
 {
     public class VehicleBrandRepository : IVehicleBrandRepository
     {
@@ -29,6 +30,19 @@
             }
 
             _brands.Add(brand);
+        }
+
+        public void Seed()
+        {
+            if (_brands.Count > 0)
+                return;
+
+            Add(new VehicleBrand("Volvo"));
+            Add(new VehicleBrand("BMW"));
+            Add(new VehicleBrand("Audi"));
+            Add(new VehicleBrand("Volkswagen"));
+            Add(new VehicleBrand("Toyota"));
+            Add(new VehicleBrand("Mercedes-Benz"));
         }
     }
 }
