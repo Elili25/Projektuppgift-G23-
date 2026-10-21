@@ -12,7 +12,6 @@ namespace SeventWebApplication.Models.VehicleNS
             int rangeKm)
             : base(
                 vehicle.RegistrationPlate,
-                vehicle.Brand,
                 vehicle.Model,
                 vehicle.Year,
                 vehicle.HorsePower,

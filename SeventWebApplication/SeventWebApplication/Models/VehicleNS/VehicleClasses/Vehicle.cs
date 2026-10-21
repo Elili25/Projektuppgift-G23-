@@ -41,5 +41,15 @@ namespace SeventWebApplication.Models.VehicleNS
             PassengerCapacity = passengerCapacity;
             LuggageCapacity = luggageCapacity;
         }
+
+        protected Vehicle(RegistrationPlate registrationPlate, VehicleModel model, int year, int horsePower, int passengerCapacity, decimal luggageCapacity)
+        {
+            RegistrationPlate = registrationPlate;
+            Model = model;
+            Year = year;
+            HorsePower = horsePower;
+            PassengerCapacity = passengerCapacity;
+            LuggageCapacity = luggageCapacity;
+        }
     }
 }
