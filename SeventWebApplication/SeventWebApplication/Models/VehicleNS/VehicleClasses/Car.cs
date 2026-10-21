@@ -11,7 +11,7 @@ namespace SeventWebApplication.Models.VehicleNS
         public Car(
             RegistrationPlate registrationPlate,
             VehicleBrand brand,
-            string model,
+            VehicleModel model,
             VehicleCategoryType vehicleCategoryType,
             int year,
             int horsePower,

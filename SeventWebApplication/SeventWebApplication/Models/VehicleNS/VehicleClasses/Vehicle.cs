@@ -10,7 +10,7 @@ namespace SeventWebApplication.Models.VehicleNS
         public RegistrationPlate RegistrationPlate { get; private set; }
 
         public VehicleBrand Brand { get; private set; }
-        public string Model { get; private set; }
+        public VehicleModel Model { get; private set; }
         public VehicleCategoryType VehicleCategoryType { get; set; }
         public int Year { get; private set; }
         public int HorsePower { get; private set; } 
@@ -21,8 +21,8 @@ namespace SeventWebApplication.Models.VehicleNS
         protected Vehicle(
             RegistrationPlate registrationPlate,
             VehicleBrand brand,
+            VehicleModel model,
             VehicleCategoryType vehicleCategoryType,
-            string model,
             int year,
             int horsePower,
             int passengerCapacity,
@@ -46,7 +46,7 @@ namespace SeventWebApplication.Models.VehicleNS
             LuggageCapacity = luggageCapacity;
         }
 
-        protected Vehicle(RegistrationPlate registrationPlate, VehicleBrand brand, string model, int year, int horsePower, int passengerCapacity, decimal luggageCapacity)
+        protected Vehicle(RegistrationPlate registrationPlate, VehicleBrand brand, VehicleModel model, int year, int horsePower, int passengerCapacity, decimal luggageCapacity)
         {
             RegistrationPlate = registrationPlate;
             Brand = brand;

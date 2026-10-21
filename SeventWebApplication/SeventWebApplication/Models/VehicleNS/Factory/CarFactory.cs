@@ -22,7 +22,7 @@ namespace SeventWebApplication.Models.VehicleNS
         public Vehicle CreateStandard(
             string regNr,
             VehicleBrand brand,
-            string model,
+            VehicleModel model,
             VehicleCategoryType vehicleCategoryType,
             int year,
             int horsePower,
@@ -34,7 +34,7 @@ namespace SeventWebApplication.Models.VehicleNS
         {
             _regNrValidator.ValidateRegNr(regNr);
             _brandModelValidator.ValidateBrand(brand.BrandName);
-            _brandModelValidator.ValidateModel(model);
+            _brandModelValidator.ValidateModel(model.ModelName);
             _yearValidator.ValidateYear(year);
             _horsePowerValidator.ValidateHorsePower(horsePower);
 

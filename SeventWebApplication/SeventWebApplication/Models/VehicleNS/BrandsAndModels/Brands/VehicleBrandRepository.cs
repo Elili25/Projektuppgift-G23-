@@ -6,7 +6,7 @@
 
         public VehicleBrand? GetById(Guid id)
         {
-            return _brands.FirstOrDefault(b => b.Id == id);
+            return _brands.FirstOrDefault(b => b.BrandId == id);
         }
 
         public IEnumerable<VehicleBrand> GetAll()
@@ -20,8 +20,8 @@
 
             if (_brands.Any(b =>
                 string.Equals(
-                    b.Name,
-                    brand.Name,
+                    b.BrandName,
+                    brand.BrandName,
                     StringComparison.OrdinalIgnoreCase)))
             {
                 throw new InvalidOperationException(
