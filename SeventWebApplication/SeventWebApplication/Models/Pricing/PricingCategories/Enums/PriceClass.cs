@@ -5,6 +5,5 @@ public enum PriceClass
     Economy,
     Standard,
     Premium,
-    Van,
-    largeVan
+    Luxury
 }

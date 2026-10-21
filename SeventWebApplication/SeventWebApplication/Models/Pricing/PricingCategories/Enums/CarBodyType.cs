@@ -5,5 +5,6 @@ public enum CarBodyType
     Compact,
     Sedan,
     Estate,
-    SUV
+    SUV,
+    Van
 }
