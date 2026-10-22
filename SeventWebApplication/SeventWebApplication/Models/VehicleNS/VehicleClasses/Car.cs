@@ -1,3 +1,5 @@
+using SeventWebApplication.Models.VehicleNS.Engine;
+
 namespace SeventWebApplication.Models.VehicleNS
 {
     public class Car : Vehicle,
@@ -5,28 +7,29 @@ namespace SeventWebApplication.Models.VehicleNS
         IFuelType,
         IVehicleTransmissionType
     {
+        public PassengerCarCategoryType PassengerCarCategoryType { get; private set; } // Ändrat: private set
 
         public Car(
             RegistrationPlate registrationPlate,
             VehicleModel model,
             VehicleCategoryType vehicleCategoryType,
+            PassengerCarCategoryType passengerCarCategoryType, // Tillagt
             int year,
-            int horsePower,
             int passengerCapacity,
             decimal luggageCapacity,
-            FuelType fuelType,
+            IEngine engine, // Ändrat: ersätter horsePower och fuelType
             TransmissionType transmissionType)
             : base(
                 registrationPlate,
                 model,
                 vehicleCategoryType,
                 year,
-                horsePower,
                 passengerCapacity,
-                luggageCapacity)
+                luggageCapacity,
+                engine, // Ändrat: skickar motorn till Vehicle
+                transmissionType)
         {
-            FuelType = fuelType;
-            TransmissionType = transmissionType;
+            PassengerCarCategoryType = passengerCarCategoryType; // Tillagt
         }
     }
 }

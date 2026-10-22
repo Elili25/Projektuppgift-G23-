@@ -1,3 +1,4 @@
+
 using SeventWebApplication.Models.VehicleNS.Engine;
 
 namespace SeventWebApplication.Models.VehicleNS
@@ -14,6 +15,13 @@ namespace SeventWebApplication.Models.VehicleNS
 
         public TransmissionType TransmissionType { get; set; }
 
+        // Fordonet har en motor.
+        public IEngine Engine { get; private set; }
+
+        // Hämtar värdena från motorn i stället för att lagra dem dubbelt.
+        public int HorsePower => Engine.HorsePower;
+        public FuelType FuelType => Engine.FuelType;
+
         public int Year { get; private set; }
         public int PassengerCapacity { get; private set; }
         public decimal LuggageCapacity { get; private set; }
@@ -25,9 +33,10 @@ namespace SeventWebApplication.Models.VehicleNS
             VehicleModel model,
             VehicleCategoryType vehicleCategoryType,
             int year,
-            int horsePower,
             int passengerCapacity,
-            decimal luggageCapacity)
+            decimal luggageCapacity,
+            IEngine engine,
+            TransmissionType transmissionType)
         {
             Id = Guid.NewGuid();
 
@@ -37,22 +46,14 @@ namespace SeventWebApplication.Models.VehicleNS
             Model = model
                 ?? throw new ArgumentNullException(nameof(model));
 
+            Engine = engine
+                ?? throw new ArgumentNullException(nameof(engine));
+
             VehicleCategoryType = vehicleCategoryType;
-
             Year = year;
-            HorsePower = horsePower;
             PassengerCapacity = passengerCapacity;
             LuggageCapacity = luggageCapacity;
-        }
-
-        protected Vehicle(RegistrationPlate registrationPlate, VehicleModel model, int year, int horsePower, int passengerCapacity, decimal luggageCapacity)
-        {
-            RegistrationPlate = registrationPlate;
-            Model = model;
-            Year = year;
-            HorsePower = horsePower;
-            PassengerCapacity = passengerCapacity;
-            LuggageCapacity = luggageCapacity;
+            TransmissionType = transmissionType;
         }
     }
 }
