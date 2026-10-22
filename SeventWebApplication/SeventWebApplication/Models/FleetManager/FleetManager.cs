@@ -1,6 +1,7 @@
 ﻿
 using SeventWebApplication.Models.Booking;
 using SeventWebApplication.Models.VehicleNS;
+using SeventWebApplication.Models.VehicleNS.Engine;
 using System;
 
 public class FleetManager
@@ -105,8 +106,6 @@ public class FleetManager
     {
         var brand = new VehicleBrand("Volvo");
 
-        // ÄNDRING: VehicleModel tar emot ett Guid (BrandId),
-        // inte ett VehicleBrand-objekt.
         var model = new VehicleModel("V60", brand.BrandId)
         {
             Brand = brand
@@ -117,19 +116,21 @@ public class FleetManager
             CountryCode.SE
         );
 
+        // Skapa motorn separat
+        IEngine engine = new PetrolEngine(
+            197,  // HorsePower
+            50    // FuelCapacityLiters
+        );
+
         var vehicle = new Car(
             registrationPlate,
             model,
-
-            // ÄNDRING: Ersätt med ett värde som faktiskt finns
-            // i din VehicleCategoryType-enum.
-            VehicleCategoryType.SUV,
-
+            VehicleCategoryType.PassengerCar,
+            PassengerCarCategoryType.StationWagon,
             2024,
-            197,
             5,
-            529,
-            FuelType.Petrol,
+            529m,
+            engine,
             TransmissionType.Automatic
         );
 

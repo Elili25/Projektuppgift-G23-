@@ -2,7 +2,7 @@ using SeventWebApplication.Models.VehicleNS.Engine;
 
 namespace SeventWebApplication.Models.VehicleNS
 {
-    public class CarFactory : IElectricVehicleFactory
+    public class CarFactory : IVehicleFactory
     {
         private readonly IRegNrValidator _regNrValidator;
         private readonly IBrandModelValidator _brandModelValidator;

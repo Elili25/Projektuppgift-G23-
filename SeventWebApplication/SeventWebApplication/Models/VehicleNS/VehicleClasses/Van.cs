@@ -5,13 +5,13 @@ namespace SeventWebApplication.Models.VehicleNS
 {
     public class Van : Vehicle,
         IPassengerVehicle,
-        IFuelType,
         IVehicleTransmissionType,
         ICargoVehicle
     {
+        public double CargoCapacityM3 { get; set; }
+        public double MaxPayloadKg { get; set; }
+
         public VanCategoryType VanCategoryType { get; private set; }
-        public double CargoCapacityM3 { get; private set; }
-        public double MaxPayloadKg { get; private set; }
 
         public Van(
             RegistrationPlate registrationPlate,

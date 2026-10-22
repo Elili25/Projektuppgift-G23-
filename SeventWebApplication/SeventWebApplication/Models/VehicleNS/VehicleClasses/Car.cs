@@ -4,7 +4,6 @@ namespace SeventWebApplication.Models.VehicleNS
 {
     public class Car : Vehicle,
         IPassengerVehicle,
-        IFuelType,
         IVehicleTransmissionType
     {
         public PassengerCarCategoryType PassengerCarCategoryType { get; private set; } // Ändrat: private set

@@ -1,4 +1,3 @@
-
 using SeventWebApplication.Models.VehicleNS;
 
 namespace SeventWebApplication.Demo
@@ -24,6 +23,7 @@ namespace SeventWebApplication.Demo
             string regNr,
             VehicleModel model,
             VehicleCategoryType vehicleCategoryType,
+            PassengerCarCategoryType passengerCarCategoryType,
             int year,
             int horsePower,
             int passengerCapacity,
@@ -36,6 +36,7 @@ namespace SeventWebApplication.Demo
                 regNr,
                 model,
                 vehicleCategoryType,
+                passengerCarCategoryType,
                 year,
                 horsePower,
                 passengerCapacity,
@@ -48,36 +49,33 @@ namespace SeventWebApplication.Demo
             return car;
         }
 
-        public ElectricCar CreateElectricCar(
+        public Car CreateElectricCar(
             string regNr,
             VehicleModel model,
             VehicleCategoryType vehicleCategoryType,
+            PassengerCarCategoryType passengerCarCategoryType,
             int year,
             int horsePower,
             int passengerCapacity,
             decimal luggageCapacity,
-            FuelType fuelType,
             TransmissionType transmissionType,
             CountryCode countryCode,
             int batteryCapacityKwh,
             int rangeKm)
         {
-            var baseCar = _carFactory.CreateStandard(
+            var electricCar = (Car)_carFactory.CreateElectric(
                 regNr,
                 model,
                 vehicleCategoryType,
+                passengerCarCategoryType,
                 year,
                 horsePower,
                 passengerCapacity,
                 luggageCapacity,
-                fuelType,
+                batteryCapacityKwh,
+                rangeKm,
                 transmissionType,
                 countryCode);
-
-            var electricCar = (ElectricCar)_carFactory.CreateElectric(
-                baseCar,
-                batteryCapacityKwh,
-                rangeKm);
 
             _createdVehicles.Add(electricCar);
             return electricCar;
