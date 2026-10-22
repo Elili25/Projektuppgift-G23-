@@ -6,7 +6,6 @@
         PassengerVan,
         Minibus,
         BoxVan,
-        PickupTruck,
-        LightCommercialVehicle
+        PickupTruck
     }
 }
