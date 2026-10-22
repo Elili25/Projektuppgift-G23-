@@ -18,10 +18,6 @@ namespace SeventWebApplication.Models.VehicleNS
         // Fordonet har en motor.
         public IEngine Engine { get; private set; }
 
-        // Hämtar värdena från motorn i stället för att lagra dem dubbelt.
-        public int HorsePower => Engine.HorsePower;
-        public FuelType FuelType => Engine.FuelType;
-
         public int Year { get; private set; }
         public int PassengerCapacity { get; private set; }
         public decimal LuggageCapacity { get; private set; }
