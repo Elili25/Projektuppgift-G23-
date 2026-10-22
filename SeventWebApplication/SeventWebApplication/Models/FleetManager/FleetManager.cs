@@ -1,8 +1,10 @@
 ﻿
+using SeventWebApplication.Controllers;
 using SeventWebApplication.Models.Booking;
 using SeventWebApplication.Models.VehicleNS;
 using SeventWebApplication.Models.VehicleNS.Engine;
 using System;
+using System.Collections.ObjectModel;
 
 public class FleetManager
 {
@@ -14,7 +16,8 @@ public class FleetManager
         get { return _instance ??= new FleetManager(); }
     }
 
-    private Dictionary<string, Vehicle> _vehicles = new();// <reg-num, vehicle>
+    private Dictionary<string, Vehicle> _vehicles = new(StringComparer.OrdinalIgnoreCase);// <reg-num, vehicle>
+
     private List<Booking> _bookings = new();
 
     // Private constructor so only one instance can be created (using the instance getter)
@@ -47,6 +50,29 @@ public class FleetManager
         }
 
         return availableVehicles;
+    }
+
+    // Returns a list of Vehicles based on a query collection (probably from a HttpRequest)
+    public IEnumerable<Vehicle> FindVehiclesFromQuery( IQueryCollection query )
+    {
+        List<Vehicle> results = new();
+
+        // replace okt -> oct för att parsing ska fungera
+        string datePickup = $"{query["datePickup"].ToString().Replace( 'k', 'c' )} {query["timePickup"].ToString()}";
+        string dateReturn = $"{query["dateReturn"].ToString().Replace( 'k', 'c' )} {query["timeReturn"].ToString()}";
+
+        DateTime pickupDate = DateTime.Parse( $"2026 {datePickup}" );
+        DateTime returnDate = DateTime.Parse( $"2026 {dateReturn}" );
+
+        Console.WriteLine( pickupDate );
+        Console.WriteLine( returnDate );
+
+        foreach( Vehicle v in GetAvailableVehicles( pickupDate, returnDate ) )
+        {
+            results.Add(v);
+        }
+
+        return results;
     }
 
     // NYTT: Söker fordon utifrån bilmärke eller modell.
@@ -137,4 +163,23 @@ public class FleetManager
         _vehicles[registrationPlate.RegNr] = vehicle;
     }
 
+    public record VehicleSearchResult
+    {
+        public VehicleSearchResult( string brand, string model )
+        {
+            Brand = brand;
+            Model = model;
+        }
+
+        public VehicleSearchResult( Vehicle vehicle )
+        {
+            Brand = vehicle.Model.Brand.BrandName;
+            Model = vehicle.Model.ModelName;
+        }
+
+        // ÄNDRING: Egenskaper istället för publika fält,
+        // så att JSON-serialiseringen inkluderar värdena.
+        public string Brand { get; init; }
+        public string Model { get; init; }
+    }
 }
