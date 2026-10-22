@@ -5,8 +5,6 @@ namespace SeventWebApplication.Models.VehicleNS
         IFuelType,
         IVehicleTransmissionType
     {
-        public FuelType FuelType { get; set; }
-        public TransmissionType TransmissionType { get; set; }
 
         public Car(
             RegistrationPlate registrationPlate,

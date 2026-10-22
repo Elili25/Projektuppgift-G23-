@@ -6,8 +6,7 @@ namespace SeventWebApplication.Models.VehicleNS
         IVehicleTransmissionType,
         ICargoVehicle
     {
-        public FuelType FuelType { get; set; }
-        public TransmissionType TransmissionType { get; set; }
+
         public double CargoCapacityM3 { get; set; }
         public double MaxPayloadKg { get; set; }
 

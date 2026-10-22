@@ -1,3 +1,5 @@
+using SeventWebApplication.Models.VehicleNS.Engine;
+
 namespace SeventWebApplication.Models.VehicleNS
 {
     public abstract class Vehicle
@@ -10,8 +12,9 @@ namespace SeventWebApplication.Models.VehicleNS
 
         public VehicleCategoryType VehicleCategoryType { get; private set; }
 
+        public TransmissionType TransmissionType { get; set; }
+
         public int Year { get; private set; }
-        public int HorsePower { get; private set; }
         public int PassengerCapacity { get; private set; }
         public decimal LuggageCapacity { get; private set; }
 

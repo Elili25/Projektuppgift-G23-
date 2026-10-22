@@ -2,13 +2,8 @@
 {
     public enum VehicleCategoryType
     {
-        Sedan,
-        SUV,
-        Hatchback,
-        Coupe,
-        Van,
-        Truck,
-        Convertible
+       PassengerCar,
+       Van
 
 
     }
