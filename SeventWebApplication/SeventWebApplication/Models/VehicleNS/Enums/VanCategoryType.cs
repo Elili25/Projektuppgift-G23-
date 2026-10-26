@@ -4,8 +4,6 @@
     {
         CargoVan,
         PassengerVan,
-        Minibus,
-        BoxVan,
-        PickupTruck
+        Minibus
     }
 }
