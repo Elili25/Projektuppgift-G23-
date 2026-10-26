@@ -23,6 +23,7 @@ namespace SeventWebApplication.Demo
             string regNr,
             VehicleModel model,
             VehicleCategoryType vehicleCategoryType,
+            VehicleComfortType vehicleComfortType,
             PassengerCarCategoryType passengerCarCategoryType,
             int year,
             int horsePower,
@@ -37,6 +38,7 @@ namespace SeventWebApplication.Demo
                 model,
                 vehicleCategoryType,
                 passengerCarCategoryType,
+                vehicleComfortType, 
                 year,
                 horsePower,
                 passengerCapacity,
@@ -49,37 +51,6 @@ namespace SeventWebApplication.Demo
             return car;
         }
 
-        public Car CreateElectricCar(
-            string regNr,
-            VehicleModel model,
-            VehicleCategoryType vehicleCategoryType,
-            PassengerCarCategoryType passengerCarCategoryType,
-            int year,
-            int horsePower,
-            int passengerCapacity,
-            decimal luggageCapacity,
-            TransmissionType transmissionType,
-            CountryCode countryCode,
-            int batteryCapacityKwh,
-            int rangeKm)
-        {
-            var electricCar = (Car)_carFactory.CreateElectric(
-                regNr,
-                model,
-                vehicleCategoryType,
-                passengerCarCategoryType,
-                year,
-                horsePower,
-                passengerCapacity,
-                luggageCapacity,
-                batteryCapacityKwh,
-                rangeKm,
-                transmissionType,
-                countryCode);
-
-            _createdVehicles.Add(electricCar);
-            return electricCar;
-        }
 
         public IReadOnlyList<Vehicle> GetAllCreated()
             => _createdVehicles.AsReadOnly();

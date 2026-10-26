@@ -153,6 +153,7 @@ public class FleetManager
             model,
             VehicleCategoryType.PassengerCar,
             PassengerCarCategoryType.StationWagon,
+            VehicleComfortType.Economy,
             2024,
             5,
             529m,

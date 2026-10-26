@@ -6,13 +6,16 @@ namespace SeventWebApplication.Models.VehicleNS
         IPassengerVehicle,
         IVehicleTransmissionType
     {
+
         public PassengerCarCategoryType PassengerCarCategoryType { get; private set; } // Ändrat: private set
+        public VehicleComfortType VehicleComfortType { get; set; } // Tillagt
 
         public Car(
             RegistrationPlate registrationPlate,
             VehicleModel model,
             VehicleCategoryType vehicleCategoryType,
             PassengerCarCategoryType passengerCarCategoryType, // Tillagt
+            VehicleComfortType vehicleComfortType, // Tillagt
             int year,
             int passengerCapacity,
             decimal luggageCapacity,
@@ -28,7 +31,9 @@ namespace SeventWebApplication.Models.VehicleNS
                 engine, // Ändrat: skickar motorn till Vehicle
                 transmissionType)
         {
+
             PassengerCarCategoryType = passengerCarCategoryType; // Tillagt
+            VehicleComfortType = vehicleComfortType; // Tillagt
         }
     }
 }

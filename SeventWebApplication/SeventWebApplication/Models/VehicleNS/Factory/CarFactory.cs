@@ -26,6 +26,7 @@ namespace SeventWebApplication.Models.VehicleNS
             VehicleModel model,
             VehicleCategoryType vehicleCategoryType,
             PassengerCarCategoryType passengerCarCategoryType,
+            VehicleComfortType vehicleComfortType,
             int year,
             int horsePower,
             int passengerCapacity,
@@ -52,6 +53,7 @@ namespace SeventWebApplication.Models.VehicleNS
                 model,
                 vehicleCategoryType,
                 passengerCarCategoryType,
+                vehicleComfortType, // Tillagt
                 year,
                 passengerCapacity,
                 luggageCapacity,
@@ -64,6 +66,7 @@ namespace SeventWebApplication.Models.VehicleNS
             VehicleModel model,
             VehicleCategoryType vehicleCategoryType,
             PassengerCarCategoryType passengerCarCategoryType,
+            VehicleComfortType vehicleComfortType,
             int year,
             int horsePower,
             int passengerCapacity,
@@ -93,6 +96,7 @@ namespace SeventWebApplication.Models.VehicleNS
                 model,
                 vehicleCategoryType,
                 passengerCarCategoryType,
+                vehicleComfortType, // Tillagt
                 year,
                 passengerCapacity,
                 luggageCapacity,
