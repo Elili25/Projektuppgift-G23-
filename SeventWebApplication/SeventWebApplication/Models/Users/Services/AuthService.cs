@@ -28,7 +28,7 @@ namespace SeventWebApplication.Models.Users
         }
 
         // Registrerar man sig själv blir man alltid kund.
-        // Anställda och admins får skapas av en admin (eller finns i Seed).
+        // Anställda får skapas av en admin och som vi har det nu finns endast ett seedat admin konto.
         public Customer Register(string name, string mail, string phone, string password)
         {
             if (string.IsNullOrWhiteSpace(password) || password.Length < 8)

@@ -8,7 +8,9 @@ namespace SeventWebApplication.Models.Users
     // behöver vi inte röra den här klassen (OCP).
     public class BookingViewerService
     {
-        public IEnumerable<BookingModel> ViewBookings(IBookingViewer viewer)
+        public IEnumerable<BookingModel> ViewBookings(IBookingViewer viewer) //endast de som implementerar IBookingViewer kan
+                                                                             //anropa den här metoden, aka
+                                                                             //Admin, Employee och Customer. (ISP)
         {
             ArgumentNullException.ThrowIfNull(viewer);
 

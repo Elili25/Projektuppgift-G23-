@@ -2,7 +2,8 @@ namespace SeventWebApplication.Models.Users
 {
     // Kontohantering, bara för admins.
     // Eftersom alla metoder tar in IAccountManager går det inte att skicka in
-    // en Customer eller Employee, kompilatorn säger nej direkt.
+    // en Customer eller Employee, kompilatorn säger nej direkt. Endast de som implementerar IAccountManager
+    // kan anropa metoderna, vilket endast är Admin i detta fall. (ISP)
     public class AccountService
     {
         private readonly IUserRepository _users;
@@ -29,7 +30,7 @@ namespace SeventWebApplication.Models.Users
 
         // För att byta roll gör UserFactory ett nytt objekt av rätt klass med samma id,
         // och sen byter vi ut det gamla i repot.
-        // Bara mellan Customer och Employee, admin-kontot är förseedat och man kan inte skapa fler admin-konton, men vill vi
+        // Kan bara byta mellan Customer och Employee, admin-kontot är förseedat och man kan inte skapa fler admin-konton i detta fall, men vill vi
         // kunna göra de är de bara att lägga till Admin i AssignableRoles och ändra UserFactory.Create så den kan skapa Admin också.
         public User ChangeRole(IAccountManager actor, Guid userId, Role newRole)
         {

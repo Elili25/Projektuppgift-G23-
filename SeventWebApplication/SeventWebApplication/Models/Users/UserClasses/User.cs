@@ -37,17 +37,11 @@ namespace SeventWebApplication.Models.Users
             IsActive = isActive;
         }
 
-        // internal = det som är ~ i UML:en. Bara kod i samma projekt (alltså
-        // AccountService) kommer åt dem, så en vanlig användare kan inte inaktivera sig själv.
+        // internal = ser till att bara koden i samma projekt/assembly kan anropa metoden,
+        // vilket i detta fall är accountservice som endast admins kan anropa. (ISP, DIP)
         internal void Deactivate() => IsActive = false;
         internal void Reactivate() => IsActive = true;
 
-        // Om man vill kunna byta lösenord senare
-        internal void SetPassword(string newPassword)
-        {
-            ArgumentException.ThrowIfNullOrWhiteSpace(newPassword);
-            Password = newPassword;
-        }
 
         // Stämmer lösenordet?
         public bool CheckPassword(string password) => Password == password;
