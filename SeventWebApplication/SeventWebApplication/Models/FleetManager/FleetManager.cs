@@ -183,4 +183,14 @@ public class FleetManager
         public string Brand { get; init; }
         public string Model { get; init; }
     }
+    //för families 
+    public IEnumerable<Vehicle> GetAllVehicles()
+    {
+        return _vehicles.Values.ToList();
+    }
+
+    public Vehicle? GetVehicle(Guid id)
+    {
+        return _vehicles.Values.FirstOrDefault(vehicle => vehicle.Id == id);
+    }
 }
