@@ -1,5 +1,6 @@
 using SeventWebApplication.Models.Addon;
 using SeventWebApplication.Models.VehicleNS;
+using SeventWebApplication.Models.VehicleNS.Engine;
 using BookingModel = SeventWebApplication.Models.Booking.Booking;
 
 namespace SeventWebApplication.Models.Users
@@ -21,10 +22,10 @@ namespace SeventWebApplication.Models.Users
             var random = new Random();
             var cars = new[]
             {
-                MakeCar("Volvo", "V60", "ABC123", VehicleCategoryType.SUV, 2024, 197, FuelType.Petrol, 529),
-                MakeCar("Tesla", "Model 3", "DEF456", VehicleCategoryType.Sedan, 2023, 283, FuelType.Electric, 425),
-                MakeCar("Volkswagen", "Golf", "GLF777", VehicleCategoryType.Hatchback, 2022, 150, FuelType.Diesel, 380),
-                MakeCar("BMW", "i3", "BMW999", VehicleCategoryType.Sedan, 2022, 250, FuelType.Electric, 300)
+                MakeCar("Volvo", "V60", "ABC123", PassengerCarCategoryType.SUV, 2024, 197, FuelType.Petrol, 529m),
+                MakeCar("Tesla", "Model 3", "DEF456", PassengerCarCategoryType.Sedan, 2023, 283, FuelType.Electric, 425m),
+                MakeCar("Volkswagen", "Golf", "GLF777", PassengerCarCategoryType.Hatchback, 2022, 150, FuelType.Diesel, 380m),
+                MakeCar("BMW", "i3", "BMW999", PassengerCarCategoryType.Sedan, 2022, 250, FuelType.Electric, 300m)
             };
 
             var statuses = new[] { "Pending", "Confirmed", "Active", "Completed", "Cancelled" };
@@ -69,22 +70,37 @@ namespace SeventWebApplication.Models.Users
             return price;
         }
 
-        private static Car MakeCar(string brandName, string modelName, string regNr,
-                                   VehicleCategoryType category, int year, int horsePower,
-                                   FuelType fuel, decimal luggage)
+        private static Car MakeCar(
+            string brandName,
+            string modelName,
+            string regNr,
+            PassengerCarCategoryType passengerCarCategoryType,
+            int year,
+            int horsePower,
+            FuelType fuel,
+            decimal luggage)
         {
             var brand = new VehicleBrand(brandName);
             var model = new VehicleModel(modelName, brand.BrandId) { Brand = brand };
 
+            IEngine engine = fuel switch
+            {
+                FuelType.Petrol => new PetrolEngine(horsePower, 50),
+                FuelType.Diesel => new DieselEngine(horsePower, 50),
+                FuelType.Electric => new ElectricEngine(horsePower, 60, 350),
+                _ => throw new ArgumentOutOfRangeException(nameof(fuel), fuel, "Unsupported fuel type.")
+            };
+
             return new Car(
                 new RegistrationPlate(regNr, CountryCode.SE),
                 model,
-                category,
+                VehicleCategoryType.PassengerCar,
+                passengerCarCategoryType,
+                VehicleComfortType.Standard,
                 year,
-                horsePower,
                 5,
                 luggage,
-                fuel,
+                engine,
                 TransmissionType.Automatic);
         }
     }
