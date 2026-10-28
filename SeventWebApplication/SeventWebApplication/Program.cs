@@ -1,4 +1,5 @@
 using SeventWebApplication.Models.Users;
+using SeventWebApplication.Models.VehicleNS;
 
 namespace SeventWebApplication
 {
@@ -40,6 +41,10 @@ namespace SeventWebApplication
             // testmetod som skapar några exempelbokningar fördelade på kunderna i repot,
             // så man har nåt att kolla på under /Bookings
             ExampleBookingSeeder.Seed(app.Services.GetRequiredService<IUserRepository>());
+
+            // ---- Fordonsdelen ----
+            builder.Services.AddSingleton<VehicleRentalRecordRepository>();
+            builder.Services.AddSingleton<RentalReturnService>();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

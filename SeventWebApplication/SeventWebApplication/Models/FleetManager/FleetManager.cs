@@ -191,6 +191,6 @@ public class FleetManager
 
     public Vehicle? GetVehicle(Guid id)
     {
-        return _vehicles.Values.FirstOrDefault(vehicle => vehicle.Id == id);
+        return _vehicles.Values.FirstOrDefault(vehicle => vehicle.VehicleId == id);
     }
 }
