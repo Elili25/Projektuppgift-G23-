@@ -1,7 +1,12 @@
 ﻿using SeventWebApplication.Models.VehicleNS;
 
-namespace SeventWebApplication.Services
+namespace SeventWebApplication.Models.VehicleNS;
 {
+    // <summary>
+    // The VehicleAssignmentService class is responsible for managing the assignment of vehicles to vehicle families.
+    // It provides methods to find matching vehicles for a given vehicle family and to assign vehicles to families.
+    // </summary>
+
     public class VehicleAssignmentService
     {
         private readonly FleetManager _fleetManager;
@@ -27,13 +32,14 @@ namespace SeventWebApplication.Services
 
             return _fleetManager.GetAllVehicles()
                 .Where(vehicle => family.Matches(vehicle))
-                .Where(vehicle =>
-                    _assignmentRepository.GetFamilyId(vehicle.Id) == familyId)
+                .Where(vehicle => _assignmentRepository
+                .GetFamilyId(vehicle.Id) == familyId)
                 .ToList();
         }
         public bool AssignVehicle(Guid vehicleId, Guid familyId)
         {
             var family = _familyRepository.GetById(familyId);
+
             var vehicle = _fleetManager.GetVehicle(vehicleId);
 
             if (family == null || vehicle == null)

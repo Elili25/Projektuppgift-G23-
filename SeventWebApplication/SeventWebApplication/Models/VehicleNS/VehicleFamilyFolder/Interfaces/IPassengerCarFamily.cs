@@ -3,6 +3,7 @@
     public interface IPassengerCarFamily
     {
         VehicleComfortType ComfortType { get; }
+
         PassengerCarCategoryType CategoryType { get; }
     }
 }

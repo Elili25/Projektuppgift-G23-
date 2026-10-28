@@ -31,23 +31,29 @@
 
         public override bool Matches(Vehicle vehicle)
         {
+            // Check if the vehicle is a Van
             if (vehicle is not Van van)
                 return false;
 
+            // Check if the van matches the family criteria
             if (van.VanCategoryType != CategoryType)
                 return false;
 
+            // Check if the van matches the transmission type
             if (van.TransmissionType != TransmissionType)
                 return false;
 
+            // Check if the van meets the minimum requirements
             if (MinCargoVolumeM3.HasValue &&
                 van.CargoCapacityM3 < MinCargoVolumeM3.Value)
                 return false;
 
+            // Check if the van meets the minimum payload requirement
             if (MinPayloadKg.HasValue &&
                 van.MaxPayloadKg < MinPayloadKg.Value)
                 return false;
 
+            // Check if the van meets the minimum passenger capacity requirement
             if (MinPassengerCapacity.HasValue &&
                 van.PassengerCapacity < MinPassengerCapacity.Value)
                 return false;
