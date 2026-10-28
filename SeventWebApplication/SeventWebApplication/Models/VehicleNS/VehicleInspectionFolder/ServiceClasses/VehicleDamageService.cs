@@ -47,22 +47,26 @@ namespace SeventWebApplication.Models.VehicleNS
             return true;
         }
 
+        // Hämtar alla skador för en viss bil
         public IEnumerable<VehicleDamage> GetDamagesByVehicle(Guid vehicleId)
         {
             return _damageRepository.GetByVehicleId(vehicleId);
         }
 
+        //  Hämtar alla skador som är kopplade till en viss inspektion
         public IEnumerable<VehicleDamage> GetDamagesByInspection(Guid inspectionId)
         {
             return _damageRepository.GetByInspectionId(inspectionId);
         }
 
+        //  Kollar om bilen har några öppna skador (dvs. skador som inte är åtgärdade)
         public bool HasOpenDamages(Guid vehicleId)
         {
             return _damageRepository.GetByVehicleId(vehicleId)
                 .Any(d => !d.IsResolved);
         }
 
+        // Kollar om bilen är uthyrd just nu
         public bool IsCurrentlyRented(Guid vehicleId)
         {
             return _bookingRepository.GetAll()
@@ -71,6 +75,7 @@ namespace SeventWebApplication.Models.VehicleNS
                        && b.Status == "Active");
         }
 
+        // Åtgärdar en skada och uppdaterar bilens tillgänglighet om det inte finns några öppna skador kvar
         public bool ResolveDamage(Guid damageId)
         {
             var damage = _damageRepository.GetById(damageId);
