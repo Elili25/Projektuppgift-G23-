@@ -1,3 +1,4 @@
+using SeventWebApplication.Models.Booking;
 using SeventWebApplication.Models.Users;
 using SeventWebApplication.Models.VehicleNS;
 
@@ -42,9 +43,17 @@ namespace SeventWebApplication
             // så man har nåt att kolla på under /Bookings
             ExampleBookingSeeder.Seed(app.Services.GetRequiredService<IUserRepository>());
 
+            // ---- Bokningsdelen ----
+            builder.Services.AddSingleton<BookingRepository>();
+
             // ---- Fordonsdelen ----
             builder.Services.AddSingleton<VehicleRentalRecordRepository>();
-            builder.Services.AddSingleton<RentalReturnService>();
+            builder.Services.AddSingleton<VehicleInspectionRepository>();
+            builder.Services.AddSingleton<VehicleDamageRepository>();
+            builder.Services.AddSingleton<FleetManager>();
+            builder.Services.AddSingleton<PricingService>();
+            builder.Services.AddScoped<VehicleDamageService>();
+            builder.Services.AddScoped<RentalReturnService>();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

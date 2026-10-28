@@ -1,19 +1,24 @@
-﻿namespace SeventWebApplication.Models.VehicleNS
+﻿using SeventWebApplication.Models.Booking;
+
+namespace SeventWebApplication.Models.VehicleNS
 {
     public class VehicleDamageService
     {
         private readonly FleetManager _fleetManager;
         private readonly VehicleInspectionRepository _inspectionRepository;
         private readonly VehicleDamageRepository _damageRepository;
+        private readonly BookingRepository _bookingRepository;
 
         public VehicleDamageService(
             FleetManager fleetManager,
             VehicleInspectionRepository inspectionRepository,
-            VehicleDamageRepository damageRepository)
+            VehicleDamageRepository damageRepository,
+            BookingRepository bookingRepository)
         {
             _fleetManager = fleetManager;
             _inspectionRepository = inspectionRepository;
             _damageRepository = damageRepository;
+            _bookingRepository = bookingRepository;
         }
 
         public bool RegisterDamage(VehicleDamage damage)
@@ -35,6 +40,10 @@
             }
 
             _damageRepository.Add(damage);
+
+            // En bil med öppen skada ska inte kunna hyras ut
+            vehicle.IsAvailable = false;
+
             return true;
         }
 
@@ -54,6 +63,14 @@
                 .Any(d => !d.IsResolved);
         }
 
+        public bool IsCurrentlyRented(Guid vehicleId)
+        {
+            return _bookingRepository.GetAll()
+                .Any(b => b.Vehicle != null
+                       && b.Vehicle.VehicleId == vehicleId
+                       && b.Status == "Active");
+        }
+
         public bool ResolveDamage(Guid damageId)
         {
             var damage = _damageRepository.GetById(damageId);
@@ -62,6 +79,15 @@
                 return false;
 
             damage.Resolve();
+
+            // Bilen blir ledig först när alla skador är åtgärdade OCH den inte är uthyrd
+            if (!HasOpenDamages(damage.VehicleId) && !IsCurrentlyRented(damage.VehicleId))
+            {
+                var vehicle = _fleetManager.GetVehicle(damage.VehicleId);
+                if (vehicle != null)
+                    vehicle.IsAvailable = true;
+            }
+
             return true;
         }
     }

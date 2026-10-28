@@ -7,15 +7,21 @@ namespace SeventWebApplication.Models.VehicleNS
     {
         private readonly BookingRepository _bookingRepository;
         private readonly VehicleRentalRecordRepository _recordRepository;
+        private readonly VehicleInspectionRepository _inspectionRepository;
+        private readonly VehicleDamageService _damageService;
         private readonly PricingService _pricingService;
 
         public RentalReturnService(
             BookingRepository bookingRepository,
             VehicleRentalRecordRepository recordRepository,
+            VehicleInspectionRepository inspectionRepository,
+            VehicleDamageService damageService,
             PricingService pricingService)
         {
             _bookingRepository = bookingRepository;
             _recordRepository = recordRepository;
+            _inspectionRepository = inspectionRepository;
+            _damageService = damageService;
             _pricingService = pricingService;
         }
 
@@ -23,9 +29,11 @@ namespace SeventWebApplication.Models.VehicleNS
             string bookingId,
             int mileage,
             decimal fuelLevel,
-            decimal batteryLevel)
+            decimal batteryLevel,
+            string notes = "")
         {
             var booking = GetBooking(bookingId);
+            var vehicleId = booking.Vehicle.VehicleId;
 
             if (_recordRepository.GetByBookingId(bookingId) != null)
                 throw new InvalidOperationException("Pickup has already been registered.");
@@ -36,9 +44,21 @@ namespace SeventWebApplication.Models.VehicleNS
             if (!booking.Vehicle.IsAvailable)
                 throw new InvalidOperationException("Vehicle is not available.");
 
-            if (mileage < 0)
-                throw new ArgumentOutOfRangeException(nameof(mileage));
+            if (_damageService.HasOpenDamages(vehicleId))
+                throw new InvalidOperationException("Vehicle has unresolved damages.");
 
+            // 1. Pickup-inspektion
+            var inspection = new VehicleInspection(
+                vehicleId,
+                DateTime.Now,
+                InspectionType.Pickup,
+                mileage,
+                InspectionResult.Approved,
+                notes);
+
+            _inspectionRepository.Add(inspection);
+
+            // 2. Rental record
             var record = new VehicleRentalRecord
             {
                 BookingId = bookingId,
@@ -50,6 +70,7 @@ namespace SeventWebApplication.Models.VehicleNS
 
             _recordRepository.Add(record);
 
+            // 3. Uppdatera bil och bokning
             booking.Vehicle.IsAvailable = false;
             booking.Status = "Active";
         }
@@ -58,10 +79,14 @@ namespace SeventWebApplication.Models.VehicleNS
             string bookingId,
             int mileage,
             decimal? fuelLevel,
-            decimal? batteryLevel)
+            decimal? batteryLevel,
+            InspectionResult inspectionResult,
+            IEnumerable<string>? damageDescriptions = null,
+            string notes = "")
         {
             var booking = GetBooking(bookingId);
             var record = GetRecord(bookingId);
+            var vehicleId = booking.Vehicle.VehicleId;
 
             if (record.IsReturned())
                 throw new InvalidOperationException("Return has already been registered.");
@@ -69,6 +94,32 @@ namespace SeventWebApplication.Models.VehicleNS
             if (mileage < record.PickupMileage)
                 throw new ArgumentException("Return mileage cannot be lower than pickup mileage.");
 
+            // 1. Retur-inspektion
+            var inspection = new VehicleInspection(
+                vehicleId,
+                DateTime.Now,
+                InspectionType.Return,
+                mileage,
+                inspectionResult,
+                notes);
+
+            _inspectionRepository.Add(inspection);
+
+            // 2. Registrera skador kopplade till inspektionen
+            foreach (var description in damageDescriptions ?? Enumerable.Empty<string>())
+            {
+                var damage = new VehicleDamage
+                {
+                    VehicleId = vehicleId,
+                    InspectionId = inspection.VehicleInspectionId,
+                    Description = description
+                };
+
+                if (!_damageService.RegisterDamage(damage))
+                    throw new InvalidOperationException($"Could not register damage: {description}");
+            }
+
+            // 3. Uppdatera rental record
             record.ActualReturnDate = DateTime.Now;
             record.ReturnMileage = mileage;
             record.ReturnFuelLevel = fuelLevel;
@@ -76,7 +127,8 @@ namespace SeventWebApplication.Models.VehicleNS
 
             _recordRepository.Update(record);
 
-            booking.Vehicle.IsAvailable = true;
+            // 4. Bilen blir bara ledig om den saknar öppna skador
+            booking.Vehicle.IsAvailable = !_damageService.HasOpenDamages(vehicleId);
             booking.Status = "Completed";
         }
 
@@ -118,17 +170,18 @@ namespace SeventWebApplication.Models.VehicleNS
 
             return record.CalculateDelay(booking.EndDate);
         }
+    }
 
-        //placeholder tills tykos kommer in
-        public class PricingService
+
+//placeholder tills tykos kommer in
+public class PricingService
+    {
+        private const decimal LateFeePerHour = 100m;   // justera efter behov
+
+        public decimal CalculateLateFee(string bookingId, TimeSpan delay)
         {
-            private const decimal LateFeePerHour = 100m;   // justera efter behov
-
-            public decimal CalculateLateFee(string bookingId, TimeSpan delay)
-            {
-                var hours = (decimal)Math.Ceiling(delay.TotalHours);
-                return hours * LateFeePerHour;
-            }
+            var hours = (decimal)Math.Ceiling(delay.TotalHours);
+            return hours * LateFeePerHour;
         }
     }
 }

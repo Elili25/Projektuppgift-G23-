@@ -1,6 +1,5 @@
 ﻿using SeventWebApplication.Models.VehicleNS;
 
-namespace SeventWebApplication.Models.VehicleNS;
     // <summary>
     // The VehicleAssignmentService class is responsible for managing the assignment of vehicles to vehicle families.
     // It provides methods to find matching vehicles for a given vehicle family and to assign vehicles to families.
