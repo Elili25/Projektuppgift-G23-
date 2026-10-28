@@ -22,10 +22,10 @@ namespace SeventWebApplication.Models.Users
             var random = new Random();
             var cars = new[]
             {
-                MakeCar("Volvo", "V60", "ABC123", PassengerCarCategoryType.SUV, 2024, 197, FuelType.Petrol, 529m),
-                MakeCar("Tesla", "Model 3", "DEF456", PassengerCarCategoryType.Sedan, 2023, 283, FuelType.Electric, 425m),
-                MakeCar("Volkswagen", "Golf", "GLF777", PassengerCarCategoryType.Hatchback, 2022, 150, FuelType.Diesel, 380m),
-                MakeCar("BMW", "i3", "BMW999", PassengerCarCategoryType.Sedan, 2022, 250, FuelType.Electric, 300m)
+                MakeCar("Volvo", "V60", "ABC123", VehicleNS.PassengerCarCategoryType.SUV, 2024, 197, FuelType.Petrol, 529m),
+                MakeCar("Tesla", "Model 3", "DEF456", VehicleNS.PassengerCarCategoryType.Sedan, 2023, 283, FuelType.Electric, 425m),
+                MakeCar("Volkswagen", "Golf", "GLF777", VehicleNS.PassengerCarCategoryType.Hatchback, 2022, 150, FuelType.Diesel, 380m),
+                MakeCar("BMW", "i3", "BMW999", VehicleNS.PassengerCarCategoryType.Sedan, 2022, 250, FuelType.Electric, 300m)
             };
 
             var statuses = new[] { "Pending", "Confirmed", "Active", "Completed", "Cancelled" };
@@ -74,7 +74,7 @@ namespace SeventWebApplication.Models.Users
             string brandName,
             string modelName,
             string regNr,
-            PassengerCarCategoryType passengerCarCategoryType,
+            VehicleNS.PassengerCarCategoryType passengerCarCategoryType,
             int year,
             int horsePower,
             FuelType fuel,
@@ -96,7 +96,7 @@ namespace SeventWebApplication.Models.Users
                 model,
                 VehicleCategoryType.PassengerCar,
                 passengerCarCategoryType,
-                VehicleComfortType.Standard,
+                VehicleNS.VehicleComfortType.Standard,
                 year,
                 5,
                 luggage,

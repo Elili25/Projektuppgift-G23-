@@ -11,7 +11,7 @@ namespace SeventWebApplication.Models.VehicleNS
 
         public VehicleModel Model { get; private set; }
 
-        public VehicleCategoryType VehicleCategoryType { get; private set; }
+        public static VehicleCategoryType VehicleCategoryType { get; private set; }
 
         public TransmissionType TransmissionType { get; set; }
 
