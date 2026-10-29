@@ -19,7 +19,7 @@ namespace SeventWebApplication.Models.Users
                 return Enumerable.Empty<BookingModel>();
 
             // FleetManager ligger utan namespace i repot, därför global::
-            IEnumerable<BookingModel> allBookings = global::FleetManager.instance.GetBookings();
+            IEnumerable<BookingModel> allBookings = SeventWebApplication.Models.Booking.BookingRegistry.instance.GetBookings();
 
             return viewer.Visibility.Filter(allBookings);
         }

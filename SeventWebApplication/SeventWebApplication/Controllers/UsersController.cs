@@ -27,7 +27,7 @@ namespace SeventWebApplication.Controllers
                 return denied;
 
             // Räknar bokningar per kund en gång, istället för att loopa alla bokningar för varje användare
-            Dictionary<string, int> bookingsPerUser = global::FleetManager.instance.GetBookings()
+            Dictionary<string, int> bookingsPerUser = SeventWebApplication.Models.Booking.BookingRegistry.instance.GetBookings()
                 .GroupBy(b => b.UserId ?? "")
                 .ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
 

@@ -10,9 +10,9 @@ namespace SeventWebApplication.Models.Users
     {
         public static void Seed(IUserRepository users)
         {
-            var fleet = global::FleetManager.instance;
+            var registry = SeventWebApplication.Models.Booking.BookingRegistry.instance;
 
-            if (fleet.GetBookings().Any())
+            if (registry.GetBookings().Any())
                 return;
 
             var allUsers = users.GetAll().ToList();
@@ -39,7 +39,7 @@ namespace SeventWebApplication.Models.Users
                 var start = DateTime.Today.AddDays(random.Next(-20, 25));
                 var end = start.AddDays(random.Next(1, 7));
 
-                fleet.RegisterBooking(new BookingModel(
+                registry.RegisterBooking(new BookingModel(
                     Guid.NewGuid().ToString(),
                     user.UserId.ToString(),
                     car,

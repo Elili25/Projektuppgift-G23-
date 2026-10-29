@@ -37,23 +37,25 @@ namespace SeventWebApplication
             // Scoped = nytt UserSession-objekt för varje sidladdning
             builder.Services.AddScoped<UserSession>();
 
-            var app = builder.Build();
-
-            // testmetod som skapar några exempelbokningar fördelade på kunderna i repot,
-            // så man har nåt att kolla på under /Bookings
-            ExampleBookingSeeder.Seed(app.Services.GetRequiredService<IUserRepository>());
-
             // ---- Bokningsdelen ----
-            builder.Services.AddSingleton<BookingRepository>();
+            // Samma BookingRepository som BookingRegistry använder, så det bara finns en lista med bokningar
+            builder.Services.AddSingleton<BookingRepository>(_ => BookingRegistry.instance.Repository);
 
             // ---- Fordonsdelen ----
             builder.Services.AddSingleton<VehicleRentalRecordRepository>();
             builder.Services.AddSingleton<VehicleInspectionRepository>();
             builder.Services.AddSingleton<VehicleDamageRepository>();
-            builder.Services.AddSingleton<FleetManager>();
+            // FleetManager har privat konstruktor, så Dependency Injection får använda den befintliga instansen
+            builder.Services.AddSingleton<FleetManager>(_ => FleetManager.instance);
             builder.Services.AddSingleton<PricingService>();
             builder.Services.AddScoped<VehicleDamageService>();
             builder.Services.AddScoped<RentalReturnService>();
+
+            var app = builder.Build();
+
+            // testmetod som skapar några exempelbokningar fördelade på kunderna i repot,
+            // så man har nåt att kolla på under /Bookings
+            ExampleBookingSeeder.Seed(app.Services.GetRequiredService<IUserRepository>());
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
