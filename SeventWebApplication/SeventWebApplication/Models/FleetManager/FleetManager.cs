@@ -97,7 +97,7 @@ public class FleetManager
     // till BookingRegistry, men det är mest bara en tanke, inget vi behöver greja med utan keep it simple lol.
     public bool IsAvailable(Vehicle vehicle, DateTime startDate, DateTime endDate)
     {
-        foreach (var booking in BookingRegistry.instance.GetBookings())
+        foreach (var booking in BookingRegistry.Instance.GetBookings())
         {
             //Regplåtsobjekt
 #if false

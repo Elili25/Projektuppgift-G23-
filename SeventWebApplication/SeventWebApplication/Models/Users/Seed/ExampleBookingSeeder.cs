@@ -10,7 +10,7 @@ namespace SeventWebApplication.Models.Users
     {
         public static void Seed(IUserRepository users)
         {
-            var registry = SeventWebApplication.Models.Booking.BookingRegistry.instance;
+            var registry = SeventWebApplication.Models.Booking.BookingRegistry.Instance;
 
             if (registry.GetBookings().Any())
                 return;
