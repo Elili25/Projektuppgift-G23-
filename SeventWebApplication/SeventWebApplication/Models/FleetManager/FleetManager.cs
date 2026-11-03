@@ -18,7 +18,7 @@ public class FleetManager
 
     private Dictionary<string, Vehicle> _vehicles = new(StringComparer.OrdinalIgnoreCase);// <reg-num, vehicle>
 
-    private List<Booking> _bookings = new();
+    // Bokningarna och tillhörande logik (_bookings, RegisterBooking, GetBookings) är nu flyttat till BookingRegistry
 
     // Private constructor so only one instance can be created (using the instance getter)
     private FleetManager() { }
@@ -90,9 +90,14 @@ public class FleetManager
                 query, StringComparison.OrdinalIgnoreCase));
     }
 
+
+    // Teoretiskt så skulle man kunna låta FleetManager spara de upptagna perioderna som en observer sedan uppdaterar
+    // (t.ex. vid BookingConfirmedEvent/BookingCancelledEvent), och så kollar IsAvailable endast på
+    // de perioderna istället. Då slipper man att loopa alla bokningar varje gång och det blir lösare koppling
+    // till BookingRegistry, men det är mest bara en tanke, inget vi behöver greja med utan keep it simple lol.
     public bool IsAvailable(Vehicle vehicle, DateTime startDate, DateTime endDate)
     {
-        foreach (var booking in _bookings)
+        foreach (var booking in BookingRegistry.Instance.GetBookings())
         {
             //Regplåtsobjekt
 #if false
@@ -113,19 +118,6 @@ public class FleetManager
         }
         return true;
     }
-
-    public void RegisterBooking(Booking booking)// vill nog ha några andra parametrar?
-    {
-        // TODO: Implementera när booking är klar
-
-        _bookings.Add(booking); //Temp
-    }
-
-    public IEnumerable<Booking> GetBookings()
-    {
-        return _bookings;
-    }
-
 
     // TESTDATA: Skapar en dummybil för att testa sökfunktionen.
     public void SeedTestVehicle()
@@ -152,8 +144,8 @@ public class FleetManager
             registrationPlate,
             model,
             VehicleCategoryType.PassengerCar,
-            PassengerCarCategoryType.StationWagon,
-            VehicleComfortType.Economy,
+            SeventWebApplication.Models.VehicleNS.PassengerCarCategoryType.StationWagon,
+            SeventWebApplication.Models.VehicleNS.VehicleComfortType.Economy,
             2024,
             5,
             529m,
@@ -182,5 +174,15 @@ public class FleetManager
         // så att JSON-serialiseringen inkluderar värdena.
         public string Brand { get; init; }
         public string Model { get; init; }
+    }
+    //för families 
+    public IEnumerable<Vehicle> GetAllVehicles()
+    {
+        return _vehicles.Values.ToList();
+    }
+
+    public Vehicle? GetVehicle(Guid id)
+    {
+        return _vehicles.Values.FirstOrDefault(vehicle => vehicle.VehicleId == id);
     }
 }

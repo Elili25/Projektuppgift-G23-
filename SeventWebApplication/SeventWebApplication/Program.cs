@@ -1,3 +1,7 @@
+using SeventWebApplication.Models.Booking;
+using SeventWebApplication.Models.Users;
+using SeventWebApplication.Models.VehicleNS;
+
 namespace SeventWebApplication
 {
     public class Program
@@ -10,7 +14,49 @@ namespace SeventWebApplication
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            // ---- Användardelen ----
+            // Singleton = samma objekt i hela appen, så alla delar samma användarlista.
+            builder.Services.AddSingleton<IUserRepository>(_ =>
+            {
+                var repo = new UserRepository();
+                repo.Seed(); // kladd metod som seedar några exempel account
+                return repo;
+            });
+            builder.Services.AddSingleton<AuthService>();
+            builder.Services.AddSingleton<AccountService>();
+            builder.Services.AddSingleton<BookingViewerService>();
+
+            // Session = så att inloggningen hänger kvar mellan sidladdningar (via en cookie boom)
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.Cookie.HttpOnly = true;                 // JavaScript kommer inte åt cookien
+                options.Cookie.IsEssential = true;
+            });
+            builder.Services.AddHttpContextAccessor();
+            // Scoped = nytt UserSession-objekt för varje sidladdning
+            builder.Services.AddScoped<UserSession>();
+
+            // ---- Bokningsdelen ----
+            // Samma BookingRepository som BookingRegistry använder, så det bara finns en lista med bokningar
+            builder.Services.AddSingleton<BookingRepository>(_ => BookingRegistry.Instance.Repository);
+            builder.Services.AddSingleton(BookingRegistry.Instance.Repository);
+
+            // ---- Fordonsdelen ----
+            builder.Services.AddSingleton<VehicleRentalRecordRepository>();
+            builder.Services.AddSingleton<VehicleInspectionRepository>();
+            builder.Services.AddSingleton<VehicleDamageRepository>();
+            // FleetManager har privat konstruktor, så Dependency Injection får använda den befintliga instansen
+            builder.Services.AddSingleton<FleetManager>(_ => FleetManager.instance);
+            builder.Services.AddSingleton<PricingService>();
+            builder.Services.AddScoped<VehicleDamageService>();
+            builder.Services.AddScoped<RentalReturnService>();
+
             var app = builder.Build();
+
+            // testmetod som skapar några exempelbokningar fördelade på kunderna i repot,
+            // så man har nåt att kolla på under /Bookings
+            ExampleBookingSeeder.Seed(app.Services.GetRequiredService<IUserRepository>());
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -22,6 +68,9 @@ namespace SeventWebApplication
 
             app.UseHttpsRedirection();
             app.UseRouting();
+
+            app.UseSession(); // måste komma efter UseRouting, annars funkar inte sessionen,
+                              // behöver köra i den delen av pipelinen där requesten redan är “routad” och där appen vet vilken endpoint som kommer att köras.
 
             app.UseAuthorization();
 

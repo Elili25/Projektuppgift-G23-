@@ -3,7 +3,6 @@
     public enum VanCategoryType
     {
         CargoVan,
-        PassengerVan,
-        Minibus
+        PassengerVan
     }
 }

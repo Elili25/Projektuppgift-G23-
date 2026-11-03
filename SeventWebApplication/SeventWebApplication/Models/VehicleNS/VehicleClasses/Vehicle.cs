@@ -5,13 +5,13 @@ namespace SeventWebApplication.Models.VehicleNS
 {
     public abstract class Vehicle
     {
-        public Guid Id { get; private set; }
+        public Guid VehicleId { get; private set; } = Guid.NewGuid();
 
         public RegistrationPlate RegistrationPlate { get; private set; }
 
         public VehicleModel Model { get; private set; }
 
-        public VehicleCategoryType VehicleCategoryType { get; private set; }
+        public static VehicleCategoryType VehicleCategoryType { get; private set; }
 
         public TransmissionType TransmissionType { get; set; }
 
@@ -34,7 +34,7 @@ namespace SeventWebApplication.Models.VehicleNS
             IEngine engine,
             TransmissionType transmissionType)
         {
-            Id = Guid.NewGuid();
+            VehicleId = Guid.NewGuid();
 
             RegistrationPlate = registrationPlate
                 ?? throw new ArgumentNullException(nameof(registrationPlate));
