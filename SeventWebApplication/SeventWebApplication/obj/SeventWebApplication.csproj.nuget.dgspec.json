@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\easli\\OneDrive\\Documents\\GitHub\\Projektuppgift-G23-\\SeventWebApplication\\SeventWebApplication\\SeventWebApplication.csproj": {}
+    "C:\\Users\\calan\\Documents\\GitHub Repos\\Elili25\\Projektuppgift-G23-\\SeventWebApplication\\SeventWebApplication\\SeventWebApplication.csproj": {}
   },
   "projects": {
-    "C:\\Users\\easli\\OneDrive\\Documents\\GitHub\\Projektuppgift-G23-\\SeventWebApplication\\SeventWebApplication\\SeventWebApplication.csproj": {
+    "C:\\Users\\calan\\Documents\\GitHub Repos\\Elili25\\Projektuppgift-G23-\\SeventWebApplication\\SeventWebApplication\\SeventWebApplication.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\easli\\OneDrive\\Documents\\GitHub\\Projektuppgift-G23-\\SeventWebApplication\\SeventWebApplication\\SeventWebApplication.csproj",
+        "projectUniqueName": "C:\\Users\\calan\\Documents\\GitHub Repos\\Elili25\\Projektuppgift-G23-\\SeventWebApplication\\SeventWebApplication\\SeventWebApplication.csproj",
         "projectName": "SeventWebApplication",
-        "projectPath": "C:\\Users\\easli\\OneDrive\\Documents\\GitHub\\Projektuppgift-G23-\\SeventWebApplication\\SeventWebApplication\\SeventWebApplication.csproj",
-        "packagesPath": "C:\\Users\\easli\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\easli\\OneDrive\\Documents\\GitHub\\Projektuppgift-G23-\\SeventWebApplication\\SeventWebApplication\\obj\\",
+        "projectPath": "C:\\Users\\calan\\Documents\\GitHub Repos\\Elili25\\Projektuppgift-G23-\\SeventWebApplication\\SeventWebApplication\\SeventWebApplication.csproj",
+        "packagesPath": "C:\\Users\\calan\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\calan\\Documents\\GitHub Repos\\Elili25\\Projektuppgift-G23-\\SeventWebApplication\\SeventWebApplication\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\easli\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\calan\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {

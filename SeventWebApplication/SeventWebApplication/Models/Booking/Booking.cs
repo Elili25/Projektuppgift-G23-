@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SeventWebApplication.Models.VehicleNS;
 using SeventWebApplication.Models.Addon;
+using SeventWebApplication.Models.Addon.Interfaces;
 
 namespace SeventWebApplication.Models.Booking
 {

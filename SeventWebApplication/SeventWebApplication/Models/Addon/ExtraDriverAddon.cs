@@ -1,18 +1,18 @@
+using SeventWebApplication.Models.Addon.Enums;
+using SeventWebApplication.Models.Addon.Interfaces;
+
 namespace SeventWebApplication.Models.Addon
 {
-    public class ExtraDriverAddon : AddonDecorator
+    public class ExtraDriverAddon : IAddon
     {
-        private readonly decimal _price = 300;
+        public AddonType AddonType => AddonType.ExtraDriver;
 
-        public decimal Price => _price;
-        //skapa public get för rabatter
+        public int Quantity { get; set; } = 1;  
+        private readonly decimal _price = 300;  
 
-        public ExtraDriverAddon(IAddon addon) : base(addon) { }
+        public decimal Price => _price; 
 
-        public override decimal GetPrice()
-        {
-            return base.GetPrice() + _price;
-        }
+        public decimal GetPrice() => _price * Quantity;
     }
 
 }
