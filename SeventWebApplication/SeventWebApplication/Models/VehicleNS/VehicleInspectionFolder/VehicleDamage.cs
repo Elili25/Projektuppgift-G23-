@@ -8,7 +8,7 @@ namespace SeventWebApplication.Models.VehicleNS
 
 
         public required string Description { get; set; }
-        public DateTime ReportedAt { get; set; }
+        public DateTime ReportedAt { get; set; } = DateTime.UtcNow;
         public string? PhotoUrl { get; set; } = null; // valfritt
 
         public bool IsResolved { get; private set; }

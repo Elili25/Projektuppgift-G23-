@@ -72,7 +72,7 @@ namespace SeventWebApplication.Models.VehicleNS
             return _bookingRepository.GetAll()
                 .Any(b => b.Vehicle != null
                        && b.Vehicle.VehicleId == vehicleId
-                       && b.Status == "Active");
+                       && b.Status == BookingStatus.Active);
         }
 
         // Åtgärdar en skada och uppdaterar bilens tillgänglighet om det inte finns några öppna skador kvar

@@ -5,7 +5,7 @@
         public void ValidateHorsePower(int horsePower)
         {
             if (horsePower <= 0)
-                throw new ArgumentOutOfRangeException("HorsePower måste vara > 0");
+                throw new ArgumentOutOfRangeException(nameof(horsePower), "HorsePower måste vara > 0");
         }
     }
 }

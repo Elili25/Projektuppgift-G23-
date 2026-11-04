@@ -7,7 +7,7 @@ namespace SeventWebApplication.Models.VehicleNS
     {
         public void ValidateRegNr(string regNr)
         {
-            if (!Regex.IsMatch(regNr, @"^[A-Z]{2}\d{2}\s[A-Z]{3}$"))
+            if (regNr is null || !Regex.IsMatch(regNr.Trim(), @"^[A-Z]{2}\d{2}\s?[A-Z]{3}$"))
                 throw new ArgumentException($"Ogiltigt brittiskt registreringsnummer: {regNr}");
         }
     }

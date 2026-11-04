@@ -2,7 +2,7 @@
 
 public abstract class Engine : IEngine
 {
-    public FuelType FuelType { get; }  
+    public abstract FuelType FuelType { get; }
     public int HorsePower { get; }
 
     protected Engine(int horsepower)

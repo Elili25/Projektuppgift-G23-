@@ -19,7 +19,7 @@
                 new VehicleFamilyAssignment(vehicleId, familyId));
         }
 
-        //  Removes the assignment of a vehicle to a family. If the vehicle is not assigned to any family, this method does nothing.
+        // Returns the id of the family the vehicle is assigned to, or null if the vehicle is not assigned to any family.
         public Guid? GetFamilyId(Guid vehicleId)
         {
             return _assignments

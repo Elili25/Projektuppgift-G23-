@@ -1,4 +1,4 @@
-using SeventWebApplication.Models.VehicleNS.Engine;
+Ôªøusing SeventWebApplication.Models.VehicleNS.Engine;
 
 namespace SeventWebApplication.Models.VehicleNS
 {
@@ -33,7 +33,8 @@ namespace SeventWebApplication.Models.VehicleNS
             decimal luggageCapacity,
             FuelType fuelType,
             TransmissionType transmissionType,
-            CountryCode countryCode)
+            CountryCode countryCode,
+            int fuelCapacityLiters = 50)
         {
             ValidateCommonFields(regNr, model, year, horsePower);
 
@@ -41,10 +42,10 @@ namespace SeventWebApplication.Models.VehicleNS
 
             IEngine engine = fuelType switch
             {
-                FuelType.Petrol => new PetrolEngine(horsePower, 50),
-                FuelType.Diesel => new DieselEngine(horsePower, 50),
+                FuelType.Petrol => new PetrolEngine(horsePower, fuelCapacityLiters),
+                FuelType.Diesel => new DieselEngine(horsePower, fuelCapacityLiters),
                 _ => throw new ArgumentException(
-                    "Anv‰nd CreateElectric eller en annan l‰mplig metod fˆr denna motortyp.",
+                    "Anv√§nd CreateElectric eller en annan l√§mplig metod f√∂r denna motortyp.",
                     nameof(fuelType))
             };
 
@@ -114,7 +115,7 @@ namespace SeventWebApplication.Models.VehicleNS
 
             if (model?.Brand == null)
                 throw new ArgumentException(
-                    "Modellen mÂste ha ett kopplat bilm‰rke.",
+                    "Modellen m√•ste ha ett kopplat bilm√§rke.",
                     nameof(model));
 
             _brandModelValidator.ValidateBrand(model.Brand.BrandName);

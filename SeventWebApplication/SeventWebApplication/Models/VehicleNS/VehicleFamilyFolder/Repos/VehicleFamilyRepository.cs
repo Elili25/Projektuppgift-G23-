@@ -20,7 +20,7 @@
         }
 
 
-        // Removes a vehicle family from the repository by its ID.
+        // Returns all vehicle families in the repository.
 
         public IEnumerable<VehicleFamily> GetAll()
         {

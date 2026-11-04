@@ -1,18 +1,18 @@
+using SeventWebApplication.Models.Addon.Enums;
+using SeventWebApplication.Models.Addon.Interfaces;
+
 namespace SeventWebApplication.Models.Addon
 {
-    public class GPSAddon : AddonDecorator
+    public class GPSAddon : IAddon
     {
-        public GPSAddon(IAddon addon) : base(addon) { }
+        public AddonType AddonType => AddonType.Gps;
 
-        private readonly decimal _price = 500;
+        public int Quantity { get; set; } = 1;
+        private readonly decimal _price = 500;  
 
-        //skapa public get för rabatter
-        public decimal Price => _price;
+        public decimal Price => _price; 
 
-        public override decimal GetPrice()
-        {
-            return base.GetPrice() + _price;
-        }
+        public decimal GetPrice() => _price * Quantity;
     }
 
 }

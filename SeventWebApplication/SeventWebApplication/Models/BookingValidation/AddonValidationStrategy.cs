@@ -1,44 +1,54 @@
 ﻿using SeventWebApplication.Models.Addon;
+using SeventWebApplication.Models.Addon.Enums;
 
-namespace SeventWebApplication.Models.BookingValidation
-{
-    //public class AddonValidationStrategy : IBookingValidationStrategy
-    //{
-    //    public void Validate(BookingBuilder booking)
-    //    {
-    //        IAddon addon = booking.Addon;
-    //        if (addon == null) return;
+//namespace SeventWebApplication.Models.BookingValidation
+//{
+//    public class AddonValidationStrategy : IValidationStrategy
+//    {
+//        // Definierar maxgränserna för addons
+//        private readonly Dictionary<AddonType, int> _maxLimits = new()
+//    {
+//        { AddonType.Gps, 1 },
+//        { AddonType.ExtraDriver, 1 },
+//        { AddonType.ChildSeat, 3 }
+//        // Här läggs nya addons och dess maxantal till
+//    };
+        
+//        public IEnumerable<ValidationError> Validate(BookingRequest request)
+//        {
+//            var errors = new List<ValidationError>();
 
-    //        int gpsCount = CountAddonType<GPSAddon>(addon);
-    //        int extraDriverCount = CountAddonType<ExtraDriverAddon>(addon);
-    //        int childSeatCount = CountAddonType<ChildSeatAddon>(addon);
+//            if (request.Addons == null) return errors;
 
-    //        if (gpsCount > 1)
-    //            throw new InvalidOperationException("Du kan max välja 1 GPS.");
+//            // Grupperar och summerar alla inskickade addons samtidigt
+//            var totals = request.Addons
+//                .GroupBy(a => a.AddonType)
+//                .Select(g => new { AddonType = g.Key, Total = g.Sum(a => a.Quantity) });
 
-    //        if (extraDriverCount > 1)
-    //            throw new InvalidOperationException("Du kan max välja 1 extra förare.");
+//            // Loopar igenom de summerade tilläggen och jämför mot reglerna
+//            foreach (var addon in totals)
+//            {
+//                // Kontrollerar om det finns en maxgräns definierad för denna typ och om den har överskridits
+//                if (_maxLimits.TryGetValue(addon.AddonType, out int maxAllowed) && addon.Total > maxAllowed)
+//                {
+//                    // Här översätts enumen till svenska för felmeddelandet
+//                    string svensktNamn = addon.AddonType switch
+//                    {
+//                        AddonType.Gps => "GPS",
+//                        AddonType.ExtraDriver => "extra förare",
+//                        AddonType.ChildSeat => "barnstolar",
+//                        _ => addon.AddonType.ToString() // Fallback om man glömmer översätta nya enums i framtiden
+//                    };
 
-    //        if (childSeatCount > 3)
-    //            throw new InvalidOperationException("Du kan max välja 3 barnstolar.");
-    //    }
+//                    errors.Add(new ValidationError
+//                    {
+//                        Property = nameof(request.Addons),
+//                        Message = $"Du kan lägga till max {maxAllowed} {svensktNamn}. Du har angett {addon.Total} st.",
+//                    });
+//                }
+//            }
 
-    //    private int CountAddonType<T>(IAddon addon) where T : IAddon  // Tar emot ett IAddon och räknar rekursivt hur många av typen T som finns i kedjan
-    //    {
-    //        // Om vi har nått slutet av kedjan, returneras 0
-    //        if (addon == null) return 0;
-
-    //        int count = 0;  // Lokal räknare för det aktuella objektet i kedjan
-    //        if (addon is T) count++;  // Om det aktuella objektet matchar den sökta typen T, öka räknaren med 1
-
-    //        if (addon is BookingValidationComposite decorator)  // Om objektet är en dekoratör finns det flera länkar i kedjan
-    //        {
-    //            // Metoden anropar sig själv, vilket skapar en rekursiv "loop" och
-    //            // Återvänder till metodens början
-    //            count += CountAddonType<T>(decorator.GetWrappedAddon());  // Plussar ihop resulatet för alla iterationer
-    //        }
-    //        return count;  // Returnerar slutsumman
-    //    }
-    //}
-
-}
+//            return errors;
+//        }
+//    }
+//}
