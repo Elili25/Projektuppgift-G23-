@@ -48,11 +48,28 @@ namespace SeventWebApplication
             builder.Services.AddSingleton<VehicleDamageRepository>();
             // FleetManager har privat konstruktor, så Dependency Injection får använda den befintliga instansen
             builder.Services.AddSingleton<FleetManager>(_ => FleetManager.instance);
+            builder.Services.AddSingleton<VehicleFamilyFactory>();
+            builder.Services.AddSingleton<VehicleFamilyValidator>();
+            builder.Services.AddSingleton<VehicleFamilyService>();
+            builder.Services.AddSingleton<VehicleFamilyRepository>();
+            builder.Services.AddSingleton<VehicleFamilyAssignmentRepository>();
+            builder.Services.AddSingleton<VehicleAssignmentService>();
             builder.Services.AddSingleton<PricingService>();
             builder.Services.AddScoped<VehicleDamageService>();
             builder.Services.AddScoped<RentalReturnService>();
 
             var app = builder.Build();
+
+            // Skapar tjänsten direkt vid start så att den börjar lyssna på FleetManager.VehicleAdded
+            // (annars skapas den först när något ber om den, och bilar som läggs till innan dess missas)
+            var assignmentService = app.Services.GetRequiredService<VehicleAssignmentService>();
+
+            // Fyller familje-repot med de färdiga familjerna (annars är det tomt och inget matchar),
+            // och kopplar sedan eventuella bilar som redan finns i flottan
+            var familyRepository = app.Services.GetRequiredService<VehicleFamilyRepository>();
+            foreach (var family in VehicleFamilySeeder.GetSeededFamilies())
+                familyRepository.Add(family);
+            assignmentService.AutoAssignAllVehicles();
 
             // testmetod som skapar några exempelbokningar fördelade på kunderna i repot,
             // så man har nåt att kolla på under /Bookings

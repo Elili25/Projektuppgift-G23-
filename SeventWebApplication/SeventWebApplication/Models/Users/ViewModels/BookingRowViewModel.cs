@@ -1,5 +1,6 @@
 using SeventWebApplication.Models.Addon;
-using SeventWebApplication.Models.Booking;
+using SeventWebApplication.Models.Addon.Enums;
+using SeventWebApplication.Models.Booking; // BookingStatus
 using BookingModel = SeventWebApplication.Models.Booking.Booking;
 
 namespace SeventWebApplication.Models.Users
@@ -43,6 +44,7 @@ namespace SeventWebApplication.Models.Users
             // Booking.UserId är en string, så vi får parsa den för att hitta kunden
             User? customer = Guid.TryParse(booking.UserId, out Guid id) ? users.GetById(id) : null;
 
+            // Översätter domänens BookingStatus till vyns BookingTimeStatus
             BookingTimeStatus status = booking.Status switch
             {
                 BookingStatus.Pending => BookingTimeStatus.Pending,
@@ -65,36 +67,30 @@ namespace SeventWebApplication.Models.Users
                 Start = booking.StartDate,
                 End = booking.EndDate,
                 Addons = GetAddonNames(booking.Addon),
-                TotalPrice = booking.Addon?.GetPrice(),
+                TotalPrice = booking.Addon?.GetTotalAddonPrice(),
                 Status = status
             };
         }
 
-        // Går igenom Decorator-kedjan lager för lager och samlar ihop namnen på tillvalen.
-        // T.ex. ChildSeat(GPS(VehicleBase)) blir ["Barnstol", "GPS"].
-        private static List<string> GetAddonNames(IAddon? addon)
+        // Översätter tillvalen i bokningens AddonPackage till visningsnamn.
+        // Fler än en av samma sort visas som t.ex. "Barnstol ×3".
+        private static List<string> GetAddonNames(AddonPackage? package)
         {
-            var names = new List<string>();
+            if (package is null)
+                return new List<string>();
 
-            while (addon is AddonDecorator decorator)
-            {
-                names.Add(decorator switch
+            return package.Items
+                .Select(a =>
                 {
-                    GPSAddon => "GPS",
-                    ChildSeatAddon => "Barnstol",
-                    ExtraDriverAddon => "Extra förare",
-                    _ => decorator.GetType().Name   // nya tillval syns ändå, bara med klassnamnet
-                });
-
-                addon = decorator.GetWrappedAddon();
-            }
-
-            names.Reverse();   // så tillvalen kommer i ordningen de lades till
-
-            // Slår ihop dubbletter, så tre barnstolar blir "Barnstol ×3" istället för tre badges
-            return names
-                .GroupBy(n => n)
-                .Select(g => g.Count() > 1 ? $"{g.Key} ×{g.Count()}" : g.Key)
+                    string name = a.AddonType switch
+                    {
+                        AddonType.Gps => "GPS",
+                        AddonType.ChildSeat => "Barnstol",
+                        AddonType.ExtraDriver => "Extra förare",
+                        _ => a.AddonType.ToString()   // nya tillval syns ändå, bara med enumnamnet
+                    };
+                    return a.Quantity > 1 ? $"{name} ×{a.Quantity}" : name;
+                })
                 .ToList();
         }
     }

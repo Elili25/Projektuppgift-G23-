@@ -29,13 +29,16 @@
             if (booking == null)
                 throw new ArgumentNullException(nameof(booking));
 
-            if (booking.Vehicle == null)
-                throw new ArgumentException("Booking must have a vehicle.", nameof(booking));
+            if (booking.Vehicle == null && booking.VehicleFamilyId == null)
+                throw new ArgumentException("Booking must have a vehicle or a vehicle family.", nameof(booking));
 
             if (booking.EndDate <= booking.StartDate)
                 throw new ArgumentException("End date must be after start date.", nameof(booking));
 
-            if (IsVehicleBooked(booking.Vehicle.VehicleId, booking.StartDate, booking.EndDate))
+            // Dubbelbokningskontroll görs bara när en konkret bil är vald.
+            // För familjebokningar tilldelas bilen senare via Booking.AssignVehicle.
+            if (booking.Vehicle != null
+                && IsVehicleBooked(booking.Vehicle.VehicleId, booking.StartDate, booking.EndDate))
                 throw new InvalidOperationException("Vehicle is already booked for this period.");
 
             _bookingRepository.Add(booking);   // Add kastar själv fel om id:t redan finns

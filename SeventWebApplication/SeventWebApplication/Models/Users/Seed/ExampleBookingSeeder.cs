@@ -28,6 +28,7 @@ namespace SeventWebApplication.Models.Users
                 MakeCar("BMW", "i3", "BMW999", VehicleNS.PassengerCarCategoryType.Sedan, 2022, 250, FuelType.Electric, 300m)
             };
 
+            // Alla värden i BookingStatus, så seedern följer enumen automatiskt om den ändras
             var statuses = Enum.GetValues<SeventWebApplication.Models.Booking.BookingStatus>();
 
             for (int i = 0; i < 10; i++)
@@ -39,35 +40,45 @@ namespace SeventWebApplication.Models.Users
                 var start = DateTime.Today.AddDays(random.Next(-20, 25));
                 var end = start.AddDays(random.Next(1, 7));
 
-                registry.RegisterBooking(new BookingModel(
-                    Guid.NewGuid().ToString(),
-                    user.UserId.ToString(),
-                    car,
-                    start,
-                    end,
-                    RandomAddons(random, new VehicleBase(500m + i * 75m)))
+                try
                 {
-                    Status = status
-                });
+                    registry.RegisterBooking(new BookingModel(
+                        Guid.NewGuid().ToString(),
+                        user.UserId.ToString(),
+                        car,
+                        start,
+                        end,
+                        RandomAddons(random))
+                    {
+                        Status = status
+                    });
+                }
+                catch (InvalidOperationException)
+                {
+                    // Slumpen valde en bil som redan är bokad den perioden. Hoppa över den bokningen,
+                    // annars kraschar appen vid start ibland.
+                }
             }
         }
 
-        // Slumpar fram tillval och lindar dem runt grundpriset (Decorator).
-        // T.ex. kan det bli ChildSeatAddon(GPSAddon(VehicleBase)), och GetPrice() räknar ihop allt.
+        // Slumpar fram tillval och samlar dem i ett AddonPackage.
+        // AddonPackage slår själv ihop samma typ av tillval till en rad med ökat antal.
         // Max 3 barnstolar, samma gräns som i AddonValidationStrategy.
-        private static IAddon RandomAddons(Random random, IAddon price)
+        private static AddonPackage RandomAddons(Random random)
         {
+            var package = new AddonPackage();
+
             if (random.Next(2) == 0)                 // GPS i ungefär hälften av bokningarna
-                price = new GPSAddon(price);
+                package.Add(new GPSAddon());
 
             int childSeats = random.Next(0, 4);      // 0–3 barnstolar
-            for (int i = 0; i < childSeats; i++)
-                price = new ChildSeatAddon(price);
+            if (childSeats > 0)
+                package.Add(new ChildSeatAddon { Quantity = childSeats });
 
             if (random.Next(3) == 0)                 // extra förare i ungefär var tredje
-                price = new ExtraDriverAddon(price);
+                package.Add(new ExtraDriverAddon());
 
-            return price;
+            return package;
         }
 
         private static Car MakeCar(

@@ -20,6 +20,10 @@ public class FleetManager
 
     // Bokningarna och tillhörande logik (_bookings, RegisterBooking, GetBookings) är nu flyttat till BookingRegistry
 
+    // Observer: meddelar de som lyssnar (t.ex. VehicleAssignmentService) att en ny bil lagts till.
+    // FleetManager behöver därmed inte känna till fordonsfamiljer, och vi undviker ett cirkulärt beroende.
+    public event Action<Vehicle>? VehicleAdded;
+
     // Private constructor so only one instance can be created (using the instance getter)
     private FleetManager() { }
 
@@ -35,6 +39,9 @@ public class FleetManager
             throw new InvalidOperationException($"A vehicle with registration number {regNr} already exists.");
 
         _vehicles.Add(regNr, vehicle);
+
+        // Sker efter att bilen är sparad, så lyssnarna ser den i flottan
+        VehicleAdded?.Invoke(vehicle);
     }
 
     public IEnumerable<Vehicle> GetAvailableVehicles(DateTime startTime, DateTime endTime)
@@ -99,7 +106,7 @@ public class FleetManager
     {
         // Two periods overlap when each one starts before the other ends.
         return !BookingRegistry.Instance.GetBookingsByVehicleId(vehicle.VehicleId)
-            .Any(b => b.Status != "Cancelled" && b.StartDate < endDate && startDate < b.EndDate);
+            .Any(b => b.Status != BookingStatus.Cancelled && b.StartDate < endDate && startDate < b.EndDate);
     }
 
     // TESTDATA: Skapar en dummybil för att testa sökfunktionen.
@@ -136,7 +143,10 @@ public class FleetManager
             TransmissionType.Automatic
         );
 
-        _vehicles[registrationPlate.RegNr] = vehicle;
+        // Anropas vid varje besök på startsidan, så hoppa över om testbilen redan finns.
+        // Går via AddVehicle (inte direkt mot _vehicles) så att VehicleAdded skickas och bilen kopplas till en familj.
+        if (!_vehicles.ContainsKey(registrationPlate.RegNr))
+            AddVehicle(vehicle);
     }
 
     public record VehicleSearchResult

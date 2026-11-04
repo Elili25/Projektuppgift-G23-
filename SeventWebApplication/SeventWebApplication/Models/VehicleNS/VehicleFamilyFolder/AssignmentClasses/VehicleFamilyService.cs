@@ -1,6 +1,4 @@
-﻿using SeventWebApplication.Models.VehicleNS;
-
-namespace SeventWebApplication.Services
+﻿namespace SeventWebApplication.Models.VehicleNS
 {
     public class VehicleFamilyService
     {
