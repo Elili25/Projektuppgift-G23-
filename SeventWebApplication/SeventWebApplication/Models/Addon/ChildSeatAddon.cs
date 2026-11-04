@@ -1,21 +1,19 @@
-using SeventWebApplication.Models;
 using SeventWebApplication.Models.Addon;
+using SeventWebApplication.Models.Addon.Enums;
+using SeventWebApplication.Models.Addon.Interfaces;
 
 namespace SeventWebApplication.Models.Addon
 {
-    public class ChildSeatAddon : AddonDecorator
+    public class ChildSeatAddon : IAddon
     {
-        private readonly decimal _price = 100;
+        public AddonType AddonType => AddonType.ChildSeat;
 
-        public decimal Price => _price;
-        //skapa public get för rabatter
+        public int Quantity { get; set; } = 1;  // Bas kvantitet är 1 men kan ändras när ett objekt läggs till
+        private readonly decimal _price = 100;  // Baspriset på en addon
 
-        public ChildSeatAddon(IAddon addon) : base(addon) { }
+        public decimal Price => _price;  // Om man vill läsa baspriset utifrån
 
-        public override decimal GetPrice()
-        {
-            return base.GetPrice() + _price;
-        }
-
+        public decimal GetPrice() => _price * Quantity;
     }
+
 }

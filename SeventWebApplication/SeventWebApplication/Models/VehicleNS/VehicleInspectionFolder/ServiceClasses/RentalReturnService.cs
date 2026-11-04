@@ -33,15 +33,16 @@ namespace SeventWebApplication.Models.VehicleNS
             string notes = "")
         {
             var booking = GetBooking(bookingId);
-            var vehicleId = booking.Vehicle.VehicleId;
+            var vehicle = GetVehicle(booking);
+            var vehicleId = vehicle.VehicleId;
 
             if (_recordRepository.GetByBookingId(bookingId) != null)
                 throw new InvalidOperationException("Pickup has already been registered.");
 
-            if (booking.Status != "Approved")
+            if (booking.Status != BookingStatus.Confirmed)
                 throw new InvalidOperationException("Booking must be approved before pickup.");
 
-            if (!booking.Vehicle.IsAvailable)
+            if (!vehicle.IsAvailable)
                 throw new InvalidOperationException("Vehicle is not available.");
 
             if (_damageService.HasOpenDamages(vehicleId))
@@ -71,8 +72,8 @@ namespace SeventWebApplication.Models.VehicleNS
             _recordRepository.Add(record);
 
             // 3. Uppdatera bil och bokning
-            booking.Vehicle.IsAvailable = false;
-            booking.Status = "Active";
+            vehicle.IsAvailable = false;
+            booking.Status = BookingStatus.Active;
         }
 
         public void RegisterReturn(
@@ -86,10 +87,14 @@ namespace SeventWebApplication.Models.VehicleNS
         {
             var booking = GetBooking(bookingId);
             var record = GetRecord(bookingId);
-            var vehicleId = booking.Vehicle.VehicleId;
+            var vehicle = GetVehicle(booking);
+            var vehicleId = vehicle.VehicleId;
 
             if (record.IsReturned())
                 throw new InvalidOperationException("Return has already been registered.");
+
+            if (booking.Status != BookingStatus.Active)
+                throw new InvalidOperationException("Booking must be active before return.");
 
             if (mileage < record.PickupMileage)
                 throw new ArgumentException("Return mileage cannot be lower than pickup mileage.");
@@ -128,8 +133,8 @@ namespace SeventWebApplication.Models.VehicleNS
             _recordRepository.Update(record);
 
             // 4. Bilen blir bara ledig om den saknar öppna skador
-            booking.Vehicle.IsAvailable = !_damageService.HasOpenDamages(vehicleId);
-            booking.Status = "Completed";
+            vehicle.IsAvailable = !_damageService.HasOpenDamages(vehicleId);
+            booking.Status = BookingStatus.Completed;
         }
 
         public decimal CalculateLateFee(string bookingId)
@@ -150,6 +155,12 @@ namespace SeventWebApplication.Models.VehicleNS
         {
             return _bookingRepository.GetById(bookingId)
                 ?? throw new InvalidOperationException("Booking not found.");
+        }
+
+        private static Vehicle GetVehicle(BookingEntity booking)
+        {
+            return booking.Vehicle
+                ?? throw new InvalidOperationException("Booking has no vehicle.");
         }
 
         private VehicleRentalRecord GetRecord(string bookingId)

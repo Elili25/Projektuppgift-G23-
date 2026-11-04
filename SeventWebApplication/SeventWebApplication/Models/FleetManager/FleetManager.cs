@@ -18,24 +18,31 @@ public class FleetManager
 
     private Dictionary<string, Vehicle> _vehicles = new(StringComparer.OrdinalIgnoreCase);// <reg-num, vehicle>
 
-    private List<Booking> _bookings = new();
+    // Bokningarna och tillhörande logik (_bookings, RegisterBooking, GetBookings) är nu flyttat till BookingRegistry
+
+    // Observer: meddelar de som lyssnar (t.ex. VehicleAssignmentService) att en ny bil lagts till.
+    // FleetManager behöver därmed inte känna till fordonsfamiljer, och vi undviker ett cirkulärt beroende.
+    public event Action<Vehicle>? VehicleAdded;
 
     // Private constructor so only one instance can be created (using the instance getter)
     private FleetManager() { }
 
-    // Vet inte om den borde ta in en Vehicle eller delar av en Vehicle, som reg-num, typ, etc
-#if false
-
+    // Registers a vehicle in the fleet, keyed by its registration number.
+    // Format validation per country is done upstream (IRegNrValidator in the vehicle factories).
     public void AddVehicle(Vehicle vehicle)
     {
-        if(vehicle.RegNr.Count() != 6 || vehicle.RegNr.Count() != 7) 
-        {
-            // Ge en varning att det inte är ett svenskt regnummer? borde nog vara högre upp
-        }
-        _vehicles.Add(vehicle.RegNr, vehicle);
-    }
+        ArgumentNullException.ThrowIfNull(vehicle);
 
-#endif
+        var regNr = vehicle.RegistrationPlate.RegNr;
+
+        if (_vehicles.ContainsKey(regNr))
+            throw new InvalidOperationException($"A vehicle with registration number {regNr} already exists.");
+
+        _vehicles.Add(regNr, vehicle);
+
+        // Sker efter att bilen är sparad, så lyssnarna ser den i flottan
+        VehicleAdded?.Invoke(vehicle);
+    }
 
     public IEnumerable<Vehicle> GetAvailableVehicles(DateTime startTime, DateTime endTime)
     {
@@ -90,42 +97,17 @@ public class FleetManager
                 query, StringComparison.OrdinalIgnoreCase));
     }
 
+
+    // Teoretiskt så skulle man kunna låta FleetManager spara de upptagna perioderna som en observer sedan uppdaterar
+    // (t.ex. vid BookingConfirmedEvent/BookingCancelledEvent), och så kollar IsAvailable endast på
+    // de perioderna istället. Då slipper man att loopa alla bokningar varje gång och det blir lösare koppling
+    // till BookingRegistry, men det är mest bara en tanke, inget vi behöver greja med utan keep it simple lol.
     public bool IsAvailable(Vehicle vehicle, DateTime startDate, DateTime endDate)
     {
-        foreach (var booking in _bookings)
-        {
-            //Regplåtsobjekt
-#if false
-            if( booking.Vehicle.RegNr != vehicle.RegNr )
-                continue;
-#endif
-
-            // Checks if startDate is inside the booking
-            if (startDate.CompareTo(booking.StartDate) > 0 && startDate.CompareTo(booking.EndDate) < 0)
-                return false;
-            // Checks if endDate is inside the booking
-            if (endDate.CompareTo(booking.StartDate) > 0 && endDate.CompareTo(booking.EndDate) < 0)
-                return false;
-            // If startDate is before the booking.StartDate AND endDate is after the booking.EndDate
-            if (startDate.CompareTo(booking) < 0 && endDate.CompareTo(booking.EndDate) > 0)
-                return false;
-
-        }
-        return true;
+        // Two periods overlap when each one starts before the other ends.
+        return !BookingRegistry.Instance.GetBookingsByVehicleId(vehicle.VehicleId)
+            .Any(b => b.Status != BookingStatus.Cancelled && b.StartDate < endDate && startDate < b.EndDate);
     }
-
-    public void RegisterBooking(Booking booking)// vill nog ha några andra parametrar?
-    {
-        // TODO: Implementera när booking är klar
-
-        _bookings.Add(booking); //Temp
-    }
-
-    public IEnumerable<Booking> GetBookings()
-    {
-        return _bookings;
-    }
-
 
     // TESTDATA: Skapar en dummybil för att testa sökfunktionen.
     public void SeedTestVehicle()
@@ -161,7 +143,10 @@ public class FleetManager
             TransmissionType.Automatic
         );
 
-        _vehicles[registrationPlate.RegNr] = vehicle;
+        // Anropas vid varje besök på startsidan, så hoppa över om testbilen redan finns.
+        // Går via AddVehicle (inte direkt mot _vehicles) så att VehicleAdded skickas och bilen kopplas till en familj.
+        if (!_vehicles.ContainsKey(registrationPlate.RegNr))
+            AddVehicle(vehicle);
     }
 
     public record VehicleSearchResult
