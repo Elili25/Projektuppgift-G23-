@@ -20,7 +20,7 @@ public class PricingServices
     {
        return vehicle switch
         { 
-           Car car =>_carRateCatalog.GetDailyPrice(car),
+           Car car => _carRateCatalog.GetDailyPrice(car),
            
            Van van => _vanRateCatalog.GetDailyPrice(van),
            
