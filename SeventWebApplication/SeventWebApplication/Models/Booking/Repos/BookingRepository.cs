@@ -30,7 +30,7 @@
             => _bookings.Where(b => b.Vehicle != null && b.Vehicle.VehicleId == vehicleId).ToList();
 
         // Retrieves all bookings with a specific status
-        public IEnumerable<Booking> GetByStatus(string status)
+        public IEnumerable<Booking> GetByStatus(BookingStatus status)
             => _bookings.Where(b => b.Status == status).ToList();
 
         // Retrieves all bookings

@@ -1,4 +1,5 @@
 using SeventWebApplication.Models.Addon;
+using SeventWebApplication.Models.Booking;
 using BookingModel = SeventWebApplication.Models.Booking.Booking;
 
 namespace SeventWebApplication.Models.Users
@@ -42,13 +43,13 @@ namespace SeventWebApplication.Models.Users
             // Booking.UserId är en string, så vi får parsa den för att hitta kunden
             User? customer = Guid.TryParse(booking.UserId, out Guid id) ? users.GetById(id) : null;
 
-            BookingTimeStatus status = booking.Status?.Trim() switch
+            BookingTimeStatus status = booking.Status switch
             {
-                "Pending" => BookingTimeStatus.Pending,
-                "Confirmed" => BookingTimeStatus.Confirmed,
-                "Active" => BookingTimeStatus.Active,
-                "Completed" => BookingTimeStatus.Completed,
-                "Cancelled" => BookingTimeStatus.Cancelled,
+                BookingStatus.Pending => BookingTimeStatus.Pending,
+                BookingStatus.Confirmed => BookingTimeStatus.Confirmed,
+                BookingStatus.Active => BookingTimeStatus.Active,
+                BookingStatus.Completed => BookingTimeStatus.Completed,
+                BookingStatus.Cancelled => BookingTimeStatus.Cancelled,
                 _ => BookingTimeStatus.Pending
             };
 

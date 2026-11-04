@@ -55,7 +55,7 @@
         public IEnumerable<Booking> GetBookingsByVehicleId(Guid vehicleId)
             => _bookingRepository.GetByVehicleId(vehicleId);
 
-        public IEnumerable<Booking> GetBookingsByStatus(string status)
+        public IEnumerable<Booking> GetBookingsByStatus(BookingStatus status)
             => _bookingRepository.GetByStatus(status);
 
         // --- Hjälpmetoder ---
@@ -64,8 +64,8 @@
         private bool IsVehicleBooked(Guid vehicleId, DateTime start, DateTime end)
         {
             return _bookingRepository.GetByVehicleId(vehicleId).Any(b =>
-                b.Status != "Cancelled"
-                && b.Status != "Completed"
+                b.Status != BookingStatus.Cancelled
+                && b.Status != BookingStatus.Completed
                 && b.StartDate < end
                 && start < b.EndDate);
         }

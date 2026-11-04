@@ -1,10 +1,9 @@
-﻿using SeventWebApplication.Models.VehicleNS;
-
-    // <summary>
-    // The VehicleAssignmentService class is responsible for managing the assignment of vehicles to vehicle families.
-    // It provides methods to find matching vehicles for a given vehicle family and to assign vehicles to families.
-    // </summary>
-
+﻿namespace SeventWebApplication.Models.VehicleNS
+{
+    /// <summary>
+    /// The VehicleAssignmentService class is responsible for managing the assignment of vehicles to vehicle families.
+    /// It provides methods to find matching vehicles for a given vehicle family and to assign vehicles to families.
+    /// </summary>
     public class VehicleAssignmentService
     {
         private readonly FleetManager _fleetManager;
@@ -21,6 +20,10 @@
             _assignmentRepository = assignmentRepository;
         }
 
+        /// <summary>
+        /// Returns vehicles that match the family and are either unassigned
+        /// or already assigned to this family.
+        /// </summary>
         public IEnumerable<Vehicle> FindMatchingVehicles(Guid familyId)
         {
             var family = _familyRepository.GetById(familyId);
@@ -30,10 +33,14 @@
 
             return _fleetManager.GetAllVehicles()
                 .Where(vehicle => family.Matches(vehicle))
-                .Where(vehicle => _assignmentRepository
-                .GetFamilyId(vehicle.VehicleId) == familyId)
+                .Where(vehicle =>
+                {
+                    var assignedFamilyId = _assignmentRepository.GetFamilyId(vehicle.VehicleId);
+                    return assignedFamilyId == null || assignedFamilyId == familyId;
+                })
                 .ToList();
         }
+
         public bool AssignVehicle(Guid vehicleId, Guid familyId)
         {
             var family = _familyRepository.GetById(familyId);
@@ -50,5 +57,4 @@
             return true;
         }
     }
-
-
+}

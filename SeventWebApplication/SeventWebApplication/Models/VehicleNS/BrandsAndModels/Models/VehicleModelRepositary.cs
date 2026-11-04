@@ -91,6 +91,9 @@ namespace SeventWebApplication.Repositories
                 {
                     Brand = brand
                 };
+
+                Add(model);
+                brand.Models.Add(model);
             }
         }
     }

@@ -28,7 +28,7 @@ namespace SeventWebApplication.Models.Users
                 MakeCar("BMW", "i3", "BMW999", VehicleNS.PassengerCarCategoryType.Sedan, 2022, 250, FuelType.Electric, 300m)
             };
 
-            var statuses = new[] { "Pending", "Confirmed", "Active", "Completed", "Cancelled" };
+            var statuses = Enum.GetValues<SeventWebApplication.Models.Booking.BookingStatus>();
 
             for (int i = 0; i < 10; i++)
             {
