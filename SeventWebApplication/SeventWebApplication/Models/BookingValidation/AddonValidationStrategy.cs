@@ -51,6 +51,4 @@ namespace SeventWebApplication.Models.BookingValidation
             return errors;
         }
     }
-
-
 }
