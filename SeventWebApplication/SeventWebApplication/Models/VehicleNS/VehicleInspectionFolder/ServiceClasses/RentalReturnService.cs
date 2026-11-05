@@ -135,7 +135,8 @@ namespace SeventWebApplication.Models.VehicleNS
 
             _recordRepository.Update(record);
 
-            // 4. Bilen blir bara ledig om den saknar öppna skador
+            // 4. Bilen är inte uthyrd längre. Om skador hittades har RegisterDamage
+            //    redan satt VehicleStatus = InRepair, så den kan ändå inte hyras ut.
             vehicle.IsAvailable = true;
             booking.Status = BookingStatus.Completed;
         }
