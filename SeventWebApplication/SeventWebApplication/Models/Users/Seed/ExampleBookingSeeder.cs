@@ -2,10 +2,15 @@ using SeventWebApplication.Models.Addon;
 using SeventWebApplication.Models.VehicleNS;
 using SeventWebApplication.Models.VehicleNS.Engine;
 using BookingModel = SeventWebApplication.Models.Booking.Booking;
+using BookingStatus = SeventWebApplication.Models.Booking.BookingStatus;
 
 namespace SeventWebApplication.Models.Users
 {
-    // vibe code seeder som skapar några exempelbokningar för att kunna testa bokningsvisaren.
+    // Seeder som skapar exempelbilar och exempelbokningar för att kunna testa appen.
+    //
+    // Bilarna läggs till i flottan via FleetManager.AddVehicle. VehicleAssignmentService lyssnar på
+    // VehicleAdded och kopplar då varje bil till rätt familj automatiskt.
+    // Måste därför köras EFTER att familjerna har seedats i Program.cs.
     public static class ExampleBookingSeeder
     {
         public static void Seed(IUserRepository users)
@@ -20,44 +25,86 @@ namespace SeventWebApplication.Models.Users
                 return;
 
             var random = new Random();
-            var cars = new[]
+
+            // Varje bil matchar en familj i VehicleFamilySeeder:
+            //   Luxury Sedan       = Sedan + Luxury + Automatic
+            //   Premium SUV        = SUV + Premium + Automatic
+            //   Standard Hatchback = Hatchback + Standard + Manual
+            //   Cargo Van          = CargoVan + Manual, minst 8 m³ och 500 kg
+            // (Economy Station Wagon fylls av FleetManager.SeedTestVehicle, regnr ABC123)
+            var vehicles = new List<Vehicle>
             {
-                MakeCar("Volvo", "V60", "ABC123", VehicleNS.PassengerCarCategoryType.SUV, 2024, 197, FuelType.Petrol, 529m),
-                MakeCar("Tesla", "Model 3", "DEF456", VehicleNS.PassengerCarCategoryType.Sedan, 2023, 283, FuelType.Electric, 425m),
-                MakeCar("Volkswagen", "Golf", "GLF777", VehicleNS.PassengerCarCategoryType.Hatchback, 2022, 150, FuelType.Diesel, 380m),
-                MakeCar("BMW", "i3", "BMW999", VehicleNS.PassengerCarCategoryType.Sedan, 2022, 250, FuelType.Electric, 300m)
+                MakeCar("Tesla", "Model 3", "DEF456", PassengerCarCategoryType.Sedan, VehicleComfortType.Luxury, TransmissionType.Automatic, 2023, 283, FuelType.Electric, 425m),
+                MakeCar("BMW", "i4", "BMW999", PassengerCarCategoryType.Sedan, VehicleComfortType.Luxury, TransmissionType.Automatic, 2022, 340, FuelType.Electric, 470m),
+                MakeCar("Volvo", "XC60", "PRE123", PassengerCarCategoryType.SUV, VehicleComfortType.Premium, TransmissionType.Automatic, 2024, 250, FuelType.Petrol, 483m),
+                MakeCar("Volkswagen", "Golf", "GLF777", PassengerCarCategoryType.Hatchback, VehicleComfortType.Standard, TransmissionType.Manual, 2022, 150, FuelType.Diesel, 380m),
+                MakeVan("Volkswagen", "Transporter", "VAN001", VanCategoryType.CargoVan, TransmissionType.Manual, 2021, 150, 10.0, 900.0)
             };
 
-            // Alla värden i BookingStatus, så seedern följer enumen automatiskt om den ändras
-            var statuses = Enum.GetValues<SeventWebApplication.Models.Booking.BookingStatus>();
+            foreach (var vehicle in vehicles)
+                FleetManager.instance.AddVehicle(vehicle);
 
+            // Bara statusar som går att ha utan att pickup/retur faktiskt har körts.
+            // Active och Completed skapas via BookingManagementService.StartRental/CompleteRental,
+            // annars saknas rental record och inspektion för bokningen.
+            var statuses = new[] { BookingStatus.Pending, BookingStatus.Confirmed, BookingStatus.Cancelled };
+
+            // Bokningar på en specifik bil
             for (int i = 0; i < 10; i++)
             {
                 var user = allUsers[random.Next(allUsers.Count)];
-                var car = cars[random.Next(cars.Length)];
-                var status = statuses[random.Next(statuses.Length)];
+                var vehicle = vehicles[random.Next(vehicles.Count)];
 
-                var start = DateTime.Today.AddDays(random.Next(-20, 25));
+                var start = DateTime.Today.AddDays(random.Next(1, 30));
                 var end = start.AddDays(random.Next(1, 7));
 
-                try
+                TryRegister(registry, new BookingModel(
+                    Guid.NewGuid().ToString(),
+                    user.UserId.ToString(),
+                    vehicle,
+                    start,
+                    end,
+                    RandomAddons(random))
                 {
-                    registry.RegisterBooking(new BookingModel(
-                        Guid.NewGuid().ToString(),
-                        user.UserId.ToString(),
-                        car,
-                        start,
-                        end,
-                        RandomAddons(random))
-                    {
-                        Status = status
-                    });
-                }
-                catch (InvalidOperationException)
-                {
-                    // Slumpen valde en bil som redan är bokad den perioden. Hoppa över den bokningen,
-                    // annars kraschar appen vid start ibland.
-                }
+                    Status = statuses[random.Next(statuses.Length)]
+                });
+            }
+
+            // Familjebokningar utan bil, så att Approve (som tilldelar en bil ur familjen) går att testa
+            var familyIds = new[]
+            {
+                VehicleFamilySeeder.LuxurySedanId,
+                VehicleFamilySeeder.PremiumSuvId,
+                VehicleFamilySeeder.StandardHatchbackId
+            };
+
+            foreach (var familyId in familyIds)
+            {
+                var user = allUsers[random.Next(allUsers.Count)];
+                var start = DateTime.Today.AddDays(random.Next(30, 45));
+
+                TryRegister(registry, new BookingModel(
+                    Guid.NewGuid().ToString(),
+                    user.UserId.ToString(),
+                    familyId,
+                    start,
+                    start.AddDays(3),
+                    RandomAddons(random)));   // Status = Pending (standard)
+            }
+        }
+
+        // Slumpen kan välja en bil som redan är bokad den perioden. Hoppa över i så fall,
+        // annars kraschar appen vid start ibland.
+        private static void TryRegister(
+            SeventWebApplication.Models.Booking.BookingRegistry registry,
+            BookingModel booking)
+        {
+            try
+            {
+                registry.RegisterBooking(booking);
+            }
+            catch (InvalidOperationException)
+            {
             }
         }
 
@@ -85,34 +132,67 @@ namespace SeventWebApplication.Models.Users
             string brandName,
             string modelName,
             string regNr,
-            VehicleNS.PassengerCarCategoryType passengerCarCategoryType,
+            PassengerCarCategoryType categoryType,
+            VehicleComfortType comfortType,
+            TransmissionType transmissionType,
             int year,
             int horsePower,
             FuelType fuel,
             decimal luggage)
         {
-            var brand = new VehicleBrand(brandName);
-            var model = new VehicleModel(modelName, brand.BrandId) { Brand = brand };
-
-            IEngine engine = fuel switch
-            {
-                FuelType.Petrol => new PetrolEngine(horsePower, 50),
-                FuelType.Diesel => new DieselEngine(horsePower, 50),
-                FuelType.Electric => new ElectricEngine(horsePower, 60, 350),
-                _ => throw new ArgumentOutOfRangeException(nameof(fuel), fuel, "Unsupported fuel type.")
-            };
-
             return new Car(
                 new RegistrationPlate(regNr, CountryCode.SE),
-                model,
+                MakeModel(brandName, modelName),
                 VehicleCategoryType.PassengerCar,
-                passengerCarCategoryType,
-                VehicleNS.VehicleComfortType.Standard,
+                categoryType,
+                comfortType,
                 year,
                 5,
                 luggage,
-                engine,
-                TransmissionType.Automatic);
+                MakeEngine(fuel, horsePower),
+                transmissionType);
+        }
+
+        private static Van MakeVan(
+            string brandName,
+            string modelName,
+            string regNr,
+            VanCategoryType categoryType,
+            TransmissionType transmissionType,
+            int year,
+            int horsePower,
+            double cargoCapacityM3,
+            double maxPayloadKg)
+        {
+            return new Van(
+                new RegistrationPlate(regNr, CountryCode.SE),
+                MakeModel(brandName, modelName),
+                VehicleCategoryType.Van,
+                categoryType,
+                year,
+                3,
+                0m,
+                MakeEngine(FuelType.Diesel, horsePower),
+                transmissionType,
+                cargoCapacityM3,
+                maxPayloadKg);
+        }
+
+        private static VehicleModel MakeModel(string brandName, string modelName)
+        {
+            var brand = new VehicleBrand(brandName);
+            return new VehicleModel(modelName, brand.BrandId) { Brand = brand };
+        }
+
+        private static IEngine MakeEngine(FuelType fuel, int horsePower)
+        {
+            return fuel switch
+            {
+                FuelType.Petrol => new PetrolEngine(horsePower, 50),
+                FuelType.Diesel => new DieselEngine(horsePower, 70),
+                FuelType.Electric => new ElectricEngine(horsePower, 75, 450),
+                _ => throw new ArgumentOutOfRangeException(nameof(fuel), fuel, "Unsupported fuel type.")
+            };
         }
     }
 }
