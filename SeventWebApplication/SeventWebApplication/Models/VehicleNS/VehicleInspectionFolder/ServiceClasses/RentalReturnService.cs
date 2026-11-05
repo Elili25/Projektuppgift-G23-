@@ -136,7 +136,7 @@ namespace SeventWebApplication.Models.VehicleNS
             _recordRepository.Update(record);
 
             // 4. Bilen blir bara ledig om den saknar öppna skador
-            vehicle.IsAvailable = !_damageService.HasOpenDamages(vehicleId);
+            vehicle.IsAvailable = true;
             booking.Status = BookingStatus.Completed;
         }
 
