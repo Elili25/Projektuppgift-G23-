@@ -13,7 +13,7 @@ public class PaymentServices
 
         if (result.success)
         {
-            booking.Status = BookingStatus.Confirmed;
+            booking.Status = Booking.BookingStatus.Confirmed;
         }
 
         return result;

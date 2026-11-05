@@ -22,6 +22,8 @@ namespace SeventWebApplication.Models.VehicleNS
         public int PassengerCapacity { get; private set; }
         public decimal LuggageCapacity { get; private set; }
 
+        public VehicleStatus VehicleStatus { get; set; } = VehicleStatus.Active;
+
         public bool IsAvailable { get; set; } = true;
 
         protected Vehicle(
