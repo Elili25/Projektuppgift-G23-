@@ -42,8 +42,11 @@ namespace SeventWebApplication.Models.VehicleNS
             if (booking.Status != BookingStatus.Confirmed)
                 throw new InvalidOperationException("Booking must be approved before pickup.");
 
+            if (!vehicle.IsOperational)
+                throw new InvalidOperationException($"Vehicle is {vehicle.VehicleStatus} and cannot be rented.");
+
             if (!vehicle.IsAvailable)
-                throw new InvalidOperationException("Vehicle is not available.");
+                throw new InvalidOperationException("Vehicle is already rented out.");
 
             if (_damageService.HasOpenDamages(vehicleId))
                 throw new InvalidOperationException("Vehicle has unresolved damages.");

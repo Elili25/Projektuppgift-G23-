@@ -104,7 +104,9 @@ public class FleetManager
     // till BookingRegistry, men det är mest bara en tanke, inget vi behöver greja med utan keep it simple lol.
     public bool IsAvailable(Vehicle vehicle, DateTime startDate, DateTime endDate)
     {
-        // Two periods overlap when each one starts before the other ends.
+        if (!vehicle.IsOperational)
+            return false;
+
         return !BookingRegistry.Instance.GetBookingsByVehicleId(vehicle.VehicleId)
             .Any(b => b.Status != BookingStatus.Cancelled && b.StartDate < endDate && startDate < b.EndDate);
     }

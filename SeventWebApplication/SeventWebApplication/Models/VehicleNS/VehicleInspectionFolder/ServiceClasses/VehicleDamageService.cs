@@ -42,7 +42,7 @@ namespace SeventWebApplication.Models.VehicleNS
             _damageRepository.Add(damage);
 
             // En bil med öppen skada ska inte kunna hyras ut
-            vehicle.IsAvailable = false;
+            vehicle.ChangeStatus(VehicleStatus.InRepair);
 
             return true;
         }
@@ -86,11 +86,11 @@ namespace SeventWebApplication.Models.VehicleNS
             damage.Resolve();
 
             // Bilen blir ledig först när alla skador är åtgärdade OCH den inte är uthyrd
-            if (!HasOpenDamages(damage.VehicleId) && !IsCurrentlyRented(damage.VehicleId))
+            if (!HasOpenDamages(damage.VehicleId))
             {
                 var vehicle = _fleetManager.GetVehicle(damage.VehicleId);
-                if (vehicle != null)
-                    vehicle.IsAvailable = true;
+                if (vehicle?.VehicleStatus == VehicleStatus.InRepair)
+                    vehicle.ChangeStatus(VehicleStatus.Active);
             }
 
             return true;

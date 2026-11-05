@@ -22,9 +22,17 @@ namespace SeventWebApplication.Models.VehicleNS
         public int PassengerCapacity { get; private set; }
         public decimal LuggageCapacity { get; private set; }
 
-        public VehicleStatus VehicleStatus { get; set; } = VehicleStatus.Active;
+        // Bilens skick. Ändras bara via ChangeStatus, så att ändringen alltid går att spåra
+        public VehicleStatus VehicleStatus { get; private set; } = VehicleStatus.Active;
 
+        // Om bilen är uthyrd just nu (sätts vid pickup/retur)
         public bool IsAvailable { get; set; } = true;
+
+        // Kan bilen köras överhuvudtaget? (inte trasig, på service eller avställd)
+        public bool IsOperational => VehicleStatus == VehicleStatus.Active;
+
+        // Skickas när statusen ändras. Här kan VehicleStatusHistory koppla in sig senare.
+        public event Action<Vehicle, VehicleStatus, VehicleStatus>? StatusChanged;
 
         protected Vehicle(
             RegistrationPlate registrationPlate,
@@ -52,6 +60,15 @@ namespace SeventWebApplication.Models.VehicleNS
             PassengerCapacity = passengerCapacity;
             LuggageCapacity = luggageCapacity;
             TransmissionType = transmissionType;
+        }
+        public void ChangeStatus(VehicleStatus newStatus)
+        {
+            if (newStatus == VehicleStatus)
+                return;
+
+            var oldStatus = VehicleStatus;
+            VehicleStatus = newStatus;
+            StatusChanged?.Invoke(this, oldStatus, newStatus);
         }
     }
 }
