@@ -41,6 +41,7 @@ namespace SeventWebApplication
             // Samma BookingRepository som BookingRegistry använder, så det bara finns en lista med bokningar
             builder.Services.AddSingleton<BookingRepository>(_ => BookingRegistry.Instance.Repository);
             builder.Services.AddSingleton(BookingRegistry.Instance.Repository);
+            builder.Services.AddScoped<BookingManagementService>();
 
             // ---- Fordonsdelen ----
             builder.Services.AddSingleton<VehicleRentalRecordRepository>();
