@@ -42,7 +42,8 @@ namespace SeventWebApplication.Models.VehicleNS
             _damageRepository.Add(damage);
 
             // En bil med öppen skada ska inte kunna hyras ut
-            vehicle.ChangeStatus(VehicleStatus.InRepair);
+            if (vehicle.VehicleStatus == VehicleStatus.Active)
+                vehicle.ChangeStatus(VehicleStatus.InRepair);
 
             return true;
         }

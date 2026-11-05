@@ -8,13 +8,13 @@ using System.Collections.ObjectModel;
 
 public class FleetManager
 {
-    private static FleetManager? _instance = null;
 
-    public static FleetManager instance
-    {
-        // Checks if the instance is not null and returns it or creates a new one if it is null
-        get { return _instance ??= new FleetManager(); }
-    }
+
+    private static readonly Lazy<FleetManager> _instance = new(() => new FleetManager());
+
+    public static FleetManager instance => _instance.Value;
+
+
 
     private Dictionary<string, Vehicle> _vehicles = new(StringComparer.OrdinalIgnoreCase);// <reg-num, vehicle>
 
@@ -108,7 +108,9 @@ public class FleetManager
             return false;
 
         return !BookingRegistry.Instance.GetBookingsByVehicleId(vehicle.VehicleId)
-            .Any(b => b.Status != BookingStatus.Cancelled && b.StartDate < endDate && startDate < b.EndDate);
+            .Any(b => b.Status != BookingStatus.Cancelled
+            && b.Status != BookingStatus.Completed
+            && b.StartDate < endDate && startDate < b.EndDate);
     }
 
     // TESTDATA: Skapar en dummybil för att testa sökfunktionen.
