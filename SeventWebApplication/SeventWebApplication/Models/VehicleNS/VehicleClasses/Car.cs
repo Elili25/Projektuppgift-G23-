@@ -2,24 +2,28 @@ using SeventWebApplication.Models.VehicleNS.Engine;
 
 namespace SeventWebApplication.Models.VehicleNS
 {
+    // En personbil. Kategori (Sedan, SUV, ...) och komfort (Economy, Luxury, ...) avgör
+    // både vilken fordonsfamilj bilen hamnar i (PassengerCarFamily.Matches)
+    // och dagspriset (CarRateCatalog.GetDailyPrice).
     public class Car : Vehicle,
         IPassengerVehicle,
         IVehicleTransmissionType
     {
+        public PassengerCarCategoryType PassengerCarCategoryType { get; private set; }
 
-        public PassengerCarCategoryType PassengerCarCategoryType { get; private set; } // Ändrat: private set
-        public VehicleComfortType VehicleComfortType { get; set; } // Tillagt
+        // private set: om komforten ändras i efterhand stämmer bilens familjekoppling och pris inte längre
+        public VehicleComfortType VehicleComfortType { get; private set; }
 
         public Car(
             RegistrationPlate registrationPlate,
             VehicleModel model,
             VehicleCategoryType vehicleCategoryType,
-            PassengerCarCategoryType passengerCarCategoryType, // Tillagt
-            VehicleComfortType vehicleComfortType, // Tillagt
+            PassengerCarCategoryType passengerCarCategoryType,
+            VehicleComfortType vehicleComfortType,
             int year,
             int passengerCapacity,
             decimal luggageCapacity,
-            IEngine engine, // Ändrat: ersätter horsePower och fuelType
+            IEngine engine,
             TransmissionType transmissionType)
             : base(
                 registrationPlate,
@@ -28,12 +32,20 @@ namespace SeventWebApplication.Models.VehicleNS
                 year,
                 passengerCapacity,
                 luggageCapacity,
-                engine, // Ändrat: skickar motorn till Vehicle
+                engine,
                 transmissionType)
         {
+            if (vehicleCategoryType != VehicleCategoryType.PassengerCar)
+                throw new ArgumentException("A car must have category PassengerCar.", nameof(vehicleCategoryType));
 
-            PassengerCarCategoryType = passengerCarCategoryType; // Tillagt
-            VehicleComfortType = vehicleComfortType; // Tillagt
+            if (passengerCapacity <= 0)
+                throw new ArgumentOutOfRangeException(nameof(passengerCapacity), "Passenger capacity must be greater than 0.");
+
+            if (luggageCapacity < 0)
+                throw new ArgumentOutOfRangeException(nameof(luggageCapacity), "Luggage capacity cannot be negative.");
+
+            PassengerCarCategoryType = passengerCarCategoryType;
+            VehicleComfortType = vehicleComfortType;
         }
     }
 }

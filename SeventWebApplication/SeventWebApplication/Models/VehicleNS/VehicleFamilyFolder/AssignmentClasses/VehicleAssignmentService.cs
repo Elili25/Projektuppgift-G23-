@@ -1,31 +1,36 @@
+using SeventWebApplication.Models.Booking;
 using BookingEntity = SeventWebApplication.Models.Booking.Booking;
 
 namespace SeventWebApplication.Models.VehicleNS
 {
     /// <summary>
-    /// The VehicleAssignmentService class is responsible for managing the assignment of vehicles to vehicle families
-    /// and for assigning a concrete vehicle from a family to a booking.
+    /// Kopplar bilar till fordonsfamiljer, och tilldelar en konkret bil ur familjen till en bokning.
     /// </summary>
     public class VehicleAssignmentService
     {
         private readonly FleetManager _fleetManager;
         private readonly VehicleFamilyRepository _familyRepository;
         private readonly VehicleFamilyAssignmentRepository _assignmentRepository;
+        private readonly BookingRepository _bookingRepository;
 
         public VehicleAssignmentService(
             FleetManager fleetManager,
             VehicleFamilyRepository familyRepository,
-            VehicleFamilyAssignmentRepository assignmentRepository)
+            VehicleFamilyAssignmentRepository assignmentRepository,
+            BookingRepository bookingRepository)
         {
             _fleetManager = fleetManager;
             _familyRepository = familyRepository;
             _assignmentRepository = assignmentRepository;
+            _bookingRepository = bookingRepository;
 
             // Varje ny bil i flottan kopplas automatiskt till en matchande familj
             _fleetManager.VehicleAdded += vehicle => AutoAssignFamily(vehicle);
         }
 
-        // Mittenkolumnen: koppla en ny bil till första familjen den matchar
+        // --- Bil ↔ familj ---
+
+        // Kopplar en bil till första familjen den matchar
         public bool AutoAssignFamily(Vehicle vehicle)
         {
             ArgumentNullException.ThrowIfNull(vehicle);
@@ -38,26 +43,36 @@ namespace SeventWebApplication.Models.VehicleNS
             return true;
         }
 
-        /// <summary>
-        /// Kopplar alla bilar i flottan som saknar familj till en matchande familj.
-        /// Behövs vid uppstart (bilar som lades till före familjerna) och när nya familjer skapas.
-        /// Returnerar antal bilar som kopplades.
-        /// </summary>
+        // Kopplar alla bilar som saknar familj. Behövs vid uppstart och när nya familjer skapas.
+        // Returnerar antal bilar som kopplades.
         public int AutoAssignAllVehicles()
         {
             int assigned = 0;
+
             foreach (var vehicle in _fleetManager.GetAllVehicles())
             {
                 if (_assignmentRepository.GetFamilyId(vehicle.VehicleId) == null && AutoAssignFamily(vehicle))
                     assigned++;
             }
+
             return assigned;
         }
 
-        /// <summary>
-        /// Returns the vehicles assigned to the family. A vehicle is only assigned
-        /// if it matched the family at assignment time, so Matches is not checked again.
-        /// </summary>
+        // Kopplar en bil till en specifik familj, men bara om bilen matchar
+        public bool AssignVehicleToFamily(Guid vehicleId, Guid familyId)
+        {
+            var family = _familyRepository.GetById(familyId);
+            var vehicle = _fleetManager.GetVehicle(vehicleId);
+
+            if (family == null || vehicle == null || !family.Matches(vehicle))
+                return false;
+
+            _assignmentRepository.Assign(vehicleId, familyId);
+            return true;
+        }
+
+        // Bilarna som är kopplade till familjen. En bil kopplas bara om den matchade,
+        // så Matches behöver inte kollas igen.
         public IEnumerable<Vehicle> FindMatchingVehicles(Guid familyId)
         {
             return _fleetManager.GetAllVehicles()
@@ -65,14 +80,20 @@ namespace SeventWebApplication.Models.VehicleNS
                 .ToList();
         }
 
-        // Finns det minst en ledig bil i familjen under perioden?
+        // --- Familj ↔ bokning ---
+
+        // Ledig om det finns fler lediga bilar än familjebokningar som väntar på bil under perioden.
+        // Förenkling: alla överlappande bokningar räknas som samtidiga, så den kan svara nej i onödan
+        // men aldrig ja när det faktiskt är fullt.
         public bool IsFamilyAvailable(Guid familyId, DateTime start, DateTime end)
         {
-            return FindMatchingVehicles(familyId)
-                .Any(v => _fleetManager.IsAvailable(v, start, end));
+            int freeVehicles = FindMatchingVehicles(familyId)
+                .Count(v => _fleetManager.IsAvailable(v, start, end));
+
+            return freeVehicles > CountWaitingFamilyBookings(familyId, start, end);
         }
 
-        // Välj en ledig bil ur bokningens familj och sätt den på bokningen
+        // Väljer en ledig bil ur bokningens familj och sätter den på bokningen
         public bool ConfirmVehicleAssignment(BookingEntity booking)
         {
             ArgumentNullException.ThrowIfNull(booking);
@@ -91,21 +112,17 @@ namespace SeventWebApplication.Models.VehicleNS
             return true;
         }
 
-        // Kopplar en bil till en familj (var tidigare AssignVehicle(vehicleId, familyId))
-        public bool AssignVehicleToFamily(Guid vehicleId, Guid familyId)
+        // --- Hjälpmetoder ---
+
+        // Familjebokningar som ännu inte fått en bil och som överlappar perioden
+        private int CountWaitingFamilyBookings(Guid familyId, DateTime start, DateTime end)
         {
-            var family = _familyRepository.GetById(familyId);
-
-            var vehicle = _fleetManager.GetVehicle(vehicleId);
-
-            if (family == null || vehicle == null)
-                return false;
-
-            if (!family.Matches(vehicle))
-                return false;
-
-            _assignmentRepository.Assign(vehicleId, familyId);
-            return true;
+            return _bookingRepository.GetAll().Count(b =>
+                b.VehicleFamilyId == familyId
+                && b.Vehicle == null
+                && b.Status != BookingStatus.Cancelled
+                && b.StartDate < end
+                && start < b.EndDate);
         }
     }
 }
