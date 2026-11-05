@@ -1,4 +1,4 @@
-using SeventWebApplication.Models.Booking;
+using SeventWebApplication.Models.Bookings;
 using SeventWebApplication.Models.Users;
 using SeventWebApplication.Models.VehicleNS;
 

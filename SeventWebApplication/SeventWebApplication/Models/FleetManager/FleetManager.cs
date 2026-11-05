@@ -1,6 +1,6 @@
 ﻿
 using SeventWebApplication.Controllers;
-using SeventWebApplication.Models.Booking;
+using SeventWebApplication.Models.Bookings;
 using SeventWebApplication.Models.VehicleNS;
 using SeventWebApplication.Models.VehicleNS.Engine;
 using System;

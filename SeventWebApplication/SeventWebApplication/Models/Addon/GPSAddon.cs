@@ -1,11 +1,12 @@
-using SeventWebApplication.Models.Addon.Enums;
 using SeventWebApplication.Models.Addon.Interfaces;
 
 namespace SeventWebApplication.Models.Addon
 {
     public class GPSAddon : IAddon
     {
-        public AddonType AddonType => AddonType.Gps;
+        public string DisplayName => "GPS";
+
+        public int MaxLimit => 1;
 
         public int Quantity { get; set; } = 1;
         private readonly decimal _price = 500;  

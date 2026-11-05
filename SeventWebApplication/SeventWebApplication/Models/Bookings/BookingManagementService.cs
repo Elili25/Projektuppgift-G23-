@@ -1,4 +1,4 @@
-﻿namespace SeventWebApplication.Models.Booking
+﻿namespace SeventWebApplication.Models.Bookings
 {
     public class BookingManagementService
     {

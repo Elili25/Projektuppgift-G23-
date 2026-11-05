@@ -1,7 +1,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using SeventWebApplication.Models;
-using SeventWebApplication.Models.Booking;
+using SeventWebApplication.Models.Bookings;
 using SeventWebApplication.Models.VehicleNS;
 using System.Diagnostics;
 using System.Reflection.Metadata;

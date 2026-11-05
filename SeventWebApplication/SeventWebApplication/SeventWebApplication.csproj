@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\Booking\Enums\" />
+    <Folder Include="Models\Bookings\Enums\" />
     <Folder Include="wwwroot\lib\Sevent_Assets\" />
   </ItemGroup>
 

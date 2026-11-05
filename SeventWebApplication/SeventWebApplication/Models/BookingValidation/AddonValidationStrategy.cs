@@ -1,49 +1,48 @@
 ﻿using SeventWebApplication.Models.Addon;
-using SeventWebApplication.Models.Addon.Enums;
+using SeventWebApplication.Models.Addon.Interfaces;
+using SeventWebApplication.Models.Bookings;
 
 namespace SeventWebApplication.Models.BookingValidation
 {
     public class AddonValidationStrategy : IValidationStrategy
     {
-        // Definierar maxgränserna för addons
-        private readonly Dictionary<AddonType, int> _maxLimits = new()
-    {
-        { AddonType.Gps, 1 },
-        { AddonType.ExtraDriver, 1 },
-        { AddonType.ChildSeat, 3 }
-        // Här läggs nya addons och dess maxantal till
-    };
-        
         public IEnumerable<ValidationError> Validate(BookingRequest request)
         {
             var errors = new List<ValidationError>();
 
-            if (request.Addons == null) return errors;
+            if (request.Addons == null || !request.Addons.Any())
+                return errors;
 
-            // Grupperar och summerar alla inskickade addons samtidigt
+            // 1. Gruppera först på AddonKey (eftersom det är det som skickas in i vår DTO/Request)
             var totals = request.Addons
-                .GroupBy(a => a.AddonType)
-                .Select(g => new { AddonType = g.Key, Total = g.Sum(a => a.Quantity) });
+                .Where(a => !string.IsNullOrWhiteSpace(a.AddonKey))
+                .GroupBy(a => a.AddonKey.Trim().ToLower())
+                .Select(g => new { AddonKey = g.Key, Total = g.Sum(a => a.Quantity) });
 
-            // Loopar igenom de summerade tilläggen och jämför mot reglerna
             foreach (var addon in totals)
             {
-                // Kontrollerar om det finns en maxgräns definierad för denna typ och om den har överskridits
-                if (_maxLimits.TryGetValue(addon.AddonType, out int maxAllowed) && addon.Total > maxAllowed)
+                try
                 {
-                    // Här översätts enumen till svenska för felmeddelandet
-                    string svensktNamn = addon.AddonType switch
-                    {
-                        AddonType.Gps => "GPS",
-                        AddonType.ExtraDriver => "extra förare",
-                        AddonType.ChildSeat => "barnstolar",
-                        _ => addon.AddonType.ToString() // Fallback om man glömmer översätta nya enums i framtiden
-                    };
+                    // 2. Skapa en temporär instans för att läsa ut reglerna (kvantitet sätts till 1)
+                    IAddon rules = AddonFactory.Create(addon.AddonKey, 1);
 
+                    // 3. Jämför den inskickade totalen mot klassens MaxLimit
+                    if (addon.Total > rules.MaxLimit)
+                    {
+                        errors.Add(new ValidationError
+                        {
+                            Property = nameof(request.Addons),
+                            Message = $"Du kan lägga till max {rules.MaxLimit} {rules.DisplayName}. Du har angett {addon.Total} st.",
+                        });
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    // Fångar upp om någon manipulerat HTML/JSON och skickat en ogiltig nyckel
                     errors.Add(new ValidationError
                     {
                         Property = nameof(request.Addons),
-                        Message = $"Du kan lägga till max {maxAllowed} {svensktNamn}. Du har angett {addon.Total} st.",
+                        Message = $"Tillägget '{addon.AddonKey}' är inte ett giltigt alternativ i systemet.",
                     });
                 }
             }

@@ -12,8 +12,10 @@ namespace SeventWebApplication.Models.Addon
 
         public void Add(IAddon addon)
         {
+            if (addon.Quantity <= 0) return;  // Om man försöker lägga till 0 så avbryts det
+
             // Letar efter en existerande addon av samma typ
-            var existingAddon = _addons.FirstOrDefault(a => a.AddonType == addon.AddonType);
+            var existingAddon = _addons.FirstOrDefault(a => a.GetType() == addon.GetType());
 
             if (existingAddon != null)
             {
@@ -29,7 +31,8 @@ namespace SeventWebApplication.Models.Addon
 
         public void Remove(IAddon addon)
         {
-            var existingAddon = _addons.FirstOrDefault(a => a.AddonType == addon.AddonType);
+            if (addon.Quantity <= 0) return;
+            var existingAddon = _addons.FirstOrDefault(a => a.GetType() == addon.GetType());
 
             if (existingAddon != null)
             {
@@ -47,12 +50,7 @@ namespace SeventWebApplication.Models.Addon
         // Slår samman priset för alla addons
         public decimal GetTotalAddonPrice()
         {
-            decimal total = 0;
-            foreach (var addon in _addons)
-            {
-                total += addon.GetPrice();
-            }
-            return total;
+            return _addons.Sum(addon => addon.GetPrice());
         }
     }
 

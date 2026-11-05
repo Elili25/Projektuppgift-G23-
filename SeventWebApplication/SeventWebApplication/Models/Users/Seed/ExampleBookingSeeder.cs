@@ -1,7 +1,7 @@
 using SeventWebApplication.Models.Addon;
 using SeventWebApplication.Models.VehicleNS;
 using SeventWebApplication.Models.VehicleNS.Engine;
-using BookingModel = SeventWebApplication.Models.Booking.Booking;
+using BookingModel = SeventWebApplication.Models.Bookings.Booking;
 
 namespace SeventWebApplication.Models.Users
 {
@@ -10,7 +10,7 @@ namespace SeventWebApplication.Models.Users
     {
         public static void Seed(IUserRepository users)
         {
-            var registry = SeventWebApplication.Models.Booking.BookingRegistry.Instance;
+            var registry = SeventWebApplication.Models.Bookings.BookingRegistry.Instance;
 
             if (registry.GetBookings().Any())
                 return;

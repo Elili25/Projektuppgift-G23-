@@ -1,4 +1,6 @@
-﻿namespace SeventWebApplication.Models.BookingValidation
+﻿using SeventWebApplication.Models.Bookings;
+
+namespace SeventWebApplication.Models.BookingValidation
 {
     public class DateValidationStrategy : IValidationStrategy
     {

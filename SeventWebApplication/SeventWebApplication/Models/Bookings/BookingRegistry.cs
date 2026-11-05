@@ -1,4 +1,4 @@
-﻿namespace SeventWebApplication.Models.Booking
+﻿namespace SeventWebApplication.Models.Bookings
 {
     // BookingRegistry håller koll på bokningarna.
     // Allt här är flyttat från FleetManager, så att FleetManager bara har fordonen.

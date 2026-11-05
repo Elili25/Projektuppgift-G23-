@@ -1,5 +1,5 @@
 using SeventWebApplication.Models.Addon;
-using BookingModel = SeventWebApplication.Models.Booking.Booking;
+using BookingModel = SeventWebApplication.Models.Bookings.Booking;
 
 namespace SeventWebApplication.Models.Users
 {

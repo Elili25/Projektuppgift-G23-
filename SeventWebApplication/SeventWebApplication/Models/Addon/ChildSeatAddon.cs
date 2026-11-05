@@ -1,12 +1,13 @@
-using SeventWebApplication.Models.Addon;
-using SeventWebApplication.Models.Addon.Enums;
 using SeventWebApplication.Models.Addon.Interfaces;
 
 namespace SeventWebApplication.Models.Addon
 {
     public class ChildSeatAddon : IAddon
     {
-        public AddonType AddonType => AddonType.ChildSeat;
+        
+        public string DisplayName => "Barnstolar";  // Svenska namnet för en addon
+
+        public int MaxLimit => 3;  // Max antal för en addon
 
         public int Quantity { get; set; } = 1;  // Bas kvantitet är 1 men kan ändras när ett objekt läggs till
         private readonly decimal _price = 100;  // Baspriset på en addon

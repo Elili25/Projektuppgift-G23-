@@ -5,7 +5,7 @@ using SeventWebApplication.Models.VehicleNS;
 using SeventWebApplication.Models.Addon;
 using SeventWebApplication.Models.Addon.Interfaces;
 
-namespace SeventWebApplication.Models.Booking
+namespace SeventWebApplication.Models.Bookings
 {
     public class Booking
     {
@@ -15,7 +15,7 @@ namespace SeventWebApplication.Models.Booking
         public Vehicle Vehicle { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public IAddon Addon { get; set; }
+        public AddonPackage Addons { get; set; } = new AddonPackage();  // bytte ut IAddon till AddonPackage och tog bort från konstruktorn
         public string Status { get; set; } = "Pending"; // la till status så jag kudne n testa bokningar i olika status i viewern, pending e default
         //public IPricingStrategy PricingStrategy { get; set; }
 
@@ -24,14 +24,13 @@ namespace SeventWebApplication.Models.Booking
 
 
         // Add booking constructor 
-        public Booking(string bookingId, string userId, Vehicle vehicle, DateTime startDate, DateTime endDate, IAddon addon) /* IPricingStrategy pricingStrateg*/
+        public Booking(string bookingId, string userId, Vehicle vehicle, DateTime startDate, DateTime endDate) /* IPricingStrategy pricingStrateg*/
         {
             BookingId = bookingId;
             UserId = userId;
             Vehicle = vehicle;
             StartDate = startDate;
             EndDate = endDate;
-            Addon = addon;
             //PricingStrategy = pricingStrategy;
         }
 

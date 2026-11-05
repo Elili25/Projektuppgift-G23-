@@ -1,5 +1,5 @@
-﻿using SeventWebApplication.Models.Booking;
-using BookingEntity = SeventWebApplication.Models.Booking.Booking;
+﻿using SeventWebApplication.Models.Bookings;
+using BookingEntity = SeventWebApplication.Models.Bookings.Booking;
 
 namespace SeventWebApplication.Models.VehicleNS
 {

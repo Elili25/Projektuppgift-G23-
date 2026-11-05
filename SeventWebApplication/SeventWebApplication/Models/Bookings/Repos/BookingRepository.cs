@@ -1,4 +1,4 @@
-﻿namespace SeventWebApplication.Models.Booking
+﻿namespace SeventWebApplication.Models.Bookings
 {
     // Lagrar alla bokningar. BookingRegistry äger den enda instansen.
     public class BookingRepository
