@@ -15,6 +15,12 @@ namespace SeventWebApplication
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            // ---- Notifications ----
+            // Singletons först så den initieras i Build() annars finns den inte första gången vi kör igenom programmet 
+            builder.Services.AddSingleton<NotificationService>();
+            // HostedService så den ger NotificationService en entrypoint för sin egna loop
+            builder.Services.AddHostedService(_ => _.GetRequiredService<NotificationService>());
+
             // ---- Användardelen ----
             // Singleton = samma objekt i hela appen, så alla delar samma användarlista.
             builder.Services.AddSingleton<IUserRepository>(_ =>
@@ -60,11 +66,14 @@ namespace SeventWebApplication
             builder.Services.AddScoped<VehicleDamageService>();
             builder.Services.AddScoped<RentalReturnService>();
 
-            // ---- Notifications ----
-            // HostedService så den ger NotificationService en entrypoint för sin egna loop
-            builder.Services.AddHostedService<NotificationService>();
-
             var app = builder.Build();
+
+            var notificationService = app.Services.GetRequiredService<NotificationService>();
+            var userRepository = (UserRepository)app.Services.GetRequiredService<IUserRepository>();
+
+            notificationService.AddChannel( new EmailNotificationChannel( userRepository ) );
+            notificationService.AddChannel( new SmsNotificationChannel( userRepository ) );
+            notificationService.AddChannel( new InAppNotificationChannel( userRepository ) );
 
             // Skapar tjänsten direkt vid start så att den börjar lyssna på FleetManager.VehicleAdded
             // (annars skapas den först när något ber om den, och bilar som läggs till innan dess missas)

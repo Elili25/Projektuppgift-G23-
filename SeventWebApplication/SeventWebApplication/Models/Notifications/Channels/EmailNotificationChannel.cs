@@ -5,7 +5,12 @@ namespace SeventWebApplication.Models.Notifications
     public class EmailNotificationChannel : INotificationChannel
     {
         private IEmailService _emailService = new EmailService();
-        private UserRepository _userRepository = new();
+        private UserRepository _userRepository;
+
+        public EmailNotificationChannel( UserRepository userRepository )
+        {
+            _userRepository = userRepository;
+        }
 
         public void Send( Notification notification )
         {

@@ -1,20 +1,23 @@
-﻿using SeventWebApplication.Models.Users;
+﻿using SeventWebApplication.Models.Booking;
+using SeventWebApplication.Models.Users;
 using BookingEntity = SeventWebApplication.Models.Booking.Booking;
 
 namespace SeventWebApplication.Models.Notifications
 {
-    public class NotificationService : BackgroundService, IDisposable
+    public class NotificationService : BackgroundService
     {
-        private INotificationRepository _notificationRepository = new NotificationRepository();
-        private Dictionary<NotificationChannelType, INotificationChannel> _notificationChannels = [];
+        private readonly INotificationRepository _notificationRepository = new NotificationRepository();
+        private readonly Dictionary<NotificationChannelType, INotificationChannel> _notificationChannels = [];
+        private readonly IReminderScheduler _scheduler;
 
         private PeriodicTimer? _timer = null; //Timer used for calling ProcessNotifications()
 
-        public NotificationService() 
-        { 
-            // Ville ha det här i Program.cs men den här är en hosted service så den verkar skapas efter app.Run()
-            AddChannel<EmailNotificationChannel>();
-            AddChannel<SmsNotificationChannel>();
+        private BookingRepository _bookingRepository;
+
+        public NotificationService( BookingRepository bookingRepository ) 
+        {
+            _scheduler = new ReminderScheduler( 30 /*minutes*/);
+            _bookingRepository = bookingRepository;
         }
 
         public void AddChannel( INotificationChannel channel )
@@ -25,29 +28,30 @@ namespace SeventWebApplication.Models.Notifications
             _notificationChannels.Add( channel.GetChannelType(), channel );
         }
 
-        // Creates a new channel and adds it to the notification channels list
-        public void AddChannel<T>() where T : INotificationChannel, new()
-        {
-            AddChannel( new T() );
-        }
-
         public void RemoveChannel( NotificationChannelType type )
         {
             _notificationChannels.Remove( type );
         }
         
         // Called to start processing the current messages
-        public void ProcessNotifications()
+        private void ProcessNotifications()
         {
-            IEnumerable<Notification> notifications = _notificationRepository.GetPending();
+            var notifications = _notificationRepository.GetPending();
 
             foreach( var notification in notifications )
             {
                 Send( notification );
             }
+
+            var scheduledReminder = _scheduler.GetPending();
+
+            foreach( var reminder in scheduledReminder )
+            {
+                SendReminder( reminder );
+            }
         }
 
-        public void AddBookingConfirmedNotification( BookingEntity booking )
+        public void AddBookingConfirmed( BookingEntity booking )
         {
             Guid userId = Guid.Parse( booking.UserId );
 
@@ -55,7 +59,7 @@ namespace SeventWebApplication.Models.Notifications
             _notificationRepository.Add( notification );
         }
 
-        public void AddCancellationConfirmedNotification( BookingEntity booking )
+        public void AddCancellationConfirmed( BookingEntity booking )
         {
             Guid userId = Guid.Parse( booking.UserId );
 
@@ -64,7 +68,7 @@ namespace SeventWebApplication.Models.Notifications
         }
 
         // Den här kommer nog inte användas
-        public void AddBookingChangedNotification( BookingEntity booking )
+        public void AddBookingChanged( BookingEntity booking )
         {
             Guid userId = Guid.Parse( booking.UserId );
 
@@ -72,7 +76,7 @@ namespace SeventWebApplication.Models.Notifications
             _notificationRepository.Add( notification );
         }
 
-        public void AddLateReturnNotification( BookingEntity booking )
+        public void AddLateReturn( BookingEntity booking )
         {
             Guid userId = Guid.Parse( booking.UserId );
 
@@ -82,12 +86,7 @@ namespace SeventWebApplication.Models.Notifications
 
         public void AddPickupReminder( BookingEntity booking )
         {
-            //ToDo: Pickup Reminder
-        }
-        // Är det här samma? /\  \/
-        public void ScheduleReminderNotification( BookingEntity booking )
-        {
-
+            _scheduler.Schedule( booking );
         }
 
         // Sends a message to all channels
@@ -103,8 +102,35 @@ namespace SeventWebApplication.Models.Notifications
             notification.Status = NotificationStatus.Processed;
         }
 
+        private void SendReminder( Reminder reminder )
+        {
+            if( !_notificationChannels.TryGetValue( NotificationChannelType.InApp, out var channel ) )
+                throw new Exception( "No InApp notification channel was found" );
+
+            BookingEntity? booking = _bookingRepository.GetById( reminder.BookingId.ToString() );
+
+            if( booking == null )
+            {
+                reminder.Status = NotificationStatus.Cancelled;
+                return;
+            }
+
+            // ToDo: Lite skumt att göra såhär när vi har en scheduleAt i Notification, kanske får fixa sen
+            Notification reminderNotification = new(
+                $"Reminder: your booking for today is at {reminder.ScheduleAt.Hour}:{reminder.ScheduleAt.Minute}",
+                reminder.BookingId,
+                Guid.Parse( booking.UserId ),
+                NotificationType.PickupReminder );
+                
+
+            channel.Send( reminderNotification );
+            reminder.Status = NotificationStatus.Sent;
+        }
+
         // Jag har ingen aning om det här blir thread safe
         // Async funktioner och await behöver inte vara på en annan thread men att while loopen inte är blocking är lite sus
+        // Vad jag kan se i output så skapas ingen ny thread
+        // Called after app.Run() in main
         protected override async Task ExecuteAsync( CancellationToken stoppingToken )
         {
             if( _timer != null )

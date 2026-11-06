@@ -5,7 +5,12 @@ namespace SeventWebApplication.Models.Notifications
     public class SmsNotificationChannel : INotificationChannel
     {
         private ISmsService _smsService = new SmsService();
-        UserRepository _userRepository = new();
+        UserRepository _userRepository;
+
+        public SmsNotificationChannel( UserRepository userRepository )
+        {
+            _userRepository = userRepository;
+        }
 
         public void Send( Notification notification )
         {

@@ -33,18 +33,22 @@ namespace SeventWebApplication.Models.Notifications
             notification.Status = NotificationStatus.Cancelled;
         }
 
+        // Cancels the Notification with the id
         public void CancelNotification( Guid id )
         {
             if( _notifications.TryGetValue( id, out Notification? notification ) )
                 CancelNotification( notification );
         }
 
+        // Cancels all notifications related to the booking
         public void CancelNotification( BookingEntity booking )
         {
-            Notification? notification = _notifications.FirstOrDefault( n => n.Value.BookingId == Guid.Parse( booking.BookingId ) ).Value;
+            List<KeyValuePair<Guid, Notification>> notifications = _notifications.Where( n => n.Value.BookingId == Guid.Parse( booking.BookingId ) ).ToList();
 
-            if( notification != null )
-                CancelNotification( notification );
+            foreach( var pair in notifications )
+            {
+                CancelNotification( pair.Value );
+            }
         }
 
         public void MarkAsSent( Notification notification )
