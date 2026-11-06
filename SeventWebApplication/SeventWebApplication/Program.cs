@@ -1,4 +1,5 @@
 using SeventWebApplication.Models.Booking;
+using SeventWebApplication.Models.Notifications;
 using SeventWebApplication.Models.Users;
 using SeventWebApplication.Models.VehicleNS;
 
@@ -58,6 +59,10 @@ namespace SeventWebApplication
             builder.Services.AddSingleton<PricingService>();
             builder.Services.AddScoped<VehicleDamageService>();
             builder.Services.AddScoped<RentalReturnService>();
+
+            // ---- Notifications ----
+            // HostedService så den ger NotificationService en entrypoint för sin egna loop
+            builder.Services.AddHostedService<NotificationService>();
 
             var app = builder.Build();
 
