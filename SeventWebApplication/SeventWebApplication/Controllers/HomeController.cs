@@ -57,7 +57,7 @@ namespace SeventWebApplication.Controllers
             //return Json(searchResults);
 
 
-            // NY NY KOD - använder Request objektet istället så kan man få ut specifika sub?querys från Queryn enklare (se FindVehiclesFromRequest)
+            // NY NY KOD - använder Request objektet istället så kan man få ut specifika sub?querys från Queryn enklare (se FindVehiclesFromQuery)
 
             //var result = VehicleAssignmentService.AssignVehiclesFromQuery( Request.Query )._vehicles;
             var result = FleetManager.instance.FindVehiclesFromQuery( Request.Query );
