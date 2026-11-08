@@ -2,11 +2,11 @@
 
 public class StandardBasePriceStrategy : IBasePriceStrategy
 {
-    public decimal baseFee { get; } = 100;
+    public decimal Fee { get; } = 0;
     public decimal priceMultiplier { get; } = 1.0m;
 
-    public decimal CalculateBasePrice(decimal billableHours, decimal hourlyRate)
+    public decimal CalculateTotalPrice(decimal baseCost)
     {
-        return ( baseFee + (billableHours * hourlyRate) ) * priceMultiplier;
+        return baseCost * priceMultiplier;
     }
 }

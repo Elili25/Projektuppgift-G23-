@@ -5,18 +5,13 @@ using SeventWebApplication.Models.Pricing.PriceStrategy;
 
 namespace SeventWebApplication.Models.Pricing.PriceStrategy.PriceStrategyFactories
 {
-public abstract class BasePriceStrategyFactory 
+public static class PriceStrategyFactory 
 {
-        protected abstract IBasePriceStrategy CreatePriceStrategy();
-}
-
-public class basePriceStrategyFactory //Ett simple-factory om vi vill ha en mindre komplex lösning 
-{
-    public IBasePriceStrategy ChoiceOfPriceStrategy(string choiceOfStrategy) => choiceOfStrategy.ToLower() switch
+    public static IBasePriceStrategy ChoiceOfPriceStrategy(PriceStrategies choiceOfStrategy) => choiceOfStrategy switch
     {
-        "standard" => new StandardBasePriceStrategy(),
+       PriceStrategies.standard => new StandardBasePriceStrategy(),
+       PriceStrategies.employeeDiscount => new EmployeeDiscountPriceStrategy(),
         _ => new StandardBasePriceStrategy()
-
     };
 }
 }

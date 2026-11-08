@@ -18,4 +18,12 @@ public class PaymentServices
 
         return result;
     }
+
+    public void RefundBooking(Booking.Booking booking)
+    {
+        if(booking.Status == Booking.BookingStatus.Confirmed)
+        {
+            booking.Status = Booking.BookingStatus.Cancelled;
+        }
+    }
 }

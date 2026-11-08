@@ -1,22 +1,24 @@
-﻿namespace SeventWebApplication.Models.Pricing.PricingCategories;
+﻿using SeventWebApplication.Models.VehicleNS;
+
+namespace SeventWebApplication.Models.Pricing.PricingCategories;
 
 public class BaseCosts
 {
-    private decimal _baseFee = 100;
+    private decimal _baseFee = 50;
     
     public decimal GetBaseFee()
     {
         return _baseFee;
     }
 
-    private decimal _depositFee = 100;
+    private decimal _baseDepositFee = 100;
     
     public decimal GetDepositFee()
     {
-        return _depositFee; 
+        return _baseDepositFee; 
     }
     public void setDepositFee(decimal value)
     {
-        _depositFee = value;
+        _baseDepositFee = value;
     }
 }

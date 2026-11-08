@@ -2,7 +2,7 @@
 
 public interface IBasePriceStrategy
 {
-    public decimal baseFee { get; }
+    public decimal Fee { get; }
     public decimal priceMultiplier { get; }
-    public decimal CalculateBasePrice(decimal billableHours, decimal HourlyRate);
+    public decimal CalculateTotalPrice(decimal BaseCost);
 }
