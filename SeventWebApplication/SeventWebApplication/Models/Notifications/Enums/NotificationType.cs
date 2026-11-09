@@ -6,6 +6,7 @@
         CancelledConfirmation,
         PickupReminder,
         BookingChanged,
+        RentalReturn,
         LateReturnInformation
     }
 }
