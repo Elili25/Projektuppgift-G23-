@@ -6,6 +6,9 @@ namespace SeventWebApplication.Models.Addon
 {
     public class ChildSeatAddon : IAddon
     {
+        public string DisplayName => "Barnstolar";
+        public int MaxLimit => 3;
+
         public AddonType AddonType => AddonType.ChildSeat;
 
         public int Quantity { get; set; } = 1;  // Bas kvantitet är 1 men kan ändras när ett objekt läggs till

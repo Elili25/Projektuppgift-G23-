@@ -1,54 +1,48 @@
 ﻿using SeventWebApplication.Models.Addon;
-using SeventWebApplication.Models.Addon.Enums;
+using SeventWebApplication.Models.Addon.Interfaces;
+using SeventWebApplication.Models.Booking;
 
-//namespace SeventWebApplication.Models.BookingValidation
-//{
-//    public class AddonValidationStrategy : IValidationStrategy
-//    {
-//        // Definierar maxgränserna för addons
-//        private readonly Dictionary<AddonType, int> _maxLimits = new()
-//    {
-//        { AddonType.Gps, 1 },
-//        { AddonType.ExtraDriver, 1 },
-//        { AddonType.ChildSeat, 3 }
-//        // Här läggs nya addons och dess maxantal till
-//    };
-        
-//        public IEnumerable<ValidationError> Validate(BookingRequest request)
-//        {
-//            var errors = new List<ValidationError>();
+namespace SeventWebApplication.Models.BookingValidation
+{
+    public class AddonValidationStrategy : IValidationStrategy
+    {
+        public IEnumerable<ValidationError> Validate(BookingRequest request)
+        {
+            var errors = new List<ValidationError>();
 
-//            if (request.Addons == null) return errors;
+            if (request.Addons == null || !request.Addons.Any())
+                return errors;
 
-//            // Grupperar och summerar alla inskickade addons samtidigt
-//            var totals = request.Addons
-//                .GroupBy(a => a.AddonType)
-//                .Select(g => new { AddonType = g.Key, Total = g.Sum(a => a.Quantity) });
+            var totals = request.Addons
+                .Where(addon => !string.IsNullOrWhiteSpace(addon.AddonKey))
+                .GroupBy(addon => addon.AddonKey.Trim().ToLowerInvariant())
+                .Select(group => new { AddonKey = group.Key, Total = group.Sum(addon => addon.Quantity) });
 
-//            // Loopar igenom de summerade tilläggen och jämför mot reglerna
-//            foreach (var addon in totals)
-//            {
-//                // Kontrollerar om det finns en maxgräns definierad för denna typ och om den har överskridits
-//                if (_maxLimits.TryGetValue(addon.AddonType, out int maxAllowed) && addon.Total > maxAllowed)
-//                {
-//                    // Här översätts enumen till svenska för felmeddelandet
-//                    string svensktNamn = addon.AddonType switch
-//                    {
-//                        AddonType.Gps => "GPS",
-//                        AddonType.ExtraDriver => "extra förare",
-//                        AddonType.ChildSeat => "barnstolar",
-//                        _ => addon.AddonType.ToString() // Fallback om man glömmer översätta nya enums i framtiden
-//                    };
+            foreach (var addon in totals)
+            {
+                try
+                {
+                    IAddon rules = AddonFactory.Create(addon.AddonKey, 1);
+                    if (addon.Total > rules.MaxLimit)
+                    {
+                        errors.Add(new ValidationError
+                        {
+                            Property = nameof(request.Addons),
+                            Message = $"Du kan lägga till max {rules.MaxLimit} {rules.DisplayName}. Du har angett {addon.Total} st."
+                        });
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    errors.Add(new ValidationError
+                    {
+                        Property = nameof(request.Addons),
+                        Message = $"Tillägget '{addon.AddonKey}' är inte ett giltigt alternativ i systemet."
+                    });
+                }
+            }
 
-//                    errors.Add(new ValidationError
-//                    {
-//                        Property = nameof(request.Addons),
-//                        Message = $"Du kan lägga till max {maxAllowed} {svensktNamn}. Du har angett {addon.Total} st.",
-//                    });
-//                }
-//            }
-
-//            return errors;
-//        }
-//    }
-//}
+            return errors;
+        }
+    }
+}

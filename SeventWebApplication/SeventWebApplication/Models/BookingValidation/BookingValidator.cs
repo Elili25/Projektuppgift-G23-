@@ -1,34 +1,24 @@
-﻿//namespace SeventWebApplication.Models.BookingValidation
-//{
-//    public class BookingValidator
-//    {
-//        // En samling för alla strategier
-//        private readonly IEnumerable<IValidationStrategy> _strategies;
+﻿using SeventWebApplication.Models.Booking;
 
-//        // Konstruktorn som tar emot alla registrerade strategier via DI
-//        public BookingValidator(IEnumerable<IValidationStrategy> strategies)
-//        {
-//            _strategies = strategies;
-//        }
+namespace SeventWebApplication.Models.BookingValidation
+{
+    public class BookingValidator
+    {
+        private readonly IEnumerable<IValidationStrategy> _strategies;
 
-//        // Metoden som loopar igenom och validerar allt
-//        public List<ValidationError> ValidateAll(BookingRequest request)
-//        {
-//            var allErrors = new List<ValidationError>();
+        public BookingValidator(IEnumerable<IValidationStrategy> strategies)
+        {
+            _strategies = strategies;
+        }
 
-//            // Går igenom varje enskild strategi/regel i systemet
-//            foreach (var strategy in _strategies)
-//            {
-//                var strategyErrors = strategy.Validate(request);
+        public List<ValidationError> ValidateAll(BookingRequest request)
+        {
+            var allErrors = new List<ValidationError>();
 
-//                if (strategyErrors != null)
-//                {
-//                    allErrors.AddRange(strategyErrors);
-//                }
-//            }
+            foreach (var strategy in _strategies)
+                allErrors.AddRange(strategy.Validate(request));
 
-//            return allErrors;
-//        }
-//    }
-
-//}
+            return allErrors;
+        }
+    }
+}

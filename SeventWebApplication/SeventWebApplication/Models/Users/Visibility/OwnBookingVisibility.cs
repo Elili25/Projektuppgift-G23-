@@ -1,4 +1,4 @@
-using BookingModel = SeventWebApplication.Models.Booking.Booking;
+using BookingEntity = SeventWebApplication.Models.Booking.Booking;
 
 namespace SeventWebApplication.Models.Users
 {
@@ -13,7 +13,7 @@ namespace SeventWebApplication.Models.Users
             _userId = userId.ToString();
         }
 
-        public IEnumerable<BookingModel> Filter(IEnumerable<BookingModel> bookings)
+        public IEnumerable<BookingEntity> Filter(IEnumerable<BookingEntity> bookings)
         {
             return bookings.Where(b =>
                 string.Equals(b.UserId, _userId, StringComparison.OrdinalIgnoreCase));
