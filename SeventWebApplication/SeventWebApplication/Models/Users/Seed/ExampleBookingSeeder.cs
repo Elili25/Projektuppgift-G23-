@@ -1,7 +1,7 @@
 using SeventWebApplication.Models.Addon;
 using SeventWebApplication.Models.VehicleNS;
 using SeventWebApplication.Models.VehicleNS.Engine;
-using BookingModel = SeventWebApplication.Models.Booking.Booking;
+using BookingEntity = SeventWebApplication.Models.Booking.Booking;
 using BookingStatus = SeventWebApplication.Models.Booking.BookingStatus;
 
 namespace SeventWebApplication.Models.Users
@@ -58,7 +58,7 @@ namespace SeventWebApplication.Models.Users
                 var start = DateTime.Today.AddDays(random.Next(1, 30));
                 var end = start.AddDays(random.Next(1, 7));
 
-                TryRegister(registry, new BookingModel(
+                TryRegister(registry, new BookingEntity(
                     Guid.NewGuid().ToString(),
                     user.UserId.ToString(),
                     vehicle,
@@ -83,7 +83,7 @@ namespace SeventWebApplication.Models.Users
                 var user = allUsers[random.Next(allUsers.Count)];
                 var start = DateTime.Today.AddDays(random.Next(30, 45));
 
-                TryRegister(registry, new BookingModel(
+                TryRegister(registry, new BookingEntity(
                     Guid.NewGuid().ToString(),
                     user.UserId.ToString(),
                     familyId,
@@ -97,7 +97,7 @@ namespace SeventWebApplication.Models.Users
         // annars kraschar appen vid start ibland.
         private static void TryRegister(
             SeventWebApplication.Models.Booking.BookingRegistry registry,
-            BookingModel booking)
+            BookingEntity booking)
         {
             try
             {

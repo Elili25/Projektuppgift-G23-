@@ -1,4 +1,4 @@
-using BookingModel = SeventWebApplication.Models.Booking.Booking;
+using BookingEntity = SeventWebApplication.Models.Booking.Booking;
 
 namespace SeventWebApplication.Models.Users
 {
@@ -8,7 +8,7 @@ namespace SeventWebApplication.Models.Users
     // behöver vi inte röra den här klassen (OCP).
     public class BookingViewerService
     {
-        public IEnumerable<BookingModel> ViewBookings(IBookingViewer viewer) //endast de som implementerar IBookingViewer kan
+        public IEnumerable<BookingEntity> ViewBookings(IBookingViewer viewer) //endast de som implementerar IBookingViewer kan
                                                                              //anropa den här metoden, aka
                                                                              //Admin, Employee och Customer. (ISP)
         {
@@ -16,10 +16,10 @@ namespace SeventWebApplication.Models.Users
 
             // Inaktiverade konton får inte se nåt
             if (!viewer.IsActive)
-                return Enumerable.Empty<BookingModel>();
+                return Enumerable.Empty<BookingEntity>();
 
             // FleetManager ligger utan namespace i repot, därför global::
-            IEnumerable<BookingModel> allBookings = SeventWebApplication.Models.Booking.BookingRegistry.Instance.GetBookings();
+            IEnumerable<BookingEntity> allBookings = SeventWebApplication.Models.Booking.BookingRegistry.Instance.GetBookings();
 
             return viewer.Visibility.Filter(allBookings);
         }

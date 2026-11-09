@@ -11,7 +11,7 @@ namespace SeventWebApplication.Models.Booking
     {
         
         public string BookingId { get; set; } = Guid.NewGuid().ToString();
-        public string UserId { get; set; } 
+        public string UserId { get; set; } = string.Empty;
 
         // Kunden kan boka en hel familj (VehicleFamilyId) utan att välja en specifik bil.
         // Själva bilen (VehicleId/Vehicle) är då null tills en bil tilldelas via AssignVehicle.
@@ -21,14 +21,23 @@ namespace SeventWebApplication.Models.Booking
 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public AddonPackage Addon { get; set; }
+        public AddonPackage Addon { get; set; } = new();
+        public AddonPackage Addons
+        {
+            get => Addon;
+            set => Addon = value;
+        }
 
         public BookingStatus Status { get; set; } = BookingStatus.Pending;
         //public IPricingStrategy PricingStrategy { get; set; }
 
-        // Notes 
-        // ApprovedBy
+        // Valfri anteckning från kunden/personalen, t.ex. "hämtas kl 08"
+        public string? Notes { get; set; }
 
+
+        public Booking()
+        {
+        }
 
         // Add booking constructor 
         public Booking(string bookingId, string userId, Vehicle vehicle, DateTime startDate, DateTime endDate, AddonPackage addon) /* IPricingStrategy pricingStrateg*/
@@ -61,12 +70,15 @@ namespace SeventWebApplication.Models.Booking
         }
 
 
-        //public decimal GetTotalPrice()
-        //{
-        //    return PricingStrategy.CalculatePrice(this);
-        //} 
-        // utkommenterad då PricingStrategy inte är implementerad än
+        // Pending -> Confirmed. Används när personal skapar en bokning (AutoApprove).
+        public void Confirm()
+        {
+            if (Status != BookingStatus.Pending)
+                throw new InvalidOperationException("Only pending bookings can be confirmed.");
 
-        // Status of the booking with Clone() method
+            Status = BookingStatus.Confirmed;
+        }
+
+        
     }
 }

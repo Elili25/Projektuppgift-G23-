@@ -1,3 +1,5 @@
+using SeventWebApplication.Models.Booking;
+
 namespace SeventWebApplication.Models.Users
 {
     // Allt boknings-sidan behöver är raderna + lite info om vem som tittar och vilket filter som är valt
@@ -8,7 +10,7 @@ namespace SeventWebApplication.Models.Users
         // Personal ser kundkolumnen och kan söka, kunder ser bara sina egna så det behövs inte
         public bool IsStaff { get; init; }
 
-        public BookingTimeStatus? SelectedStatus { get; init; }
+        public BookingStatus? SelectedStatus { get; init; }
         public string? Search { get; init; }
 
         // Antal per status, visas i flikarna (räknas innan statusfiltret, annars blir siffrorna fel)

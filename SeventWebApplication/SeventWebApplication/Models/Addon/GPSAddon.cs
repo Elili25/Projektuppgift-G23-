@@ -5,6 +5,9 @@ namespace SeventWebApplication.Models.Addon
 {
     public class GPSAddon : IAddon
     {
+        public string DisplayName => "GPS";
+        public int MaxLimit => 1;
+
         public AddonType AddonType => AddonType.Gps;
 
         public int Quantity { get; set; } = 1;

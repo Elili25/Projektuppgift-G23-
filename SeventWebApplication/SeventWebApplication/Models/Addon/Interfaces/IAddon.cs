@@ -4,6 +4,9 @@ namespace SeventWebApplication.Models.Addon.Interfaces
 {
     public interface IAddon
     {
+        string DisplayName { get; }
+        int MaxLimit { get; }
+
         // Alla addons måste berätta vilken enum de är
         AddonType AddonType { get; }
 

@@ -1,25 +1,26 @@
 @using SeventWebApplication.Models.Users
+@using SeventWebApplication.Models.Booking
 @model BookingListViewModel
 @{
     ViewData["Title"] = Model.IsStaff ? "Alla bokningar" : "Mina bokningar";
     var sv = System.Globalization.CultureInfo.GetCultureInfo("sv-SE");
 
     // Hjälpmetoder för flikarna och statusbadgen, så HTML:en nedanför blir lättare att läsa
-    string TabClass(BookingTimeStatus? s) => Model.SelectedStatus == s ? "nav-link active" : "nav-link";
-    string StatusText(BookingTimeStatus s) => s switch
+    string TabClass(BookingStatus? s) => Model.SelectedStatus == s ? "nav-link active" : "nav-link";
+    string StatusText(BookingStatus s) => s switch
     {
-        BookingTimeStatus.Pending => "Väntande",
-        BookingTimeStatus.Confirmed => "Bekräftad",
-        BookingTimeStatus.Active => "Pågående",
-        BookingTimeStatus.Completed => "Avslutad",
+        BookingStatus.Pending => "Väntande",
+        BookingStatus.Confirmed => "Bekräftad",
+        BookingStatus.Active => "Pågående",
+        BookingStatus.Completed => "Avslutad",
         _ => "Avbokad"
     };
-    string StatusBadge(BookingTimeStatus s) => s switch
+    string StatusBadge(BookingStatus s) => s switch
     {
-        BookingTimeStatus.Pending => "bg-secondary",
-        BookingTimeStatus.Confirmed => "bg-primary",
-        BookingTimeStatus.Active => "bg-success",
-        BookingTimeStatus.Completed => "bg-dark",
+        BookingStatus.Pending => "bg-secondary",
+        BookingStatus.Confirmed => "bg-primary",
+        BookingStatus.Active => "bg-success",
+        BookingStatus.Completed => "bg-dark",
         _ => "bg-danger"
     };
 }
@@ -33,6 +34,7 @@
         </small>
     </div>
 
+    <div class="d-flex flex-wrap gap-2">
     @* Sökrutan finns bara för personal *@
     @if (Model.IsStaff)
     {
@@ -51,7 +53,18 @@
             }
         </form>
     }
+        <a class="btn btn-primary text-nowrap" asp-action="Create">+ @(Model.IsStaff ? "Ny bokning" : "Boka bil")</a>
+    </div>
 </div>
+
+@* Meddelande efter att en bokning skapats (skickas med TempData efter redirect) *@
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @success
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Stäng"></button>
+    </div>
+}
 
 @* Flikar för att filtrera på status, siffrorna visar hur många som finns i varje *@
 <ul class="nav nav-pills mb-3">
@@ -61,27 +74,27 @@
         </a>
     </li>
     <li class="nav-item">
-        <a class="@TabClass(BookingTimeStatus.Pending)" asp-action="Index" asp-route-status="pending" asp-route-search="@Model.Search">
+        <a class="@TabClass(BookingStatus.Pending)" asp-action="Index" asp-route-status="pending" asp-route-search="@Model.Search">
             Väntande <span class="badge bg-light text-dark">@Model.CountPending</span>
         </a>
     </li>
     <li class="nav-item">
-        <a class="@TabClass(BookingTimeStatus.Confirmed)" asp-action="Index" asp-route-status="confirmed" asp-route-search="@Model.Search">
+        <a class="@TabClass(BookingStatus.Confirmed)" asp-action="Index" asp-route-status="confirmed" asp-route-search="@Model.Search">
             Bekräftade <span class="badge bg-light text-dark">@Model.CountConfirmed</span>
         </a>
     </li>
     <li class="nav-item">
-        <a class="@TabClass(BookingTimeStatus.Active)" asp-action="Index" asp-route-status="active" asp-route-search="@Model.Search">
+        <a class="@TabClass(BookingStatus.Active)" asp-action="Index" asp-route-status="active" asp-route-search="@Model.Search">
             Pågående <span class="badge bg-light text-dark">@Model.CountActive</span>
         </a>
     </li>
     <li class="nav-item">
-        <a class="@TabClass(BookingTimeStatus.Completed)" asp-action="Index" asp-route-status="completed" asp-route-search="@Model.Search">
+        <a class="@TabClass(BookingStatus.Completed)" asp-action="Index" asp-route-status="completed" asp-route-search="@Model.Search">
             Avslutade <span class="badge bg-light text-dark">@Model.CountCompleted</span>
         </a>
     </li>
     <li class="nav-item">
-        <a class="@TabClass(BookingTimeStatus.Cancelled)" asp-action="Index" asp-route-status="cancelled" asp-route-search="@Model.Search">
+        <a class="@TabClass(BookingStatus.Cancelled)" asp-action="Index" asp-route-status="cancelled" asp-route-search="@Model.Search">
             Avbokade <span class="badge bg-light text-dark">@Model.CountCancelled</span>
         </a>
     </li>

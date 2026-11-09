@@ -1,9 +1,12 @@
-﻿namespace SeventWebApplication.Models.Payment;
+﻿using BookingEntity = SeventWebApplication.Models.Booking.Booking;
+using BookingStatus = SeventWebApplication.Models.Booking.BookingStatus;
+
+namespace SeventWebApplication.Models.Payment;
 
 public class PaymentServices
 {
     public PaymentResult PayForBooking(
-        Booking.Booking booking,
+        BookingEntity booking,
         PaymentMethod method)
     {
         IPayment payment = PaymentFactory.CreatePayment(method);
@@ -13,7 +16,7 @@ public class PaymentServices
 
         if (result.success)
         {
-            booking.Status = Booking.BookingStatus.Confirmed;
+            booking.Status = BookingStatus.Confirmed;
         }
 
         return result;

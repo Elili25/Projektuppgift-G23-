@@ -1,11 +1,11 @@
-using BookingModel = SeventWebApplication.Models.Booking.Booking;
+using BookingEntity = SeventWebApplication.Models.Booking.Booking;
 
 namespace SeventWebApplication.Models.Users
 {
     // Strategy-interfacet tar in alla bokningar och visar endast de man får se.
-    // Aliaset bookingmodel behövs för att både namnspace och klassen heter Booking, annars blir C# förvirrad
+    // Aliaset behövs eftersom både namespace och klassen heter Booking.
     public interface IBookingVisibility
     {
-        IEnumerable<BookingModel> Filter(IEnumerable<BookingModel> bookings);
+        IEnumerable<BookingEntity> Filter(IEnumerable<BookingEntity> bookings);
     }
 }

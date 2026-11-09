@@ -1,0 +1,189 @@
+@using SeventWebApplication.Models.Booking
+@model CreateBookingViewModel
+@{
+    ViewData["Title"] = Model.IsStaff ? "Ny bokning" : "Boka bil";
+    var sv = System.Globalization.CultureInfo.GetCultureInfo("sv-SE");
+    bool familyChosen = Model.Form.VehicleChoice != "vehicle";
+
+    // Gör fältet rött om BookingCreationService/valideringen hittade fel i det
+    string Invalid(params string[] properties) => Model.HasError(properties) ? " is-invalid" : "";
+
+    // Antal som är valt för ett tillägg (behålls om formuläret visas igen efter fel)
+    int Quantity(string key) => Model.Form.Addons.TryGetValue(key, out int q) ? q : 0;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-9 col-lg-7">
+        <a asp-action="Index" class="text-decoration-none">
+            &larr; Tillbaka till @(Model.IsStaff ? "alla bokningar" : "mina bokningar")
+        </a>
+        <h2 class="mt-2">@ViewData["Title"]</h2>
+        <p class="text-muted">
+            @if (Model.IsStaff)
+            {
+                <span>Skapa en bokning åt en kund, en kollega eller dig själv. Bokningar som personal skapar bekräftas direkt.</span>
+            }
+            else
+            {
+                <span>Skicka en bokningsförfrågan. Den bekräftas av personal innan den blir klar.</span>
+            }
+        </p>
+
+        @* Alla fel samlade överst, fälten med fel blir också röda nedanför *@
+        @if (Model.Errors.Count > 0)
+        {
+            <div class="alert alert-danger">
+                <strong>Bokningen kunde inte skapas:</strong>
+                <ul class="mb-0 mt-1">
+                    @foreach (var error in Model.Errors)
+                    {
+                        <li>@error.Message</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        <form asp-action="Create" method="post">
+
+            @* ---- Kund (bara personal) ---- *@
+            @if (Model.IsStaff)
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Bokas åt</h5>
+                        <label class="form-label" asp-for="Form.TargetUserId">Vem gäller bokningen?</label>
+                        @* Ingen tom "Välj..."-rad: första valet är du själv, så det går att boka åt sig själv direkt *@
+                        <select class="form-select@(Invalid("TargetUserId"))" asp-for="Form.TargetUserId">
+                            @foreach (var c in Model.Customers)
+                            {
+                                <option value="@c.Value">@c.Text (@c.Hint)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            }
+
+            @* ---- Fordon: familj eller specifik bil ---- *@
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Fordon</h5>
+
+                    <div class="btn-group mb-3 vehicle-choice" role="group" aria-label="Välj typ av fordonsval">
+                        <input type="radio" class="btn-check" name="Form.VehicleChoice" id="choice-family" value="family" @(familyChosen ? "checked" : "") />
+                        <label class="btn btn-outline-primary" for="choice-family">Fordonsklass</label>
+
+                        <input type="radio" class="btn-check" name="Form.VehicleChoice" id="choice-vehicle" value="vehicle" @(!familyChosen ? "checked" : "") />
+                        <label class="btn btn-outline-primary" for="choice-vehicle">Specifik bil</label>
+                    </div>
+
+                    <div id="family-picker" class="@(familyChosen ? "" : "d-none")">
+                        <label class="form-label" asp-for="Form.VehicleFamilyId">Fordonsklass</label>
+                        <select class="form-select@(Invalid("VehicleFamilyId", "Booking"))" asp-for="Form.VehicleFamilyId">
+                            <option value="">Välj fordonsklass...</option>
+                            @foreach (var f in Model.Families)
+                            {
+                                <option value="@f.Value" title="@f.Hint">@f.Text</option>
+                            }
+                        </select>
+                        <div class="form-text">Du får en ledig bil i klassen när bokningen bekräftas.</div>
+                    </div>
+
+                    <div id="vehicle-picker" class="@(familyChosen ? "d-none" : "")">
+                        <label class="form-label" asp-for="Form.VehicleId">Bil</label>
+                        <select class="form-select@(Invalid("VehicleId", "Booking"))" asp-for="Form.VehicleId">
+                            <option value="">Välj bil...</option>
+                            @foreach (var v in Model.Vehicles)
+                            {
+                                <option value="@v.Value">@v.Text – @v.Hint</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            @* ---- Period ---- *@
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Period</h5>
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label class="form-label" asp-for="Form.Start">Upphämtning</label>
+                            <input class="form-control@(Invalid("Start"))" asp-for="Form.Start" type="datetime-local" required />
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label" asp-for="Form.End">Återlämning</label>
+                            <input class="form-control@(Invalid("End"))" asp-for="Form.End" type="datetime-local" required />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* ---- Tillval ---- *@
+            @if (Model.Addons.Count > 0)
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Tillval</h5>
+                        <ul class="list-group list-group-flush">
+                            @foreach (var addon in Model.Addons)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <div>
+                                        <div>@addon.Name</div>
+                                        <small class="text-muted">
+                                            @addon.Price.ToString("N0", sv) kr/st · max @addon.MaxLimit
+                                        </small>
+                                    </div>
+                                    <input class="form-control text-end@(Model.HasError("Addons") && Quantity(addon.Key) > addon.MaxLimit ? " is-invalid" : "")" style="width: 5rem;" type="number"
+                                           name="Form.Addons[@addon.Key]" value="@Quantity(addon.Key)"
+                                           min="0" max="@addon.MaxLimit" aria-label="Antal @addon.Name" />
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+
+            @* ---- Anteckning ---- *@
+            <div class="mb-4">
+                <label class="form-label" asp-for="Form.Notes">Anteckning <span class="text-muted">(valfritt)</span></label>
+                <textarea class="form-control" asp-for="Form.Notes" rows="2" maxlength="500"
+                          placeholder="T.ex. önskad upphämtningstid eller annat vi bör veta"></textarea>
+            </div>
+
+            <button class="btn btn-primary" type="submit">
+                @(Model.IsStaff ? "Skapa bokning" : "Skicka bokningsförfrågan")
+            </button>
+            <a class="btn btn-outline-secondary" asp-action="Index">Avbryt</a>
+        </form>
+    </div>
+</div>
+
+@* Valt läge i fordonsväljaren får sajtens lila färg istället för Bootstraps blå *@
+<style>
+    .vehicle-choice .btn-check:checked + .btn {
+        color: #fff;
+        background-color: var(--primary, #7C5CFF);
+        border-color: var(--primary, #7C5CFF);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Visar antingen fordonsklass- eller bil-listan beroende på vilket val som är markerat
+        document.querySelectorAll('input[name="Form.VehicleChoice"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                const family = document.getElementById('choice-family').checked;
+                document.getElementById('family-picker').classList.toggle('d-none', !family);
+                document.getElementById('vehicle-picker').classList.toggle('d-none', family);
+            });
+        });
+
+        // Återlämningen kan inte väljas före upphämtningen
+        const start = document.getElementById('Form_Start');
+        const end = document.getElementById('Form_End');
+        const syncEndMin = () => { end.min = start.value; };
+        start.addEventListener('change', syncEndMin);
+        syncEndMin();
+    </script>
+}

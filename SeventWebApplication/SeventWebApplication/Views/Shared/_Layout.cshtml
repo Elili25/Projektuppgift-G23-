@@ -52,6 +52,15 @@
                                 </a>
                             </li>
                         }
+                        @* Boka, för alla roller som får skapa bokningar *@
+                        @if (UserSession.CurrentUser is SeventWebApplication.Models.Users.IBookingCreator)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Bookings" asp-action="Create">
+                                    @(UserSession.CurrentUser is SeventWebApplication.Models.Users.IBookingManager ? "Ny bokning" : "Boka bil")
+                                </a>
+                            </li>
+                        }
                         @* Användarhantering, bara för admin *@
                         @if (UserSession.CurrentUser is SeventWebApplication.Models.Users.IAccountManager)
                         {

@@ -1,4 +1,5 @@
 using SeventWebApplication.Models.Booking;
+using SeventWebApplication.Models.BookingValidation;
 using SeventWebApplication.Models.Notifications;
 using SeventWebApplication.Models.Users;
 using SeventWebApplication.Models.VehicleNS;
@@ -32,6 +33,10 @@ namespace SeventWebApplication
             builder.Services.AddSingleton<AuthService>();
             builder.Services.AddSingleton<AccountService>();
             builder.Services.AddSingleton<BookingViewerService>();
+            builder.Services.AddScoped<BookingValidator>();
+            builder.Services.AddScoped<IValidationStrategy, DateValidationStrategy>();
+            builder.Services.AddScoped<IValidationStrategy, AddonValidationStrategy>();
+            builder.Services.AddScoped<BookingCreationService>();
 
             // Session = så att inloggningen hänger kvar mellan sidladdningar (via en cookie boom)
             builder.Services.AddDistributedMemoryCache();

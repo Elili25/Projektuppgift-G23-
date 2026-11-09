@@ -1,22 +1,10 @@
 using SeventWebApplication.Models.Addon;
 using SeventWebApplication.Models.Addon.Enums;
 using SeventWebApplication.Models.Booking; // BookingStatus
-using BookingModel = SeventWebApplication.Models.Booking.Booking;
+using BookingEntity = SeventWebApplication.Models.Booking.Booking;
 
 namespace SeventWebApplication.Models.Users
 {
-    public enum BookingTimeStatus
-    {
-        Pending,
-        Confirmed,
-        Active,
-        Completed,
-        Cancelled
-    }
-
-    // Status är ju inte implementerat än men lägger som enum här för att det ska vara lättare att implementera senare.
-    // Då kan man bara ändra From-metoden och vyn behöver inte ändras. För tillfället ger vi bara bokningarna random status vid seedning
-
     // En rad i boknings-tabellen. Vyn ska inte behöva gräva i Booking/Vehicle/Addon
     // själv, så vi plockar ihop allt den behöver här.
     public class BookingRowViewModel
@@ -37,23 +25,12 @@ namespace SeventWebApplication.Models.Users
         public List<string> Addons { get; init; } = new();
         public decimal? TotalPrice { get; init; }
 
-        public BookingTimeStatus Status { get; init; }
+        public BookingStatus Status { get; init; }
 
-        public static BookingRowViewModel From(BookingModel booking, IUserRepository users, DateTime now)
+        public static BookingRowViewModel From(BookingEntity booking, IUserRepository users, DateTime now)
         {
             // Booking.UserId är en string, så vi får parsa den för att hitta kunden
             User? customer = Guid.TryParse(booking.UserId, out Guid id) ? users.GetById(id) : null;
-
-            // Översätter domänens BookingStatus till vyns BookingTimeStatus
-            BookingTimeStatus status = booking.Status switch
-            {
-                BookingStatus.Pending => BookingTimeStatus.Pending,
-                BookingStatus.Confirmed => BookingTimeStatus.Confirmed,
-                BookingStatus.Active => BookingTimeStatus.Active,
-                BookingStatus.Completed => BookingTimeStatus.Completed,
-                BookingStatus.Cancelled => BookingTimeStatus.Cancelled,
-                _ => BookingTimeStatus.Pending
-            };
 
             return new BookingRowViewModel
             {
@@ -68,7 +45,7 @@ namespace SeventWebApplication.Models.Users
                 End = booking.EndDate,
                 Addons = GetAddonNames(booking.Addon),
                 TotalPrice = booking.Addon?.GetTotalAddonPrice(),
-                Status = status
+                Status = booking.Status
             };
         }
 
