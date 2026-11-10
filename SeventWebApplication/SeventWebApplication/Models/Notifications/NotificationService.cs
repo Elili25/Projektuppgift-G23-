@@ -76,6 +76,14 @@ namespace SeventWebApplication.Models.Notifications
             _notificationRepository.Add( notification );
         }
 
+        public void AddRentalReturned( BookingEntity booking )
+        {
+            Guid userId = Guid.Parse( booking.UserId );
+
+            Notification notification = new( "Thank you for choosing Sevent, would you like to give us 5 start on welp.com", Guid.Parse( booking.BookingId ), userId, NotificationType.RentalReturn );
+            _notificationRepository.Add( notification );
+        }
+
         public void AddLateReturn( BookingEntity booking )
         {
             Guid userId = Guid.Parse( booking.UserId );
@@ -96,15 +104,16 @@ namespace SeventWebApplication.Models.Notifications
             if( _notificationChannels.Count <= 0 )
                 throw new Exception( "No notification channels found in NotificationService" );
 
+            notification.Status = NotificationStatus.Processed;
+
             foreach( INotificationChannel channel in _notificationChannels.Values )
                 channel.Send( notification );
 
-            notification.Status = NotificationStatus.Processed;
         }
 
         private void SendReminder( Reminder reminder )
         {
-            if( !_notificationChannels.TryGetValue( NotificationChannelType.InApp, out var channel ) )
+            if( !_notificationChannels.TryGetValue( NotificationChannelType.InApp, out var inApp ) )
                 throw new Exception( "No InApp notification channel was found" );
 
             BookingEntity? booking = _bookingRepository.GetById( reminder.BookingId.ToString() );
@@ -123,8 +132,8 @@ namespace SeventWebApplication.Models.Notifications
                 NotificationType.PickupReminder );
                 
 
-            channel.Send( reminderNotification );
-            reminder.Status = NotificationStatus.Sent;
+            reminder.Status = NotificationStatus.Processed;
+            inApp.Send( reminderNotification );
         }
 
         // Jag har ingen aning om det här blir thread safe
