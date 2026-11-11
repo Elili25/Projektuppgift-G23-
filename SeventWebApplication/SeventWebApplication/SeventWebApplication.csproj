@@ -11,6 +11,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Views\FrontEnd_Admin\FrontEnd_Fleet_Admin\" />
+    <Folder Include="Views\FrontEnd_Admin\FrontEnd_Bookings_Admin\" />
+    <Folder Include="Views\FrontEnd_Admin\FrontEnd_Customers_Admin\" />
+    <Folder Include="Views\FrontEnd_Admin\FrontEnd_Inspections_Admin\" />
+    <Folder Include="Views\FrontEnd_Guest\FrontEnd_Bookings_Guest\" />
+    <Folder Include="Views\FrontEnd_Guest\FrontEnd_Vehicles_Guest\" />
+    <Folder Include="Views\FrontEnd_Guest\FrontEnd_Account_Guest\" />
+    <Folder Include="Views\FrontEnd_Guest\" />
     <Folder Include="wwwroot\lib\Sevent_Assets\" />
   </ItemGroup>
 
