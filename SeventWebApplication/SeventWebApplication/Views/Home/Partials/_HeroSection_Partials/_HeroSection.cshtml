@@ -2,13 +2,15 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    <section class="hero-section">
+<section class="hero-section">
 
-        <partial name="_HeroText" />
+    @await Html.PartialAsync("/Views/Home/Partials/_HeroSection_Partials/_HeroText.cshtml")
 
-        <partial name="_HeroVehicle" />
+    @await Html.PartialAsync(
+        "/Views/Home/Partials/_HeroSection_Partials/_HeroVehicle.cshtml")
 
-        <partial name="_BookingSearch" />
+    @await Html.PartialAsync(
+        "/Views/Home/Partials/_BookingSearch.cshtml")
 
-    </section>
+</section>
 }
