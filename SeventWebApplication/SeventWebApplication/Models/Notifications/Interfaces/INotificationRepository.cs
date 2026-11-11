@@ -1,11 +1,20 @@
-﻿namespace SeventWebApplication.Models.Notifications
+﻿using BookingEntity = SeventWebApplication.Models.Booking.Booking;
+
+namespace SeventWebApplication.Models.Notifications
 {
     public interface INotificationRepository
     {
-        public void Add(Notification notification);
-        public Notification? GetById(Guid notificationId);
-        public IEnumerable<Notification> GetByBookingId(Guid bookingId);
-        public IEnumerable<Notification> GetPending();
-        public void MarkAsSent(Notification notification);
+        void Add(Notification notification);
+        Notification? GetById(Guid notificationId);
+        IEnumerable<Notification> GetByBookingId(Guid bookingId);
+        IEnumerable<Notification> GetPending();
+        void MarkAsSent(Notification notification);
+
+        // Avbryter notifikationer som inte har skickats än
+        void CancelNotification(Notification notification);
+        void CancelNotification(Guid notificationId);
+        void CancelNotification(BookingEntity booking);
     }
 }
+
+
