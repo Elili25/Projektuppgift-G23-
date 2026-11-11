@@ -2,23 +2,60 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    <div class="booking-search">
+    <head>
+        <link rel="stylesheet" href="~/css/Sevent-BookingSearch-Partial.css" asp-append-version="true" />
+    </head>
 
-    <div class="booking-field">
-        <!-- Pickup location -->
-    </div>
+    <form class="booking-search" method="get">
 
-    <div class="booking-field">
-        <!-- Pickup date -->
-    </div>
+        <div class="booking-field">
+            <span class="booking-field__icon">
+                <i class="bi bi-geo-alt"></i>
+            </span>
 
-    <div class="booking-field">
-        <!-- Return date -->
-    </div>
+            <div class="booking-field__content">
+                <label class="booking-field__label">
+                    Location
+                </label>
 
-    <button type="submit">
-        Search vehicles
-    </button>
+                <select name="location">
+                    <option value="">Choose location</option>
+                </select>
+            </div>
+        </div>
 
-</div>
+        <div class="booking-field">
+            <span class="booking-field__icon">
+                <i class="bi bi-calendar"></i>
+            </span>
+
+            <div class="booking-field__content">
+                <label class="booking-field__label">
+                    Pickup date
+                </label>
+
+                <input type="date" name="pickupDate" />
+            </div>
+        </div>
+
+        <div class="booking-field">
+            <span class="booking-field__icon">
+                <i class="bi bi-calendar"></i>
+            </span>
+
+            <div class="booking-field__content">
+                <label class="booking-field__label">
+                    Return date
+                </label>
+
+                <input type="date" name="returnDate" />
+            </div>
+        </div>
+
+        <button type="submit" class="booking-search__submit">
+            Search vehicles →
+        </button>
+
+    </form>
+
 }
