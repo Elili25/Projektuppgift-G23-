@@ -1,0 +1,381 @@
+/*
+  Sevent – VehicleCategories styles (Cars vs Vans)
+  Applies ONLY to:
+    _VehicleCategories.cshtml
+
+  All selectors are scoped under .vehicle-categories.
+*/
+
+.vehicle-categories {
+    --vc-purple: #6c55b8;
+    --vc-purple-text: #6044b4;
+    --vc-light-purple: #8e79c6;
+    --vc-text: #30204f;
+    --vc-text-strong: #39266c;
+    --vc-muted: #625878;
+    --vc-muted-strong: #55466f;
+    --vc-border: rgba(91, 68, 145, 0.14);
+    --vc-surface-soft: #faf9fd;
+    --vc-dark: #30204f;
+    --vc-dark-muted: #d6c9f5;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+    margin-top: 32px;
+    padding: clamp(36px, 5vw, 64px) clamp(20px, 5vw, 72px);
+    border-radius: 24px;
+    background: linear-gradient(120deg, #faf8fe 0%, #f7f4fc 54%, #f0eafb 100%);
+    color: var(--vc-text);
+    font-family: Inter, "Segoe UI", sans-serif;
+}
+
+/* ========================================
+   HEADER
+======================================== */
+
+.vehicle-categories .vc-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+}
+
+.vehicle-categories .vc-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 15px;
+    border: 1px solid rgba(126, 94, 196, 0.08);
+    border-radius: 999px;
+    background: rgba(226, 215, 249, 0.72);
+    color: var(--vc-purple-text);
+    font-size: 0.72rem;
+    font-weight: 750;
+    letter-spacing: 0.11em;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.vehicle-categories .vc-header h2 {
+    max-width: 760px;
+    margin: 0;
+    color: var(--vc-text);
+    font-size: clamp(2rem, 3.6vw, 2.75rem);
+    font-weight: 760;
+    letter-spacing: -0.04em;
+    line-height: 1.08;
+}
+
+/* ========================================
+   LAYOUT
+======================================== */
+
+.vehicle-categories .vc-grid {
+    display: grid;
+    grid-template-columns: 1.45fr 1fr;
+    gap: 24px;
+}
+
+.vehicle-categories .vc-panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+}
+
+    .vehicle-categories .vc-panel-head h3 {
+        margin: 0;
+        font-size: 1.63rem;
+        font-weight: 760;
+        letter-spacing: -0.03em;
+    }
+
+.vehicle-categories .vc-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    border-bottom: 1px solid rgba(72, 48, 125, 0.6);
+    color: var(--vc-text-strong);
+    font-size: 0.875rem;
+    font-weight: 650;
+    text-decoration: none;
+}
+
+    .vehicle-categories .vc-link:hover {
+        color: var(--vc-purple);
+    }
+
+/* ========================================
+   SILHOUETTES
+======================================== */
+
+.vehicle-categories .vc-silhouette {
+    display: block;
+    width: 88px;
+    height: auto;
+}
+
+.vehicle-categories .vc-silhouette__body {
+    fill: var(--vc-light-purple);
+}
+
+.vehicle-categories .vc-silhouette__wheel {
+    fill: var(--vc-dark);
+}
+
+/* ========================================
+   PASSENGER CARS (light card)
+======================================== */
+
+.vehicle-categories .vc-cars {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 14px 34px rgba(66, 43, 112, 0.10);
+}
+
+.vehicle-categories .vc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vehicle-categories .vc-row {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr) auto 20px;
+    align-items: center;
+    gap: 18px;
+    padding: 12px 14px 12px 12px;
+    border: 1px solid var(--vc-border);
+    border-radius: 16px;
+    background: var(--vc-surface-soft);
+    color: var(--vc-text);
+    text-decoration: none;
+    transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+    .vehicle-categories .vc-row:hover {
+        border-color: rgba(108, 85, 184, 0.4);
+        background: #ffffff;
+        color: var(--vc-text);
+        transform: translateY(-1px);
+    }
+
+    .vehicle-categories .vc-row:focus-visible {
+        outline: 2px solid var(--vc-light-purple);
+        outline-offset: 2px;
+    }
+
+.vehicle-categories .vc-row__media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 64px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f1eafd 0%, #e6dafb 100%);
+}
+
+.vehicle-categories .vc-row__text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.vehicle-categories .vc-row__name {
+    font-size: 1.06rem;
+    font-weight: 720;
+}
+
+.vehicle-categories .vc-row__desc {
+    color: var(--vc-muted);
+    font-size: 0.81rem;
+}
+
+.vehicle-categories .vc-row__price {
+    color: var(--vc-muted-strong);
+    font-size: 0.81rem;
+    white-space: nowrap;
+}
+
+    .vehicle-categories .vc-row__price strong {
+        color: var(--vc-text);
+        font-size: 0.94rem;
+    }
+
+.vehicle-categories .vc-row__chevron {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: var(--vc-purple);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.2s ease;
+}
+
+.vehicle-categories .vc-row:hover .vc-row__chevron {
+    transform: translateX(3px);
+}
+
+/* ========================================
+   VANS (dark card)
+======================================== */
+
+.vehicle-categories .vc-vans {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 28px;
+    border-radius: 24px;
+    background: var(--vc-dark);
+    color: #ffffff;
+}
+
+.vehicle-categories .vc-soon {
+    padding: 6px 11px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #e9e2fb;
+    font-size: 0.75rem;
+    font-weight: 650;
+}
+
+.vehicle-categories .vc-vans__intro {
+    margin: 0;
+    color: var(--vc-dark-muted);
+    font-size: 0.94rem;
+    line-height: 1.6;
+}
+
+.vehicle-categories .vc-van {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.vehicle-categories .vc-van__head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.vehicle-categories .vc-silhouette--van {
+    width: 84px;
+    flex: 0 0 auto;
+}
+
+    .vehicle-categories .vc-silhouette--van .vc-silhouette__body {
+        fill: #b8a3f0;
+    }
+
+    .vehicle-categories .vc-silhouette--van .vc-silhouette__wheel {
+        fill: #ffffff;
+    }
+
+.vehicle-categories .vc-van__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.vehicle-categories .vc-van__name {
+    font-size: 1.06rem;
+    font-weight: 720;
+}
+
+.vehicle-categories .vc-van__desc {
+    color: var(--vc-dark-muted);
+    font-size: 0.81rem;
+}
+
+.vehicle-categories .vc-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+    .vehicle-categories .vc-chips li {
+        padding: 6px 10px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.10);
+        font-size: 0.81rem;
+    }
+
+/* ========================================
+   RESPONSIVE - TABLET
+======================================== */
+
+@media (max-width: 1024px) {
+
+    .vehicle-categories .vc-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========================================
+   RESPONSIVE - MOBILE
+======================================== */
+
+@media (max-width: 600px) {
+
+    .vehicle-categories {
+        gap: 26px;
+        border-radius: 18px;
+    }
+
+    .vehicle-categories .vc-cars,
+    .vehicle-categories .vc-vans {
+        padding: 20px;
+    }
+
+    .vehicle-categories .vc-row {
+        grid-template-columns: 84px minmax(0, 1fr) 18px;
+        gap: 12px;
+    }
+
+    .vehicle-categories .vc-row__media {
+        grid-column: 1;
+        grid-row: 1 / span 2;
+        height: 56px;
+    }
+
+    .vehicle-categories .vc-silhouette {
+        width: 68px;
+    }
+
+    /* Price moves under the name on small screens */
+    .vehicle-categories .vc-row__price {
+        grid-column: 2;
+        grid-row: 2;
+        margin-top: -6px;
+    }
+
+    .vehicle-categories .vc-row__chevron {
+        grid-column: 3;
+        grid-row: 1 / span 2;
+    }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+
+    .vehicle-categories .vc-row,
+    .vehicle-categories .vc-row__chevron {
+        transition: none !important;
+    }
+}

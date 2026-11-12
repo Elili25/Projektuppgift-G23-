@@ -1,5 +1,223 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+﻿@*@{
+    @*
+    Sevent – Featured Vehicles (Comfort Tiers)
+    Styles: wwwroot/css/Sevent-FeaturedVehicles-Partial.css
+
+    Byte av komfortnivå görs med radioknappar + CSS (:checked), ingen JavaScript.
+    Datan nedan är hårdkodad exempeldata från VehicleFamilySeeder / ExampleBookingSeeder
+    och CarRateCatalog. Ersätts senare med en ViewModel och @foreach över de fyra
+    VehicleComfortType-nivåerna. Behåll id:n och klassnamn, CSS:en bygger på dem.
 *@
-@{
+
+<link rel="stylesheet" href="~/css/Sevent-FeaturedVehicles-Partial.css" asp-append-version="true" />
+
+<section class="featured-vehicles" aria-labelledby="fv-title">
+
+    @* Radioknapparna måste ligga först och som syskon till .fv-tiers och .fv-panels *@
+    <input class="fv-tier-input" type="radio" name="fv-tier" id="fv-tier-economy" value="Economy" />
+    <input class="fv-tier-input" type="radio" name="fv-tier" id="fv-tier-standard" value="Standard" />
+    <input class="fv-tier-input" type="radio" name="fv-tier" id="fv-tier-premium" value="Premium" checked />
+    <input class="fv-tier-input" type="radio" name="fv-tier" id="fv-tier-luxury" value="Luxury" />
+
+    <!-- ========== HEADER ========== -->
+    <header class="fv-header">
+        <span class="fv-badge">Featured vehicles</span>
+        <h2 id="fv-title">Pick your comfort level</h2>
+        <p>Every class has a clear daily price, built from the comfort level and the body type.</p>
+    </header>
+
+    <!-- ========== TIER SELECTOR ========== -->
+    <div class="fv-tiers" role="radiogroup" aria-label="Comfort level">
+        <label class="fv-tier" for="fv-tier-economy">
+            <span class="fv-tier__name">Economy</span>
+            <span class="fv-tier__price">from 495 kr</span>
+        </label>
+        <label class="fv-tier" for="fv-tier-standard">
+            <span class="fv-tier__name">Standard</span>
+            <span class="fv-tier__price">from 585 kr</span>
+        </label>
+        <label class="fv-tier" for="fv-tier-premium">
+            <span class="fv-tier__name">Premium</span>
+            <span class="fv-tier__price">from 960 kr</span>
+        </label>
+        <label class="fv-tier" for="fv-tier-luxury">
+            <span class="fv-tier__name">Luxury</span>
+            <span class="fv-tier__price">from 1 200 kr</span>
+        </label>
+    </div>
+
+    <!-- ========== PANELS (en per komfortnivå) ========== -->
+    <div class="fv-panels">
+
+        <!-- ---------- ECONOMY ---------- -->
+        <div class="fv-panel fv-panel--economy">
+            <article class="fv-card">
+                <div class="fv-card__media">
+                    <svg class="fv-car-placeholder" viewBox="0 0 260 110" role="img" aria-label="Volvo V60"><ellipse cx="130" cy="100" rx="110" ry="6" class="fv-car-shadow" /><path d="M14 80 L20 62 Q24 54 36 52 L78 48 L104 28 Q112 22 124 22 L170 22 Q182 22 190 30 L212 48 L236 52 Q248 55 248 66 L248 80 Z" class="fv-car-body" /><path d="M112 32 L124 30 L160 30 L160 46 L94 46 Z" class="fv-car-glass" /><path d="M168 30 L184 32 L200 46 L168 46 Z" class="fv-car-glass" /><circle cx="66" cy="82" r="16" class="fv-car-wheel" /><circle cx="66" cy="82" r="7" class="fv-car-rim" /><circle cx="198" cy="82" r="16" class="fv-car-wheel" /><circle cx="198" cy="82" r="7" class="fv-car-rim" /></svg>
+                </div>
+                <div class="fv-card__body">
+                    <div class="fv-card__title">
+                        <span class="fv-card__family">Economy Station Wagon</span>
+                        <h3>Volvo V60</h3>
+                        <span class="fv-card__similar">or similar · 2024</span>
+                    </div>
+                    <dl class="fv-specs">
+                        <div class="fv-spec"><dt>Gearbox</dt><dd>Automatic</dd></div>
+                        <div class="fv-spec"><dt>Fuel</dt><dd>Petrol</dd></div>
+                        <div class="fv-spec"><dt>Power</dt><dd>197 hp</dd></div>
+                        <div class="fv-spec"><dt>Luggage</dt><dd>529 L</dd></div>
+                    </dl>
+                    <a class="fv-button" asp-controller="Bookings" asp-action="Create">
+                        Book Economy Station Wagon
+                        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                    </a>
+                </div>
+            </article>
+            <aside class="fv-pricing" aria-label="How the price is set">
+                <span class="fv-pricing__label">How the price is set</span>
+                <div class="fv-pricing__calc">
+                    <div class="fv-pricing__row"><span>Economy base rate</span><span>450 kr</span></div>
+                    <div class="fv-pricing__row"><span>Station wagon factor</span><span>× 1.1</span></div>
+                    <div class="fv-pricing__total"><span>Daily price</span><strong>495 kr</strong></div>
+                </div>
+                <div class="fv-ladder">
+                    <span class="fv-ladder__label">All classes, per day</span>
+                    <div class="fv-ladder__row is-current"><span>Economy</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 41%"></span></span><span>495 kr</span></div>
+                    <div class="fv-ladder__row"><span>Standard</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 49%"></span></span><span>585 kr</span></div>
+                    <div class="fv-ladder__row"><span>Premium</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 80%"></span></span><span>960 kr</span></div>
+                    <div class="fv-ladder__row"><span>Luxury</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 100%"></span></span><span>1 200 kr</span></div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- ---------- STANDARD ---------- -->
+        <div class="fv-panel fv-panel--standard">
+            <article class="fv-card">
+                <div class="fv-card__media">
+                    <svg class="fv-car-placeholder" viewBox="0 0 260 110" role="img" aria-label="Volkswagen Golf"><ellipse cx="130" cy="100" rx="110" ry="6" class="fv-car-shadow" /><path d="M14 80 L20 62 Q24 54 36 52 L78 48 L104 28 Q112 22 124 22 L170 22 Q182 22 190 30 L212 48 L236 52 Q248 55 248 66 L248 80 Z" class="fv-car-body" /><path d="M112 32 L124 30 L160 30 L160 46 L94 46 Z" class="fv-car-glass" /><path d="M168 30 L184 32 L200 46 L168 46 Z" class="fv-car-glass" /><circle cx="66" cy="82" r="16" class="fv-car-wheel" /><circle cx="66" cy="82" r="7" class="fv-car-rim" /><circle cx="198" cy="82" r="16" class="fv-car-wheel" /><circle cx="198" cy="82" r="7" class="fv-car-rim" /></svg>
+                </div>
+                <div class="fv-card__body">
+                    <div class="fv-card__title">
+                        <span class="fv-card__family">Standard Hatchback</span>
+                        <h3>Volkswagen Golf</h3>
+                        <span class="fv-card__similar">or similar · 2022</span>
+                    </div>
+                    <dl class="fv-specs">
+                        <div class="fv-spec"><dt>Gearbox</dt><dd>Manual</dd></div>
+                        <div class="fv-spec"><dt>Fuel</dt><dd>Diesel</dd></div>
+                        <div class="fv-spec"><dt>Power</dt><dd>150 hp</dd></div>
+                        <div class="fv-spec"><dt>Luggage</dt><dd>380 L</dd></div>
+                    </dl>
+                    <a class="fv-button" asp-controller="Bookings" asp-action="Create">
+                        Book Standard Hatchback
+                        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                    </a>
+                </div>
+            </article>
+            <aside class="fv-pricing" aria-label="How the price is set">
+                <span class="fv-pricing__label">How the price is set</span>
+                <div class="fv-pricing__calc">
+                    <div class="fv-pricing__row"><span>Standard base rate</span><span>650 kr</span></div>
+                    <div class="fv-pricing__row"><span>Hatchback factor</span><span>× 0.9</span></div>
+                    <div class="fv-pricing__total"><span>Daily price</span><strong>585 kr</strong></div>
+                </div>
+                <div class="fv-ladder">
+                    <span class="fv-ladder__label">All classes, per day</span>
+                    <div class="fv-ladder__row"><span>Economy</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 41%"></span></span><span>495 kr</span></div>
+                    <div class="fv-ladder__row is-current"><span>Standard</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 49%"></span></span><span>585 kr</span></div>
+                    <div class="fv-ladder__row"><span>Premium</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 80%"></span></span><span>960 kr</span></div>
+                    <div class="fv-ladder__row"><span>Luxury</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 100%"></span></span><span>1 200 kr</span></div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- ---------- PREMIUM ---------- -->
+        <div class="fv-panel fv-panel--premium">
+            <article class="fv-card">
+                <div class="fv-card__media">
+                    <svg class="fv-car-placeholder" viewBox="0 0 260 110" role="img" aria-label="Volvo XC60"><ellipse cx="130" cy="100" rx="110" ry="6" class="fv-car-shadow" /><path d="M14 80 L20 62 Q24 54 36 52 L78 48 L104 28 Q112 22 124 22 L170 22 Q182 22 190 30 L212 48 L236 52 Q248 55 248 66 L248 80 Z" class="fv-car-body" /><path d="M112 32 L124 30 L160 30 L160 46 L94 46 Z" class="fv-car-glass" /><path d="M168 30 L184 32 L200 46 L168 46 Z" class="fv-car-glass" /><circle cx="66" cy="82" r="16" class="fv-car-wheel" /><circle cx="66" cy="82" r="7" class="fv-car-rim" /><circle cx="198" cy="82" r="16" class="fv-car-wheel" /><circle cx="198" cy="82" r="7" class="fv-car-rim" /></svg>
+                </div>
+                <div class="fv-card__body">
+                    <div class="fv-card__title">
+                        <span class="fv-card__family">Premium SUV</span>
+                        <h3>Volvo XC60</h3>
+                        <span class="fv-card__similar">or similar · 2024</span>
+                    </div>
+                    <dl class="fv-specs">
+                        <div class="fv-spec"><dt>Gearbox</dt><dd>Automatic</dd></div>
+                        <div class="fv-spec"><dt>Fuel</dt><dd>Petrol</dd></div>
+                        <div class="fv-spec"><dt>Power</dt><dd>250 hp</dd></div>
+                        <div class="fv-spec"><dt>Luggage</dt><dd>483 L</dd></div>
+                    </dl>
+                    <a class="fv-button" asp-controller="Bookings" asp-action="Create">
+                        Book Premium SUV
+                        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                    </a>
+                </div>
+            </article>
+            <aside class="fv-pricing" aria-label="How the price is set">
+                <span class="fv-pricing__label">How the price is set</span>
+                <div class="fv-pricing__calc">
+                    <div class="fv-pricing__row"><span>Premium base rate</span><span>800 kr</span></div>
+                    <div class="fv-pricing__row"><span>SUV factor</span><span>× 1.2</span></div>
+                    <div class="fv-pricing__total"><span>Daily price</span><strong>960 kr</strong></div>
+                </div>
+                <div class="fv-ladder">
+                    <span class="fv-ladder__label">All classes, per day</span>
+                    <div class="fv-ladder__row"><span>Economy</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 41%"></span></span><span>495 kr</span></div>
+                    <div class="fv-ladder__row"><span>Standard</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 49%"></span></span><span>585 kr</span></div>
+                    <div class="fv-ladder__row is-current"><span>Premium</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 80%"></span></span><span>960 kr</span></div>
+                    <div class="fv-ladder__row"><span>Luxury</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 100%"></span></span><span>1 200 kr</span></div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- ---------- LUXURY ---------- -->
+        <div class="fv-panel fv-panel--luxury">
+            <article class="fv-card">
+                <div class="fv-card__media">
+                    <span class="fv-electric-badge">
+                        <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z" /></svg>
+                        Electric
+                    </span>
+                    <svg class="fv-car-placeholder" viewBox="0 0 260 110" role="img" aria-label="Tesla Model 3"><ellipse cx="130" cy="100" rx="110" ry="6" class="fv-car-shadow" /><path d="M14 80 L20 62 Q24 54 36 52 L78 48 L104 28 Q112 22 124 22 L170 22 Q182 22 190 30 L212 48 L236 52 Q248 55 248 66 L248 80 Z" class="fv-car-body" /><path d="M112 32 L124 30 L160 30 L160 46 L94 46 Z" class="fv-car-glass" /><path d="M168 30 L184 32 L200 46 L168 46 Z" class="fv-car-glass" /><circle cx="66" cy="82" r="16" class="fv-car-wheel" /><circle cx="66" cy="82" r="7" class="fv-car-rim" /><circle cx="198" cy="82" r="16" class="fv-car-wheel" /><circle cx="198" cy="82" r="7" class="fv-car-rim" /></svg>
+                </div>
+                <div class="fv-card__body">
+                    <div class="fv-card__title">
+                        <span class="fv-card__family">Luxury Sedan</span>
+                        <h3>Tesla Model 3</h3>
+                        <span class="fv-card__similar">or similar · 2023</span>
+                    </div>
+                    <dl class="fv-specs">
+                        <div class="fv-spec"><dt>Gearbox</dt><dd>Automatic</dd></div>
+                        <div class="fv-spec"><dt>Fuel</dt><dd>Electric</dd></div>
+                        <div class="fv-spec"><dt>Power</dt><dd>283 hp</dd></div>
+                        <div class="fv-spec"><dt>Luggage</dt><dd>425 L</dd></div>
+                    </dl>
+                    <a class="fv-button" asp-controller="Bookings" asp-action="Create">
+                        Book Luxury Sedan
+                        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                    </a>
+                </div>
+            </article>
+            <aside class="fv-pricing" aria-label="How the price is set">
+                <span class="fv-pricing__label">How the price is set</span>
+                <div class="fv-pricing__calc">
+                    <div class="fv-pricing__row"><span>Luxury base rate</span><span>1 200 kr</span></div>
+                    <div class="fv-pricing__row"><span>Sedan factor</span><span>× 1.0</span></div>
+                    <div class="fv-pricing__total"><span>Daily price</span><strong>1 200 kr</strong></div>
+                </div>
+                <div class="fv-ladder">
+                    <span class="fv-ladder__label">All classes, per day</span>
+                    <div class="fv-ladder__row"><span>Economy</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 41%"></span></span><span>495 kr</span></div>
+                    <div class="fv-ladder__row"><span>Standard</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 49%"></span></span><span>585 kr</span></div>
+                    <div class="fv-ladder__row"><span>Premium</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 80%"></span></span><span>960 kr</span></div>
+                    <div class="fv-ladder__row is-current"><span>Luxury</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 100%"></span></span><span>1 200 kr</span></div>
+                </div>
+            </aside>
+        </div>
+
+    </div>
+</section>
+
 }

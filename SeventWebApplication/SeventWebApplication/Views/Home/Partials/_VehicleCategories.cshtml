@@ -1,5 +1,131 @@
 ﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+    Sevent – Vehicle Categories (Cars vs Vans)
+    Styles: wwwroot/css/Sevent-VehicleCategories-Partial.css
+
+    Uppdelningen följer VehicleCategoryType:
+      - PassengerCar -> PassengerCarCategoryType (Hatchback, Sedan, StationWagon, SUV)
+      - Van          -> VanCategoryType (PassengerVan, CargoVan)
+
+    Datan nedan är hårdkodad exempeldata (priser från seedade familjer i
+    VehicleFamilySeeder + CarRateCatalog/VanRateCatalog). Ersätts senare med en
+    ViewModel och @foreach. Skåpbilarna visas som "Coming soon" tills en Van
+    finns i flottan. Behåll klassnamnen, CSS:en bygger på dem.
 *@
-@{
-}
+
+<link rel="stylesheet" href="~/css/Sevent-VehicleCategories-Partial.css" asp-append-version="true" />
+
+<section class="vehicle-categories" aria-labelledby="vc-title">
+
+    <!-- ========== HEADER ========== -->
+    <header class="vc-header">
+        <span class="vc-badge">Vehicle categories</span>
+        <h2 id="vc-title">Cars for every day, vans for the big jobs</h2>
+    </header>
+
+    <div class="vc-grid">
+
+        <!-- ========== PASSENGER CARS ========== -->
+        <article class="vc-cars" aria-labelledby="vc-cars-title">
+            <div class="vc-panel-head">
+                <h3 id="vc-cars-title">Passenger cars</h3>
+                <a class="vc-link" asp-controller="Vehicles" asp-action="Index" asp-route-category="PassengerCar">All cars</a>
+            </div>
+
+            <ul class="vc-list">
+                <li>
+                    <a class="vc-row" asp-controller="Vehicles" asp-action="Index" asp-route-category="Hatchback">
+                        <span class="vc-row__media">
+                            <svg class="vc-silhouette" viewBox="0 0 120 50" aria-hidden="true"><path class="vc-silhouette__body" d="M6 38 L8 30 Q10 26 16 25 L34 23 L46 13 Q49 11 54 11 L80 11 Q86 11 90 16 L100 28 L108 30 Q114 31 114 36 L114 38 Z" /><circle class="vc-silhouette__wheel" cx="28" cy="39" r="7" /><circle class="vc-silhouette__wheel" cx="94" cy="39" r="7" /></svg>
+                        </span>
+                        <span class="vc-row__text">
+                            <span class="vc-row__name">Hatchback</span>
+                            <span class="vc-row__desc">Compact and easy to park</span>
+                        </span>
+                        <span class="vc-row__price">from <strong>585 kr</strong></span>
+                        <svg class="vc-row__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+                    </a>
+                </li>
+                <li>
+                    <a class="vc-row" asp-controller="Vehicles" asp-action="Index" asp-route-category="Sedan">
+                        <span class="vc-row__media">
+                            <svg class="vc-silhouette" viewBox="0 0 120 50" aria-hidden="true"><path class="vc-silhouette__body" d="M4 38 L6 30 Q8 27 14 26 L32 24 L44 14 Q47 12 52 12 L76 12 Q82 12 86 16 L94 24 L108 26 Q116 27 116 33 L116 38 Z" /><circle class="vc-silhouette__wheel" cx="28" cy="39" r="7" /><circle class="vc-silhouette__wheel" cx="94" cy="39" r="7" /></svg>
+                        </span>
+                        <span class="vc-row__text">
+                            <span class="vc-row__name">Sedan</span>
+                            <span class="vc-row__desc">Comfort on longer drives</span>
+                        </span>
+                        <span class="vc-row__price">from <strong>1 200 kr</strong></span>
+                        <svg class="vc-row__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+                    </a>
+                </li>
+                <li>
+                    <a class="vc-row" asp-controller="Vehicles" asp-action="Index" asp-route-category="StationWagon">
+                        <span class="vc-row__media">
+                            <svg class="vc-silhouette" viewBox="0 0 120 50" aria-hidden="true"><path class="vc-silhouette__body" d="M4 38 L6 30 Q8 27 14 26 L32 24 L44 13 Q47 11 52 11 L104 11 Q110 11 112 16 L116 28 L116 38 Z" /><circle class="vc-silhouette__wheel" cx="28" cy="39" r="7" /><circle class="vc-silhouette__wheel" cx="94" cy="39" r="7" /></svg>
+                        </span>
+                        <span class="vc-row__text">
+                            <span class="vc-row__name">Station wagon</span>
+                            <span class="vc-row__desc">Most luggage space</span>
+                        </span>
+                        <span class="vc-row__price">from <strong>495 kr</strong></span>
+                        <svg class="vc-row__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+                    </a>
+                </li>
+                <li>
+                    <a class="vc-row" asp-controller="Vehicles" asp-action="Index" asp-route-category="SUV">
+                        <span class="vc-row__media">
+                            <svg class="vc-silhouette" viewBox="0 0 120 50" aria-hidden="true"><path class="vc-silhouette__body" d="M4 38 L4 26 Q5 22 12 21 L30 20 L40 8 Q42 6 48 6 L100 6 Q106 6 109 11 L116 22 L116 38 Z" /><circle class="vc-silhouette__wheel" cx="28" cy="39" r="7" /><circle class="vc-silhouette__wheel" cx="94" cy="39" r="7" /></svg>
+                        </span>
+                        <span class="vc-row__text">
+                            <span class="vc-row__name">SUV</span>
+                            <span class="vc-row__desc">High seating, room for all</span>
+                        </span>
+                        <span class="vc-row__price">from <strong>960 kr</strong></span>
+                        <svg class="vc-row__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+                    </a>
+                </li>
+            </ul>
+        </article>
+
+        <!-- ========== VANS ========== -->
+        <article class="vc-vans" aria-labelledby="vc-vans-title">
+            <div class="vc-panel-head">
+                <h3 id="vc-vans-title">Vans</h3>
+                <span class="vc-soon">Coming soon</span>
+            </div>
+            <p class="vc-vans__intro">We are adding vans to the fleet. Here is what each van class will offer.</p>
+
+            <div class="vc-van">
+                <div class="vc-van__head">
+                    <svg class="vc-silhouette vc-silhouette--van" viewBox="0 0 120 50" aria-hidden="true"><path class="vc-silhouette__body" d="M4 38 L4 22 Q4 16 10 14 L22 6 Q25 4 30 4 L110 4 Q116 4 116 10 L116 38 Z" /><circle class="vc-silhouette__wheel" cx="28" cy="39" r="7" /><circle class="vc-silhouette__wheel" cx="94" cy="39" r="7" /></svg>
+                    <div class="vc-van__text">
+                        <span class="vc-van__name">Passenger van</span>
+                        <span class="vc-van__desc">For groups and team trips</span>
+                    </div>
+                </div>
+                <ul class="vc-chips">
+                    <li>7+ seats</li>
+                    <li>Automatic</li>
+                    <li>1 100 kr/day</li>
+                </ul>
+            </div>
+
+            <div class="vc-van">
+                <div class="vc-van__head">
+                    <svg class="vc-silhouette vc-silhouette--van" viewBox="0 0 120 50" aria-hidden="true"><path class="vc-silhouette__body" d="M4 38 L4 22 Q4 16 10 14 L22 6 Q25 4 30 4 L110 4 Q116 4 116 10 L116 38 Z" /><circle class="vc-silhouette__wheel" cx="28" cy="39" r="7" /><circle class="vc-silhouette__wheel" cx="94" cy="39" r="7" /></svg>
+                    <div class="vc-van__text">
+                        <span class="vc-van__name">Cargo van</span>
+                        <span class="vc-van__desc">For moving and larger goods</span>
+                    </div>
+                </div>
+                <ul class="vc-chips">
+                    <li>8+ m³</li>
+                    <li>500+ kg</li>
+                    <li>Manual</li>
+                    <li>1 400 kr/day</li>
+                </ul>
+            </div>
+        </article>
+
+    </div>
+</section>
