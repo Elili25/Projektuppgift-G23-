@@ -1,8 +1,11 @@
 using SeventWebApplication.Models.Booking;
 using SeventWebApplication.Models.BookingValidation;
 using SeventWebApplication.Models.Notifications;
+using SeventWebApplication.Models.Pricing;
+using SeventWebApplication.Models.Pricing.PricingCategories;
 using SeventWebApplication.Models.Users;
 using SeventWebApplication.Models.VehicleNS;
+
 
 namespace SeventWebApplication
 {
@@ -67,7 +70,11 @@ namespace SeventWebApplication
             builder.Services.AddSingleton<VehicleFamilyRepository>();
             builder.Services.AddSingleton<VehicleFamilyAssignmentRepository>();
             builder.Services.AddSingleton<VehicleAssignmentService>();
-            //builder.Services.AddSingleton<PricingService>();
+            // ---- Prissättning ----
+            builder.Services.AddSingleton<CarRateCatalog>();
+            builder.Services.AddSingleton<VanRateCatalog>();
+            builder.Services.AddSingleton<BaseCosts>();
+            builder.Services.AddSingleton<PricingServices>();
             builder.Services.AddScoped<VehicleDamageService>();
             builder.Services.AddScoped<RentalReturnService>();
 
