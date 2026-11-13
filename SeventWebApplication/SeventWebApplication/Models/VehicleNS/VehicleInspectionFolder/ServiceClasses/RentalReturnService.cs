@@ -1,4 +1,5 @@
 ﻿using SeventWebApplication.Models.Booking;
+using SeventWebApplication.Models.Pricing;
 using BookingEntity = SeventWebApplication.Models.Booking.Booking;
 
 namespace SeventWebApplication.Models.VehicleNS
@@ -9,14 +10,14 @@ namespace SeventWebApplication.Models.VehicleNS
         private readonly VehicleRentalRecordRepository _recordRepository;
         private readonly VehicleInspectionRepository _inspectionRepository;
         private readonly VehicleDamageService _damageService;
-        private readonly PricingService _pricingService;
+        private readonly PricingServices _pricingService;
 
         public RentalReturnService(
             BookingRepository bookingRepository,
             VehicleRentalRecordRepository recordRepository,
             VehicleInspectionRepository inspectionRepository,
             VehicleDamageService damageService,
-            PricingService pricingService)
+            PricingServices pricingService)
         {
             _bookingRepository = bookingRepository;
             _recordRepository = recordRepository;
@@ -51,10 +52,12 @@ namespace SeventWebApplication.Models.VehicleNS
             if (_damageService.HasOpenDamages(vehicleId))
                 throw new InvalidOperationException("Vehicle has unresolved damages.");
 
+            var pickupDate = DateTime.Now;
+
             // 1. Pickup-inspektion
             var inspection = new VehicleInspection(
                 vehicleId,
-                DateTime.Now,
+                pickupDate,
                 InspectionType.Pickup,
                 mileage,
                 InspectionResult.Approved,
@@ -66,7 +69,7 @@ namespace SeventWebApplication.Models.VehicleNS
             var record = new VehicleRentalRecord
             {
                 BookingId = bookingId,
-                ActualPickupDate = DateTime.Now,
+                ActualPickupDate = pickupDate,
                 PickupMileage = mileage,
                 PickupFuelLevel = fuelLevel,
                 PickupBatteryLevel = batteryLevel
@@ -102,10 +105,17 @@ namespace SeventWebApplication.Models.VehicleNS
             if (mileage < record.PickupMileage)
                 throw new ArgumentException("Return mileage cannot be lower than pickup mileage.");
 
+            var descriptions = (damageDescriptions ?? Enumerable.Empty<string>()).ToList();
+
+            if (descriptions.Any(string.IsNullOrWhiteSpace))
+                throw new ArgumentException("Damage descriptions cannot be empty.");
+
+            var returnDate = DateTime.Now;
+
             // 1. Retur-inspektion
             var inspection = new VehicleInspection(
                 vehicleId,
-                DateTime.Now,
+                returnDate,
                 InspectionType.Return,
                 mileage,
                 inspectionResult,
@@ -114,7 +124,7 @@ namespace SeventWebApplication.Models.VehicleNS
             _inspectionRepository.Add(inspection);
 
             // 2. Registrera skador kopplade till inspektionen
-            foreach (var description in damageDescriptions ?? Enumerable.Empty<string>())
+            foreach (var description in descriptions)
             {
                 var damage = new VehicleDamage
                 {
@@ -128,7 +138,7 @@ namespace SeventWebApplication.Models.VehicleNS
             }
 
             // 3. Uppdatera rental record
-            record.ActualReturnDate = DateTime.Now;
+            record.ActualReturnDate = returnDate;
             record.ReturnMileage = mileage;
             record.ReturnFuelLevel = fuelLevel;
             record.ReturnBatteryLevel = batteryLevel;
@@ -184,19 +194,6 @@ namespace SeventWebApplication.Models.VehicleNS
                 return TimeSpan.Zero;
 
             return record.CalculateDelay(booking.EndDate);
-        }
-    }
-
-
-//placeholder tills tykos kommer in
-public class PricingService
-    {
-        private const decimal LateFeePerHour = 100m;   // justera efter behov
-
-        public decimal CalculateLateFee(string bookingId, TimeSpan delay)
-        {
-            var hours = (decimal)Math.Ceiling(delay.TotalHours);
-            return hours * LateFeePerHour;
         }
     }
 }
