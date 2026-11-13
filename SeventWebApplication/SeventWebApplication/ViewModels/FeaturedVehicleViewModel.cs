@@ -2,7 +2,7 @@
 {
     public class FeaturedVehicleViewModel
     {
-        public int FamilyId { get; set; }
+        public Guid FamilyId { get; set; }
 
         public string Name { get; set; } = string.Empty;
 

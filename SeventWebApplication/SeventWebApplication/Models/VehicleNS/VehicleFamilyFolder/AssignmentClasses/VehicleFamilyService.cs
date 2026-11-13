@@ -1,4 +1,7 @@
-﻿namespace SeventWebApplication.Models.VehicleNS
+﻿using SeventWebApplication.ViewModels;
+
+
+namespace SeventWebApplication.Models.VehicleNS
 {
     public class VehicleFamilyService
     {
@@ -72,6 +75,19 @@
             _familyRepository.Add(family);
 
             return family;
+        }
+
+        public IEnumerable<FeaturedVehicleViewModel> GetFeaturedVehicles()
+        {
+            return _familyRepository.GetAll()
+                .Select(family => new FeaturedVehicleViewModel
+                {
+                    FamilyId = family.FamilyId,
+                    Name = family.Name,
+                    Description = family.Description,
+                    ImagePath = family.ImagePath
+                })
+                .ToList();
         }
     }
 }

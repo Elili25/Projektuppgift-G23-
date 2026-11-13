@@ -67,7 +67,7 @@ namespace SeventWebApplication
             builder.Services.AddSingleton<VehicleFamilyRepository>();
             builder.Services.AddSingleton<VehicleFamilyAssignmentRepository>();
             builder.Services.AddSingleton<VehicleAssignmentService>();
-            builder.Services.AddSingleton<PricingService>();
+            //builder.Services.AddSingleton<PricingService>();
             builder.Services.AddScoped<VehicleDamageService>();
             builder.Services.AddScoped<RentalReturnService>();
 
