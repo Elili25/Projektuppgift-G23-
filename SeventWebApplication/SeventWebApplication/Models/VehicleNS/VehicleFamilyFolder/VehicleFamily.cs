@@ -9,6 +9,8 @@
         public VehicleCategoryType VehicleCategoryType { get; private set; }
         public TransmissionType TransmissionType { get; private set; }
 
+        public string? ImagePath { get; set; }
+
         protected VehicleFamily(
             Guid familyId,
             string name,

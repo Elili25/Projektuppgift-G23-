@@ -21,45 +21,57 @@
             {
                 // ---- Personbilar ----
 
-                // Matchar: Tesla Model 3, BMW i4
+                // Luxury Sedan
                 new PassengerCarFamily(
                     LuxurySedanId,
                     "Luxury Sedan",
                     "Luxurious sedan with automatic transmission.",
                     TransmissionType.Automatic,
                     VehicleComfortType.Luxury,
-                    PassengerCarCategoryType.Sedan),
+                    PassengerCarCategoryType.Sedan)
+                {
+                    ImagePath = "/lib/Images/FeaturedVehicleImages/PassengerCar/VehicleFamily-Luxury-Sedan-FeaturedImage.png"
+                },
 
-                // Matchar: Volvo XC60
+                // Premium SUV
                 new PassengerCarFamily(
                     PremiumSuvId,
                     "Premium SUV",
                     "Premium SUV with high comfort.",
                     TransmissionType.Automatic,
                     VehicleComfortType.Premium,
-                    PassengerCarCategoryType.SUV),
+                    PassengerCarCategoryType.SUV)
+                {
+                    ImagePath = "/lib/Images/FeaturedVehicleImages/PassengerCar/VehicleFamily-Premium-SUV-FeaturedImage.png"
+                },
 
-                // Matchar: Volkswagen Golf
+                // Standard Hatchback
                 new PassengerCarFamily(
                     StandardHatchbackId,
                     "Standard Hatchback",
                     "Practical hatchback for city driving.",
                     TransmissionType.Manual,
                     VehicleComfortType.Standard,
-                    PassengerCarCategoryType.Hatchback),
+                    PassengerCarCategoryType.Hatchback)
+                {
+                    ImagePath = "/lib/Images/FeaturedVehicleImages/PassengerCar/VehicleFamily-Standard-Hatchback-FeaturedImage.png"
+                },
 
-                // Matchar: Volvo V60 från FleetManager.SeedTestVehicle
+                // Economy Station Wagon
                 new PassengerCarFamily(
                     EconomyWagonId,
                     "Economy Station Wagon",
                     "Affordable station wagon with plenty of luggage space.",
                     TransmissionType.Automatic,
                     VehicleComfortType.Economy,
-                    PassengerCarCategoryType.StationWagon),
+                    PassengerCarCategoryType.StationWagon)
+                {
+                    ImagePath = "/lib/Images/FeaturedVehicleImages/PassengerCar/VehicleFamily-Economy-StationWagon-FeaturedImage.png"
+                },
 
                 // ---- Skåpbilar ----
-                // Inga skåpbilar seedas än, så de här är tomma tills en Van läggs till i flottan.
 
+                // Cargo Van
                 new VanFamily(
                     CargoVanId,
                     "Cargo Van",
@@ -67,8 +79,12 @@
                     TransmissionType.Manual,
                     VanCategoryType.CargoVan,
                     minCargoVolumeM3: 8,
-                    minPayloadKg: 500),
+                    minPayloadKg: 500)
+                {
+                    ImagePath = "/lib/Images/FeaturedVehicleImages/Van/VehicleFamily-Cargo-Van-FeaturedImage.png"
+                },
 
+                // Passenger Van
                 new VanFamily(
                     PassengerVanId,
                     "Passenger Van",
@@ -76,6 +92,9 @@
                     TransmissionType.Automatic,
                     VanCategoryType.PassengerVan,
                     minPassengerCapacity: 7)
+                {
+                    ImagePath = "/lib/Images/FeaturedVehicleImages/Van/VehicleFamily-PassengerVan-FeaturedImage.png"
+                }
             };
         }
     }
