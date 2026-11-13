@@ -8,13 +8,9 @@ using System.Collections.ObjectModel;
 
 public class FleetManager
 {
-
-
     private static readonly Lazy<FleetManager> _instance = new(() => new FleetManager());
 
     public static FleetManager instance => _instance.Value;
-
-
 
     private Dictionary<string, Vehicle> _vehicles = new(StringComparer.OrdinalIgnoreCase);// <reg-num, vehicle>
 

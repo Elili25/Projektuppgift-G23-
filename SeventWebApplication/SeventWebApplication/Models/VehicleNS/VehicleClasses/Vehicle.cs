@@ -43,8 +43,7 @@ namespace SeventWebApplication.Models.VehicleNS
             decimal luggageCapacity,
             IEngine engine,
             TransmissionType transmissionType)
-        {
-            VehicleId = Guid.NewGuid();
+        {      
 
             RegistrationPlate = registrationPlate
                 ?? throw new ArgumentNullException(nameof(registrationPlate));
