@@ -284,12 +284,20 @@
     text-transform: uppercase;
 }
 
+.featured-vehicles .fv-card__model {
+    container-type: inline-size; /* låter h3 mäta diven */
+    min-width: 0;
+}
+
 .featured-vehicles .fv-card__title h3 {
     margin: 0;
     color: var(--fv-text);
-    font-size: 1.75rem;
+    font-size: clamp(1.1rem, 11cqi, 1.75rem); /* krymper med kolumnens bredd */
+    white-space: nowrap; /* aldrig dubbelrad */
+    overflow: hidden; /* text-overflow fungerar bara med overflow */
     font-weight: 760;
     letter-spacing: -0.03em;
+    text-overflow: ellipsis; /* "…" om det ändå inte får plats */
 }
 
 .featured-vehicles .fv-card__similar {
@@ -524,6 +532,7 @@
     .featured-vehicles .fv-card__title h3 {
         font-size: 1.5rem;
     }
+
 }
 
 /* Respect reduced motion */
@@ -618,6 +627,8 @@
     .featured-vehicles .fv-card__title h3 {
         color: #ffffff;
     }
+
+
 
     .featured-vehicles .fv-card__similar {
         color: var(--fv-label-dark);

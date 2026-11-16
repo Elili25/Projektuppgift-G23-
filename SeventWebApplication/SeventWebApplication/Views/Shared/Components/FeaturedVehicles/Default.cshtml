@@ -68,7 +68,7 @@
                     <div class="fv-card__body">
                         <div class="fv-card__title">
                             <span class="fv-card__family">@f.Name</span>
-                            <h3>@(f.ModelName ?? f.Name)</h3>
+                            <div class="fv-card__model"><h3>@(f.ModelName ?? f.Name)</h3></div>
                             @if (f.Year is int year)
                             {
                                 <span class="fv-card__similar">or similar · @year</span>
