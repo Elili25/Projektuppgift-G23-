@@ -3,6 +3,8 @@ using SeventWebApplication.Models.VehicleNS;
 
 namespace SeventWebApplication.ViewComponents
 {
+    // Startsidans "Vehicle categories": sex rutor med data från seedade familjer och fordon.
+    // Renderar Views/Shared/Components/VehicleCategories/Default.cshtml
     public class VehicleCategoriesViewComponent : ViewComponent
     {
         private readonly VehicleFamilyService _familyService;
@@ -14,7 +16,7 @@ namespace SeventWebApplication.ViewComponents
 
         public IViewComponentResult Invoke()
         {
-            return View(_familyService.GetVehicleCategories());
+            return View(_familyService.GetVehicleCategoryTiles());
         }
     }
 }

@@ -209,5 +209,98 @@ namespace SeventWebApplication.Models.VehicleNS
                 Vans = vans
             };
         }
+
+        // Sex rutor till "Vehicle categories" på startsidan:
+        // en per personbilskategori (billigaste familjen) och en per skåpbilsfamilj.
+        public List<VehicleCategoryTileViewModel> GetVehicleCategoryTiles()
+        {
+            var families = _familyRepository.GetAll().ToList();
+            var carFamilies = families.OfType<PassengerCarFamily>().ToList();
+
+            // ---- Personbilar: billigaste familjen i kategorin ger pris, bild och länk ----
+            var carTiles = CarCategoryOrder
+                .Select(category =>
+                {
+                    var cheapest = carFamilies
+                        .Where(family => family.CategoryType == category)
+                        .Select(family => new
+                        {
+                            Family = family,
+                            Price = _carRates.GetBaseDayRate(family.ComfortType) *
+                                    _carRates.GetBodyTypeRate(family.CategoryType)
+                        })
+                        .OrderBy(x => x.Price)
+                        .FirstOrDefault();
+
+                    return new VehicleCategoryTileViewModel
+                    {
+                        IsVan = false,
+                        Label = CarCategoryLabel(category),
+                        Description = CarCategoryDescription(category),
+                        ImagePath = cheapest == null ? null : ImageFor(cheapest.Family),
+                        FamilyId = cheapest?.Family.FamilyId,
+                        Price = cheapest?.Price,
+                        IsAvailable = cheapest != null
+                    };
+                });
+
+            // ---- Skåpbilar: en ruta per seedad VanFamily ----
+            var vanTiles = families
+                .OfType<VanFamily>()
+                .OrderBy(family => Array.IndexOf(VanCategoryOrder, family.CategoryType))
+                .Select(family => new VehicleCategoryTileViewModel
+                {
+                    IsVan = true,
+                    Label = family.CategoryType == VanCategoryType.PassengerVan ? "Passenger van" : "Cargo van",
+                    Description = VanSpecs(family),
+                    ImagePath = ImageFor(family),
+                    FamilyId = family.FamilyId,
+                    Price = _vanRates.GetVanTypeRate(family.CategoryType),
+
+                    // Tillgänglig när minst en körbar skåpbil är kopplad till familjen
+                    IsAvailable = _assignmentService
+                        .FindMatchingVehicles(family.FamilyId)
+                        .Any(vehicle => vehicle.IsOperational)
+                });
+
+            return carTiles.Concat(vanTiles).ToList();
+        }
+
+        // ---- Hjälpmetoder för rutorna ----
+
+        // Familjens bild om den finns, annars bilden på ett fordon i familjen
+        private string? ImageFor(VehicleFamily family)
+        {
+            return family.ImagePath
+                ?? _assignmentService.FindMatchingVehicles(family.FamilyId)
+                    .Select(vehicle => vehicle.ImagePath)
+                    .FirstOrDefault(path => !string.IsNullOrEmpty(path));
+        }
+
+        private static string CarCategoryLabel(PassengerCarCategoryType category) => category switch
+        {
+            PassengerCarCategoryType.StationWagon => "Station wagon",
+            _ => category.ToString()
+        };
+
+        private static string CarCategoryDescription(PassengerCarCategoryType category) => category switch
+        {
+            PassengerCarCategoryType.Hatchback => "Compact and easy to park",
+            PassengerCarCategoryType.Sedan => "Comfort on longer drives",
+            PassengerCarCategoryType.StationWagon => "Most luggage space",
+            PassengerCarCategoryType.SUV => "High seating, room for all",
+            _ => string.Empty
+        };
+
+        // T.ex. "7+ seats · Automatic" eller "8+ m³ · 500+ kg · Manual"
+        private static string VanSpecs(VanFamily family)
+        {
+            var parts = new List<string>();
+            if (family.MinPassengerCapacity is int seats) parts.Add($"{seats}+ seats");
+            if (family.MinCargoVolumeM3 is double m3) parts.Add($"{m3:0}+ m³");
+            if (family.MinPayloadKg is double kg) parts.Add($"{kg:0}+ kg");
+            parts.Add(family.TransmissionType.ToString());
+            return string.Join(" · ", parts);
+        }
     }
 }
