@@ -20,7 +20,6 @@
     }
 
     <header class="fv-header">
-        <span class="fv-badge">Featured vehicles</span>
         <h2 id="fv-title">Pick your comfort level</h2>
         <p>Every class has a clear daily price, built from the comfort level and the body type.</p>
     </header>
@@ -40,7 +39,7 @@
         {
             <div class="fv-panel fv-panel--@f.Tier">
                 <article class="fv-card">
-                    <div class="fv-card__media">
+                    <div class="fv-card__media fv-media--void">
                         @if (f.FuelType == FuelType.Electric)
                         {
                             <span class="fv-electric-badge">
@@ -50,12 +49,19 @@
                         }
                         @if (!string.IsNullOrEmpty(f.ImagePath))
                         {
-                            <img src="@f.ImagePath" alt="@(f.ModelName ?? f.Name)" asp-append-version="true" />
+                            <img class="fv-car-image" src="@f.ImagePath" alt="@(f.ModelName ?? f.Name)" asp-append-version="true" />
                         }
                         else
                         {
                             <svg class="fv-car-placeholder" viewBox="0 0 260 110" role="img" aria-label="@(f.ModelName ?? f.Name)">
-                                @* ...samma SVG-paths som förut... *@
+                                <ellipse cx="130" cy="100" rx="110" ry="6" class="fv-car-shadow" />
+                                <path d="M14 80 L20 62 Q24 54 36 52 L78 48 L104 28 Q112 22 124 22 L170 22 Q182 22 190 30 L212 48 L236 52 Q248 55 248 66 L248 80 Z" class="fv-car-body" />
+                                <path d="M112 32 L124 30 L160 30 L160 46 L94 46 Z" class="fv-car-glass" />
+                                <path d="M168 30 L184 32 L200 46 L168 46 Z" class="fv-car-glass" />
+                                <circle cx="66" cy="82" r="16" class="fv-car-wheel" />
+                                <circle cx="66" cy="82" r="7" class="fv-car-rim" />
+                                <circle cx="198" cy="82" r="16" class="fv-car-wheel" />
+                                <circle cx="198" cy="82" r="7" class="fv-car-rim" />
                             </svg>
                         }
                     </div>

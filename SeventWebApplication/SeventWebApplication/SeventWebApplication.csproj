@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="wwwroot\ViewComponents\FeaturedVehiclesViewComponent.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="Models\AppSettings.cs" />
   </ItemGroup>
 
