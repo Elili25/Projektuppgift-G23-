@@ -1,0 +1,128 @@
+﻿@model SeventWebApplication.ViewModels.VehicleCategoriesViewModel
+@using System.Globalization
+@using SeventWebApplication.Models.VehicleNS
+@{
+    var sv = CultureInfo.GetCultureInfo("sv-SE");
+    string Kr(decimal v) => v.ToString("N0", sv) + " kr";
+
+    // UI-text och siluetter per kategori (finns inte i datan)
+    string Desc(PassengerCarCategoryType c) => c switch
+    {
+        PassengerCarCategoryType.Hatchback => "Compact and easy to park",
+        PassengerCarCategoryType.Sedan => "Comfort on longer drives",
+        PassengerCarCategoryType.StationWagon => "Most luggage space",
+        PassengerCarCategoryType.SUV => "High seating, room for all",
+        _ => ""
+    };
+    string Path(PassengerCarCategoryType c) => c switch
+    {
+        PassengerCarCategoryType.Hatchback => "M6 38 L8 30 Q10 26 16 25 L34 23 L46 13 Q49 11 54 11 L80 11 Q86 11 90 16 L100 28 L108 30 Q114 31 114 36 L114 38 Z",
+        PassengerCarCategoryType.Sedan => "M4 38 L6 30 Q8 27 14 26 L32 24 L44 14 Q47 12 52 12 L76 12 Q82 12 86 16 L94 24 L108 26 Q116 27 116 33 L116 38 Z",
+        PassengerCarCategoryType.StationWagon => "M4 38 L6 30 Q8 27 14 26 L32 24 L44 13 Q47 11 52 11 L104 11 Q110 11 112 16 L116 28 L116 38 Z",
+        _ => "M4 38 L4 26 Q5 22 12 21 L30 20 L40 8 Q42 6 48 6 L100 6 Q106 6 109 11 L116 22 L116 38 Z"
+    };
+    const string VanPath = "M4 38 L4 22 Q4 16 10 14 L22 6 Q25 4 30 4 L110 4 Q116 4 116 10 L116 38 Z";
+}
+
+<link rel="stylesheet" href="~/css/Sevent-VehicleCategories-Partial.css" asp-append-version="true" />
+
+<section class="vehicle-categories" aria-labelledby="vc-title">
+
+    <header class="vc-header">
+        <span class="vc-badge">Vehicle categories</span>
+        <h2 id="vc-title">Cars for every day, vans for the big jobs</h2>
+    </header>
+
+    <div class="vc-grid">
+
+        <!-- PASSENGER CARS -->
+        <article class="vc-cars" aria-labelledby="vc-cars-title">
+            <div class="vc-panel-head">
+                <h3 id="vc-cars-title">Passenger cars</h3>
+                <a class="vc-link" asp-controller="Vehicles" asp-action="Index" asp-route-category="PassengerCar">All cars</a>
+            </div>
+
+            <ul class="vc-list">
+                @foreach (var c in Model.Cars)
+                {
+                    <li>
+                        <a class="vc-row" asp-controller="Vehicles" asp-action="Index" asp-route-category="@c.Category">
+                            <span class="vc-row__media">
+                                <svg class="vc-silhouette" viewBox="0 0 120 50" aria-hidden="true">
+                                    <path class="vc-silhouette__body" d="@Path(c.Category)" />
+                                    <circle class="vc-silhouette__wheel" cx="28" cy="39" r="7" />
+                                    <circle class="vc-silhouette__wheel" cx="94" cy="39" r="7" />
+                                </svg>
+                            </span>
+                            <span class="vc-row__text">
+                                <span class="vc-row__name">@c.Label</span>
+                                <span class="vc-row__desc">@Desc(c.Category)</span>
+                            </span>
+                            <span class="vc-row__price">
+                                @if (c.FromPrice is decimal price)
+                                {
+                                    <text>from <strong>@Kr(price)</strong></text>
+                                }
+                                else
+                                {
+                                    <text>Coming soon</text>
+                                }
+                            </span>
+                            <svg class="vc-row__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </article>
+
+        <!-- VANS -->
+        <article class="vc-vans" aria-labelledby="vc-vans-title">
+            <div class="vc-panel-head">
+                <h3 id="vc-vans-title">Vans</h3>
+                @if (Model.VansComingSoon)
+                {
+                    <span class="vc-soon">Coming soon</span>
+                }
+            </div>
+
+            @if (Model.VansComingSoon)
+            {
+                <p class="vc-vans__intro">We are adding vans to the fleet. Here is what each van class will offer.</p>
+            }
+
+            @foreach (var v in Model.Vans)
+            {
+                <div class="vc-van">
+                    <div class="vc-van__head">
+                        <svg class="vc-silhouette vc-silhouette--van" viewBox="0 0 120 50" aria-hidden="true">
+                            <path class="vc-silhouette__body" d="@VanPath" />
+                            <circle class="vc-silhouette__wheel" cx="28" cy="39" r="7" />
+                            <circle class="vc-silhouette__wheel" cx="94" cy="39" r="7" />
+                        </svg>
+                        <div class="vc-van__text">
+                            <span class="vc-van__name">@v.Name</span>
+                            <span class="vc-van__desc">@v.Description</span>
+                        </div>
+                    </div>
+                    <ul class="vc-chips">
+                        @if (v.MinPassengerCapacity is int seats)
+                        {
+                            <li>@seats+ seats</li>
+                        }
+                        @if (v.MinCargoVolumeM3 is double m3)
+                        {
+                            <li>@m3+ m³</li>
+                        }
+                        @if (v.MinPayloadKg is double kg)
+                        {
+                            <li>@kg+ kg</li>
+                        }
+                        <li>@v.Transmission</li>
+                        <li>@Kr(v.DailyPrice)/day</li>
+                    </ul>
+                </div>
+            }
+        </article>
+
+    </div>
+</section>

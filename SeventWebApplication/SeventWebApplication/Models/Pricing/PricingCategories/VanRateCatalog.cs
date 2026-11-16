@@ -6,6 +6,8 @@ namespace SeventWebApplication.Models.Pricing.PricingCategories;
 
 public class VanRateCatalog
 {
+    public decimal GetVanTypeRate(VanCategoryType category) => _vanTypeRates[category];
+
     private readonly Dictionary<VanCategoryType, decimal> _vanTypeRates = new()
     {
         [VanCategoryType.PassengerVan] = 1100,
