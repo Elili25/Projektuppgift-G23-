@@ -44,7 +44,7 @@ public class PricingServices
 
     public decimal CalculateDepositFee(Vehicle vehicle, int billableDays)
     {
-        return _baseCosts.GetDepositFee() * (decimal)Math.Log10((double)CalculateBaseRate(vehicle, billableDays)); //dubbel cast lol
+        return _baseCosts.GetDepositFee() *  (CalculateBaseRate(vehicle, billableDays)/12);
     }
 }
 

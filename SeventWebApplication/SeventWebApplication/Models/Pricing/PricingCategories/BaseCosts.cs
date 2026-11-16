@@ -4,7 +4,7 @@ namespace SeventWebApplication.Models.Pricing.PricingCategories;
 
 public class BaseCosts
 {
-    private decimal _baseFee = 50;
+    private decimal _baseFee = 100;
     
     public decimal GetBaseFee()
     {

@@ -185,9 +185,12 @@ namespace SeventWebApplication.Models.VehicleNS
 
             return record.CalculateDelay(booking.EndDate);
         }
+        
+        
     }
 
 
+    
 //placeholder tills tykos kommer in
 public class PricingService
     {
