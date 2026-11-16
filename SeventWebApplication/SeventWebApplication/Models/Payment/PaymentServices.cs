@@ -22,7 +22,7 @@ public class PaymentServices
         return result;
     }
 
-    public void RefundBooking(Booking.Booking booking)
+    public void RefundBooking(BookingEntity booking)
     {
         if(booking.Status == Booking.BookingStatus.Confirmed && DateTime.Now < (booking.StartDate - TimeSpan.FromHours(8))) //Vet inte hur långt i förväg man ska kunna avboka, nu är det 8 timmar innan starttiden
         {
