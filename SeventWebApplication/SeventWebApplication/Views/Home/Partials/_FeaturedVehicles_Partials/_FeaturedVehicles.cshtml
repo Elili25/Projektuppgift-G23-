@@ -53,22 +53,22 @@
         <div class="fv-panel fv-panel--economy">
             <article class="fv-card">
                 <div class="fv-card__media">
-                    <svg class="fv-car-placeholder" viewBox="0 0 260 110" role="img" aria-label="Volvo V60"><ellipse cx="130" cy="100" rx="110" ry="6" class="fv-car-shadow" /><path d="M14 80 L20 62 Q24 54 36 52 L78 48 L104 28 Q112 22 124 22 L170 22 Q182 22 190 30 L212 48 L236 52 Q248 55 248 66 L248 80 Z" class="fv-car-body" /><path d="M112 32 L124 30 L160 30 L160 46 L94 46 Z" class="fv-car-glass" /><path d="M168 30 L184 32 L200 46 L168 46 Z" class="fv-car-glass" /><circle cx="66" cy="82" r="16" class="fv-car-wheel" /><circle cx="66" cy="82" r="7" class="fv-car-rim" /><circle cx="198" cy="82" r="16" class="fv-car-wheel" /><circle cx="198" cy="82" r="7" class="fv-car-rim" /></svg>
+ <!--VehicleBild-->    <svg class="fv-car-placeholder" viewBox="0 0 260 110" role="img" aria-label="Volvo V60"><ellipse cx="130" cy="100" rx="110" ry="6" class="fv-car-shadow" /><path d="M14 80 L20 62 Q24 54 36 52 L78 48 L104 28 Q112 22 124 22 L170 22 Q182 22 190 30 L212 48 L236 52 Q248 55 248 66 L248 80 Z" class="fv-car-body" /><path d="M112 32 L124 30 L160 30 L160 46 L94 46 Z" class="fv-car-glass" /><path d="M168 30 L184 32 L200 46 L168 46 Z" class="fv-car-glass" /><circle cx="66" cy="82" r="16" class="fv-car-wheel" /><circle cx="66" cy="82" r="7" class="fv-car-rim" /><circle cx="198" cy="82" r="16" class="fv-car-wheel" /><circle cx="198" cy="82" r="7" class="fv-car-rim" /></svg>
                 </div>
                 <div class="fv-card__body">
                     <div class="fv-card__title">
-                        <span class="fv-card__family">Economy Station Wagon</span>
-                        <h3>Volvo V60</h3>
-                        <span class="fv-card__similar">or similar · 2024</span>
+ <!-- FamilyName -->    <span class="fv-card__family">Economy Station Wagon</span>
+ <!-- ModelName -->     <h3>Volvo V60</h3>
+ <!-- VehicleName -->   <span class="fv-card__similar">or similar · 2024</span>
                     </div>
                     <dl class="fv-specs">
-                        <div class="fv-spec"><dt>Gearbox</dt><dd>Automatic</dd></div>
-                        <div class="fv-spec"><dt>Fuel</dt><dd>Petrol</dd></div>
-                        <div class="fv-spec"><dt>Power</dt><dd>197 hp</dd></div>
-                        <div class="fv-spec"><dt>Luggage</dt><dd>529 L</dd></div>
+ <!--TransmissionType-->  <div class="fv-spec"><dt>Gearbox</dt><dd>Automatic</dd></div>
+ <!--FuelType-->          <div class="fv-spec"><dt>Fuel</dt><dd>Petrol</dd></div>
+ <!--Power-->             <div class="fv-spec"><dt>Power</dt><dd>197 hp</dd></div>
+ <!--LuggageCapacity-->   <div class="fv-spec"><dt>Luggage</dt><dd>529 L</dd></div>
                     </dl>
                     <a class="fv-button" asp-controller="Bookings" asp-action="Create">
-                        Book Economy Station Wagon
+                        Book <!-- VehicleFamilyName --> <span class="fv-card__family">Economy Station Wagon</span>
                         <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                     </a>
                 </div>
@@ -76,16 +76,16 @@
             <aside class="fv-pricing" aria-label="How the price is set">
                 <span class="fv-pricing__label">How the price is set</span>
                 <div class="fv-pricing__calc">
-                    <div class="fv-pricing__row"><span>Economy base rate</span><span>450 kr</span></div>
-                    <div class="fv-pricing__row"><span>Station wagon factor</span><span>× 1.1</span></div>
-                    <div class="fv-pricing__total"><span>Daily price</span><strong>495 kr</strong></div>
+ <!-- PriceService -->   <div class="fv-pricing__row"><span>Economy base rate</span><span>450 kr</span></div>
+ <!-- PriceFactor -->    <div class="fv-pricing__row"><span>Station wagon factor</span><span>× 1.1</span></div>
+ <!-- PriceTotal -->     <div class="fv-pricing__total"><span>Daily price</span><strong>495 kr</strong></div>
                 </div>
                 <div class="fv-ladder">
                     <span class="fv-ladder__label">All classes, per day</span>
-                    <div class="fv-ladder__row is-current"><span>Economy</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 41%"></span></span><span>495 kr</span></div>
-                    <div class="fv-ladder__row"><span>Standard</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 49%"></span></span><span>585 kr</span></div>
-                    <div class="fv-ladder__row"><span>Premium</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 80%"></span></span><span>960 kr</span></div>
-                    <div class="fv-ladder__row"><span>Luxury</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 100%"></span></span><span>1 200 kr</span></div>
+ <!-- LadderCurrent -->    <div class="fv-ladder__row is-current"><span>Economy</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 41%"></span></span><span>495 kr</span></div>
+ <!-- LadderStandard -->   <div class="fv-ladder__row"><span>Standard</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 49%"></span></span><span>585 kr</span></div>
+ <!-- LadderPremium -->    <div class="fv-ladder__row"><span>Premium</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 80%"></span></span><span>960 kr</span></div>
+ <!-- LadderLuxury -->     <div class="fv-ladder__row"><span>Luxury</span><span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: 100%"></span></span><span>1 200 kr</span></div>
                 </div>
             </aside>
         </div>
@@ -94,22 +94,22 @@
         <div class="fv-panel fv-panel--standard">
             <article class="fv-card">
                 <div class="fv-card__media">
-                    <svg class="fv-car-placeholder" viewBox="0 0 260 110" role="img" aria-label="Volkswagen Golf"><ellipse cx="130" cy="100" rx="110" ry="6" class="fv-car-shadow" /><path d="M14 80 L20 62 Q24 54 36 52 L78 48 L104 28 Q112 22 124 22 L170 22 Q182 22 190 30 L212 48 L236 52 Q248 55 248 66 L248 80 Z" class="fv-car-body" /><path d="M112 32 L124 30 L160 30 L160 46 L94 46 Z" class="fv-car-glass" /><path d="M168 30 L184 32 L200 46 L168 46 Z" class="fv-car-glass" /><circle cx="66" cy="82" r="16" class="fv-car-wheel" /><circle cx="66" cy="82" r="7" class="fv-car-rim" /><circle cx="198" cy="82" r="16" class="fv-car-wheel" /><circle cx="198" cy="82" r="7" class="fv-car-rim" /></svg>
+ <!--VehicleBild-->    <svg class="fv-car-placeholder" viewBox="0 0 260 110" role="img" aria-label="Volkswagen Golf"><ellipse cx="130" cy="100" rx="110" ry="6" class="fv-car-shadow" /><path d="M14 80 L20 62 Q24 54 36 52 L78 48 L104 28 Q112 22 124 22 L170 22 Q182 22 190 30 L212 48 L236 52 Q248 55 248 66 L248 80 Z" class="fv-car-body" /><path d="M112 32 L124 30 L160 30 L160 46 L94 46 Z" class="fv-car-glass" /><path d="M168 30 L184 32 L200 46 L168 46 Z" class="fv-car-glass" /><circle cx="66" cy="82" r="16" class="fv-car-wheel" /><circle cx="66" cy="82" r="7" class="fv-car-rim" /><circle cx="198" cy="82" r="16" class="fv-car-wheel" /><circle cx="198" cy="82" r="7" class="fv-car-rim" /></svg>
                 </div>
                 <div class="fv-card__body">
                     <div class="fv-card__title">
-                        <span class="fv-card__family">Standard Hatchback</span>
-                        <h3>Volkswagen Golf</h3>
+ <!-- VehicleName -->   <span class="fv-card__family">Standard Hatchback</span>
+ <!-- ModelName -->     <h3>Volkswagen Golf</h3>
                         <span class="fv-card__similar">or similar · 2022</span>
                     </div>
                     <dl class="fv-specs">
-                        <div class="fv-spec"><dt>Gearbox</dt><dd>Manual</dd></div>
-                        <div class="fv-spec"><dt>Fuel</dt><dd>Diesel</dd></div>
-                        <div class="fv-spec"><dt>Power</dt><dd>150 hp</dd></div>
-                        <div class="fv-spec"><dt>Luggage</dt><dd>380 L</dd></div>
+<!--TransmissionType-->  <div class="fv-spec"><dt>Gearbox</dt><dd>Manual</dd></div>
+<!--FuelType-->          <div class="fv-spec"><dt>Fuel</dt><dd>Diesel</dd></div>
+<!--Power-->             <div class="fv-spec"><dt>Power</dt><dd>150 hp</dd></div>
+<!--LuggageCapacity-->   <div class="fv-spec"><dt>Luggage</dt><dd>380 L</dd></div>
                     </dl>
                     <a class="fv-button" asp-controller="Bookings" asp-action="Create">
-                        Book Standard Hatchback
+                        Book <!-- VehicleFamilyName --> <span class="fv-card__family">Standard Hatchback</span>
                         <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                     </a>
                 </div>

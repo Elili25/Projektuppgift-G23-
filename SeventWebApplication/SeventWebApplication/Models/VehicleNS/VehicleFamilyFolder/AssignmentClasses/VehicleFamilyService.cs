@@ -1,5 +1,5 @@
-﻿using SeventWebApplication.ViewModels;
-
+﻿using SeventWebApplication.Models.Pricing.PricingCategories;
+using SeventWebApplication.ViewModels;
 
 namespace SeventWebApplication.Models.VehicleNS
 {
@@ -8,15 +8,30 @@ namespace SeventWebApplication.Models.VehicleNS
         private readonly VehicleFamilyFactory _familyFactory;
         private readonly VehicleFamilyRepository _familyRepository;
         private readonly VehicleFamilyValidator _validator;
+        private readonly VehicleAssignmentService _assignmentService;
+        private readonly CarRateCatalog _carRates;
+
+        // Enumen har ordningen Economy, Standard, Luxury, Premium, så panelerna sorteras explicit
+        private static readonly VehicleComfortType[] TierOrder =
+        {
+            VehicleComfortType.Economy,
+            VehicleComfortType.Standard,
+            VehicleComfortType.Premium,
+            VehicleComfortType.Luxury
+        };
 
         public VehicleFamilyService(
             VehicleFamilyFactory familyFactory,
             VehicleFamilyRepository familyRepository,
-            VehicleFamilyValidator validator)
+            VehicleFamilyValidator validator,
+            VehicleAssignmentService assignmentService,
+            CarRateCatalog carRates)
         {
             _familyFactory = familyFactory;
             _familyRepository = familyRepository;
             _validator = validator;
+            _assignmentService = assignmentService;
+            _carRates = carRates;
         }
 
         public VehicleFamily CreatePassengerCarFamily(
@@ -77,15 +92,46 @@ namespace SeventWebApplication.Models.VehicleNS
             return family;
         }
 
-        public IEnumerable<FeaturedVehicleViewModel> GetFeaturedVehicles()
+        // En personbilsfamilj per komfortnivå, med en representativ bil och priset från CarRateCatalog.
+        // Används av FeaturedVehicles-sektionen på startsidan.
+        public List<FeaturedVehicleViewModel> GetFeaturedVehicles()
         {
             return _familyRepository.GetAll()
-                .Select(family => new FeaturedVehicleViewModel
+                .OfType<PassengerCarFamily>()                 // bara personbilar, inga vans
+                .GroupBy(family => family.ComfortType)        // en familj per komfortnivå
+                .Select(group => group.First())
+                .OrderBy(family => Array.IndexOf(TierOrder, family.ComfortType))
+                .Select(family =>
                 {
-                    FamilyId = family.FamilyId,
-                    Name = family.Name,
-                    Description = family.Description,
-                    ImagePath = family.ImagePath
+                    // En bil ur familjen: körbar och nyast. Null om familjen saknar bilar.
+                    var car = _assignmentService.FindMatchingVehicles(family.FamilyId)
+                        .Where(vehicle => vehicle.IsOperational)
+                        .OrderByDescending(vehicle => vehicle.Year)
+                        .FirstOrDefault();
+
+                    return new FeaturedVehicleViewModel
+                    {
+                        // Från familjen
+                        FamilyId = family.FamilyId,
+                        Name = family.Name,
+                        Description = family.Description,
+                        ImagePath = family.ImagePath ?? car?.ImagePath,
+                        ComfortType = family.ComfortType,
+                        CategoryType = family.CategoryType,
+                        Transmission = family.TransmissionType,
+
+                        // Från bilen
+                        ModelName = car == null ? null : $"{car.Model.Brand.BrandName} {car.Model.ModelName}",
+                        Year = car?.Year,
+                        FuelType = car?.Engine.FuelType,
+                        HorsePower = car?.Engine.HorsePower,
+                        LuggageLitres = car?.LuggageCapacity,
+
+                        // Från CarRateCatalog. Samma pris som GetDailyPrice(car),
+                        // eftersom Matches kräver samma komfort och kaross.
+                        BaseRate = _carRates.GetBaseDayRate(family.ComfortType),
+                        BodyTypeFactor = _carRates.GetBodyTypeRate(family.CategoryType)
+                    };
                 })
                 .ToList();
         }
