@@ -195,5 +195,7 @@ namespace SeventWebApplication.Models.VehicleNS
 
             return record.CalculateDelay(booking.EndDate);
         }
+        
+        
     }
 }
