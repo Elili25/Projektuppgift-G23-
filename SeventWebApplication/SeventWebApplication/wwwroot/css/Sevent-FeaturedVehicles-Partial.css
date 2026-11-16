@@ -533,7 +533,7 @@
         animation: none !important;
         transition: none !important;
     }
-
+}
     /* ========================================
    VEHICLE MEDIA – VOID
 ======================================== */
@@ -586,4 +586,4 @@
             bottom: 0;
             background: linear-gradient(180deg, rgba(124, 82, 230, 0.12), transparent 70%);
         }
-}
+
