@@ -21,7 +21,7 @@
     isolation: isolate;
     display: flex;
     flex-direction: column;
-    min-height: 690px;
+    min-height: 600px; /* var 690px */
     overflow: hidden;
     padding: clamp(38px, 5vw, 68px) clamp(24px, 5vw, 76px) 30px;
     border-radius: 24px;
@@ -256,7 +256,7 @@
 /* Tablet */
 @media (max-width: 900px) {
     .hero-section {
-        min-height: 650px;
+        min-height: 560px; /* var 650px */
         padding: 48px 28px 26px;
     }
 

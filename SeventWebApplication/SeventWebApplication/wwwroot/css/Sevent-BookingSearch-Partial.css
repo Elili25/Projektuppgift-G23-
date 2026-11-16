@@ -10,9 +10,9 @@
     grid-template-columns: 1.05fr 1fr 1fr auto;
     align-items: center;
     gap: 12px;
-    width: 100%;
-    max-width: 1120px;
-    margin: auto auto 0;
+    width: auto; /* var 100% */
+    max-width: none; /* var 1120px */
+    margin: auto -14px 0; /* var auto auto 0 – drar ut rutan 14px åt båda håll */
     padding: 13px;
     border: 1px solid rgba(255, 255, 255, 0.9);
     border-radius: 17px;
