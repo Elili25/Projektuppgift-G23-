@@ -17,4 +17,8 @@
     <Folder Include="wwwroot\lib\Sevent_Assets\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\css\Sevent-AdminDashboard.css" />
+  </ItemGroup>
+
 </Project>
