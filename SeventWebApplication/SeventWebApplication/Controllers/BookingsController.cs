@@ -5,6 +5,10 @@ using SeventWebApplication.Models.Users;
 using SeventWebApplication.Models.VehicleNS;
 using SeventWebApplication.Models.Addon;
 using SeventWebApplication.Models.Addon.Enums;
+using SeventWebApplication.Models.Addon.Interfaces;
+using SeventWebApplication.Models.Pricing;
+using SeventWebApplication.Models.Pricing.PricingCategories;
+using BookingEntity = SeventWebApplication.Models.Booking.Booking;
 
 namespace SeventWebApplication.Controllers
 {
@@ -20,6 +24,8 @@ namespace SeventWebApplication.Controllers
         private readonly BookingCreationService _creationService;
         private readonly FleetManager _fleetManager;
         private readonly VehicleFamilyRepository _families;
+        private readonly PricingServices _pricing;
+        private readonly BaseCosts _baseCosts;
 
         public BookingsController(
             UserSession session,
@@ -27,7 +33,9 @@ namespace SeventWebApplication.Controllers
             IUserRepository users,
             BookingCreationService creationService,
             FleetManager fleetManager,
-            VehicleFamilyRepository families)
+            VehicleFamilyRepository families,
+            PricingServices pricing,
+            BaseCosts baseCosts)
         {
             _session = session;
             _viewer = viewer;
@@ -35,6 +43,8 @@ namespace SeventWebApplication.Controllers
             _creationService = creationService;
             _fleetManager = fleetManager;
             _families = families;
+            _pricing = pricing;
+            _baseCosts = baseCosts;
         }
 
         // status = "pending" / "confirmed" / "active" / "completed" / "cancelled" (eller inget = alla)
@@ -168,7 +178,95 @@ namespace SeventWebApplication.Controllers
             return result.Success ? Ok(response) : BadRequest(response);
         }
 
-        // --- Hjälpmetoder för Create ---
+        // Preliminärt pris för det som är ifyllt i formuläret (GET /Bookings/Estimate?Form.Start=...).
+        // Formuläret frågar den medan man fyller i, så man ser priset innan man skapar bokningen.
+        // Priset räknas av PricingServices (CalculateBaseRate/CalculateTotalPrice), här byggs bara indatan.
+        // Inget sparas. Ofullständigt formulär ger ok = false + ett förklarande meddelande istället för ett fel.
+        [HttpGet]
+        public IActionResult Estimate([Bind(Prefix = "Form")] CreateBookingForm form)
+        {
+            if (_session.CurrentUser is null)
+                return Unauthorized();
+
+            if (_session.CurrentUser is not IBookingCreator)
+                return StatusCode(403);
+
+            if (form.End <= form.Start)
+                return Json(new { ok = false, reason = "Återlämningen måste vara efter upphämtningen." });
+
+            // PricingServices prissätter en bil. Vald bil används direkt; vid bara en vald klass
+            // används en bil ur klassen (alla bilar i en klass har samma dagspris).
+            Vehicle? vehicle;
+            string vehicleLabel;
+
+            if (form.VehicleChoice == "vehicle")
+            {
+                vehicle = form.VehicleId is Guid vehicleId ? _fleetManager.GetVehicle(vehicleId) : null;
+                if (vehicle is null)
+                    return Json(new { ok = false, reason = "Välj en bil för att se priset." });
+
+                vehicleLabel = $"{vehicle.Model.Brand.BrandName} {vehicle.Model.ModelName}";
+            }
+            else
+            {
+                VehicleFamily? family = form.VehicleFamilyId is Guid familyId ? _families.GetById(familyId) : null;
+                if (family is null)
+                    return Json(new { ok = false, reason = "Välj en fordonsklass för att se priset." });
+
+                vehicle = _fleetManager.GetAllVehicles().FirstOrDefault(v => family.Matches(v));
+                if (vehicle is null)
+                    return Json(new { ok = false, reason = "Det finns inga bilar i den klassen att räkna pris på." });
+
+                vehicleLabel = family.Name;
+            }
+
+            // Tillägg i en tillfällig bokning (sparas aldrig), antalet hålls inom maxgränsen.
+            // Själva valideringen av för många sker först när bokningen skickas in.
+            var booking = new BookingEntity();
+            var addonLines = new List<object>();
+            decimal addonTotal = 0;
+            foreach (var (key, quantity) in form.Addons)
+            {
+                if (quantity <= 0)
+                    continue;
+
+                try
+                {
+                    IAddon addon = AddonFactory.Create(key, 1);
+                    addon.Quantity = Math.Min(quantity, addon.MaxLimit);
+                    booking.Addon.Add(addon);
+                    addonLines.Add(new { name = addon.DisplayName, quantity = addon.Quantity, amount = addon.GetPrice() });
+                    addonTotal += addon.GetPrice();
+                }
+                catch (ArgumentException)
+                {
+                    // Okänt tillägg, hoppa över (CreateBooking ger felet när man skickar in)
+                }
+            }
+
+            // Samma dagsräkning som bokningslistan: påbörjad dag räknas som hel, minst 1
+            int days = Math.Max(1, (int)Math.Ceiling((form.End - form.Start).TotalDays));
+
+            // Ingen regel kopplar roller till rabatt än, så alla får standardpris.
+            decimal baseRate = _pricing.CalculateBaseRate(vehicle, days);
+            decimal total = _pricing.CalculateTotalPrice(PriceStrategies.standard, booking, vehicle, days);
+            decimal baseFee = _baseCosts.GetBaseFee();
+
+            return Json(new
+            {
+                ok = true,
+                vehicleLabel,
+                days,
+                dailyRate = baseRate / days,
+                baseRate,
+                discount = Math.Max(0, baseRate + baseFee + addonTotal - total),
+                baseFee,
+                addons = addonLines,
+                total
+            });
+        }
+
+        //Hjälpmetoder för Create
 
         // Inloggad och får skapa bokningar? Annars login-sidan eller 403
         private IActionResult? GetCreator(out IBookingCreator creator)
