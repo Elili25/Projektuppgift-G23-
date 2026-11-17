@@ -1,0 +1,69 @@
+﻿@model List<SeventWebApplication.ViewModels.VehicleCategoryTileViewModel>
+@using System.Globalization
+@{
+    var sv = CultureInfo.GetCultureInfo("sv-SE");
+    string Kr(decimal v) => v.ToString("N0", sv) + " kr";
+}
+
+<link rel="stylesheet" href="~/css/Sevent-VehicleCategories-Partial.css" asp-append-version="true" />
+
+<section class="vehicle-categories" aria-labelledby="vc-title">
+
+    <header class="vc-header">
+        <span class="vc-badge">Vehicle categories</span>
+        <h2 id="vc-title">Cars for every day, vans for the big jobs</h2>
+    </header>
+
+    <ul class="vc-tiles">
+        @foreach (var t in Model)
+        {
+            var tileClass = "vc-tile" + (t.IsVan ? " vc-tile--van" : "") + (t.IsAvailable ? "" : " is-soon");
+
+            <li>
+                @if (t.IsAvailable && t.FamilyId is Guid familyId)
+                {
+                    <a class="@tileClass" asp-controller="Bookings" asp-action="Create" asp-route-familyId="@familyId">
+                        <span class="vc-tile__tag">@t.Tag</span>
+                        <span class="vc-tile__media">
+                            @if (!string.IsNullOrEmpty(t.ImagePath))
+                            {
+                                <img src="@t.ImagePath" alt="@t.Label" loading="lazy" asp-append-version="true" />
+                            }
+                        </span>
+                        <span class="vc-tile__name">@t.Label</span>
+                        <span class="vc-tile__desc">@t.Description</span>
+                        <span class="vc-tile__price">
+                            @if (t.IsVan)
+                            {
+                                <strong>@Kr(t.Price!.Value)</strong>
+                    
+                                <text>/day</text>
+                            }
+                            else
+                            {
+                                <text>from </text>
+                    
+                                <strong>@Kr(t.Price!.Value)</strong>
+                            }
+                        </span>
+                    </a>
+                }
+                else
+                {
+                    <div class="@tileClass">
+                        <span class="vc-tile__tag">@t.Tag</span>
+                        <span class="vc-tile__media">
+                            @if (!string.IsNullOrEmpty(t.ImagePath))
+                            {
+                                <img src="@t.ImagePath" alt="@t.Label" loading="lazy" asp-append-version="true" />
+                            }
+                        </span>
+                        <span class="vc-tile__name">@t.Label</span>
+                        <span class="vc-tile__desc">@t.Description</span>
+                        <span class="vc-tile__price">Coming soon</span>
+                    </div>
+                }
+            </li>
+        }
+    </ul>
+</section>

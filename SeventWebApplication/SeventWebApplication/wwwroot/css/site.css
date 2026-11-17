@@ -254,18 +254,19 @@ button.accept-policy {
 }
 
 /* Navigation links */
-.sevent-navbar .navbar-nav .nav-link {
-    color: #C7C1DD !important;
-    border: 1px solid transparent;
-    transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-}
-
-    /* Soft purple hover */
-    .sevent-navbar .navbar-nav .nav-link:hover {
-        color: #FFFFFF !important;
-        background: linear-gradient( 110deg, rgba(124, 92, 255, 0.18), rgba(142, 121, 198, 0.08) );
-        border-color: rgba(142, 121, 198, 0.16);
+    .sevent-navbar .navbar-nav .nav-link {
+        color: #C7C1DD !important;
+        border: 1px solid transparent;
+        transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
     }
+
+
+/* Soft purple hover */
+.sevent-navbar .navbar-nav .nav-link:hover {
+    color: #FFFFFF !important;
+    background: linear-gradient( 110deg, rgba(124, 92, 255, 0.18), rgba(142, 121, 198, 0.08) );
+    border-color: rgba(142, 121, 198, 0.16);
+}
 
     /* Active link with restrained glow */
     .sevent-navbar .navbar-nav .nav-link.active,

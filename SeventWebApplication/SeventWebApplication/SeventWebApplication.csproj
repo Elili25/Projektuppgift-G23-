@@ -8,9 +8,12 @@
 
   <ItemGroup>
     <Content Include="Models\AppSettings.cs" />
+    <Content Include="ViewComponents\FeaturedVehiclesViewComponent.cs" />
+    <Content Include="ViewComponents\VehicleCategoriesViewComponent.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Views\FrontEnd_Admin\FrontEnd_Inspections_Admin\" />
     <Folder Include="wwwroot\lib\Sevent_Assets\" />
   </ItemGroup>
 

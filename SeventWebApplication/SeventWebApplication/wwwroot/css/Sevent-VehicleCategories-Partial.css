@@ -1,0 +1,226 @@
+/*
+  Sevent – VehicleCategories styles (sex rutor på rad)
+  Applies ONLY to:
+    Views/Shared/Components/VehicleCategories/Default.cshtml
+
+  All selectors are scoped under .vehicle-categories.
+*/
+
+.vehicle-categories {
+    --vc-purple-text: #6044b4;
+    --vc-text: #30204f;
+    --vc-muted: #625878;
+    --vc-border: rgba(91, 68, 145, 0.14);
+    --vc-void: linear-gradient(180deg, #2c1d52 0%, #1a1030 60%, #0f0a1c 100%);
+    --vc-label-dark: #bdb0dd;
+    --vc-tag-dark: #b8a3f0;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+    margin-top: 32px;
+    padding: clamp(36px, 5vw, 64px) clamp(20px, 5vw, 72px);
+    border-radius: 24px;
+    background: linear-gradient(120deg, #faf8fe 0%, #f7f4fc 54%, #f0eafb 100%);
+    color: var(--vc-text);
+    font-family: Inter, "Segoe UI", sans-serif;
+}
+
+    /* ========================================
+   HEADER
+======================================== */
+
+    .vehicle-categories .vc-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        text-align: center;
+    }
+
+    .vehicle-categories .vc-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 15px;
+        border: 1px solid rgba(126, 94, 196, 0.08);
+        border-radius: 999px;
+        background: rgba(226, 215, 249, 0.72);
+        color: var(--vc-purple-text);
+        font-size: 0.72rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        line-height: 1;
+        text-transform: uppercase;
+    }
+
+    .vehicle-categories .vc-header h2 {
+        max-width: 760px;
+        margin: 0;
+        color: var(--vc-text);
+        font-size: clamp(2rem, 3.6vw, 2.75rem);
+        font-weight: 760;
+        letter-spacing: -0.04em;
+        line-height: 1.08;
+    }
+
+    /* ========================================
+   TILES – sex rutor på en rad
+======================================== */
+
+    .vehicle-categories .vc-tiles {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 12px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+        .vehicle-categories .vc-tiles > li {
+            display: flex;
+            min-width: 0;
+        }
+
+    .vehicle-categories .vc-tile {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+        min-height: 220px;
+        padding: 16px 14px;
+        border: 1px solid var(--vc-border);
+        border-radius: 18px;
+        background: #ffffff;
+        color: var(--vc-text);
+        text-decoration: none;
+        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+
+    .vehicle-categories a.vc-tile:hover {
+        transform: translateY(-3px);
+        border-color: rgba(108, 85, 184, 0.35);
+        box-shadow: 0 12px 28px rgba(66, 43, 112, 0.12);
+        color: var(--vc-text);
+    }
+
+    .vehicle-categories a.vc-tile:focus-visible {
+        outline: 3px solid rgba(108, 85, 184, 0.42);
+        outline-offset: 3px;
+    }
+
+    .vehicle-categories .vc-tile__tag {
+        align-self: flex-start;
+        color: var(--vc-purple-text);
+        font-size: 0.65rem;
+        font-weight: 750;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .vehicle-categories .vc-tile__media {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 84px;
+        margin: 4px 0 8px;
+    }
+
+        .vehicle-categories .vc-tile__media img {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 8px 8px rgba(48, 32, 79, 0.14));
+        }
+
+    .vehicle-categories .vc-tile__name {
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+    }
+
+    .vehicle-categories .vc-tile__desc {
+        color: var(--vc-muted);
+        font-size: 0.78rem;
+        line-height: 1.4;
+    }
+
+    .vehicle-categories .vc-tile__price {
+        margin-top: auto;
+        padding-top: 6px;
+        color: var(--vc-muted);
+        font-size: 0.8rem;
+    }
+
+        .vehicle-categories .vc-tile__price strong {
+            color: var(--vc-text);
+            font-size: 1rem;
+            font-weight: 750;
+        }
+
+    /* Skåpbilar: mörka rutor i void-tonen */
+    .vehicle-categories .vc-tile--van {
+        border-color: rgba(160, 130, 240, 0.18);
+        background: var(--vc-void);
+        color: #ffffff;
+    }
+
+    .vehicle-categories a.vc-tile--van:hover {
+        border-color: rgba(184, 163, 240, 0.45);
+        box-shadow: 0 12px 28px rgba(17, 10, 31, 0.35);
+        color: #ffffff;
+    }
+
+    .vehicle-categories .vc-tile--van .vc-tile__tag {
+        color: var(--vc-tag-dark);
+    }
+
+    .vehicle-categories .vc-tile--van .vc-tile__media img {
+        filter: drop-shadow(0 8px 8px rgba(0, 0, 0, 0.5));
+    }
+
+    .vehicle-categories .vc-tile--van .vc-tile__desc,
+    .vehicle-categories .vc-tile--van .vc-tile__price {
+        color: var(--vc-label-dark);
+    }
+
+        .vehicle-categories .vc-tile--van .vc-tile__price strong {
+            color: #ffffff;
+        }
+
+    /* Ej tillgänglig än */
+    .vehicle-categories .vc-tile.is-soon {
+        opacity: 0.6;
+    }
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 1100px) {
+    .vehicle-categories .vc-tiles {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .vehicle-categories {
+        gap: 26px;
+        border-radius: 18px;
+    }
+
+        .vehicle-categories .vc-tiles {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .vehicle-categories .vc-tile {
+            min-height: 200px;
+        }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vehicle-categories .vc-tile {
+        transition: none;
+    }
+}

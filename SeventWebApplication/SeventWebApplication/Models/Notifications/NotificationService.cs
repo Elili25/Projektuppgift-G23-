@@ -1,4 +1,5 @@
 ﻿using SeventWebApplication.Models.Booking;
+using SeventWebApplication.Models.Observers;
 using SeventWebApplication.Models.Users;
 using BookingEntity = SeventWebApplication.Models.Booking.Booking;
 
@@ -95,6 +96,34 @@ namespace SeventWebApplication.Models.Notifications
         public void AddPickupReminder( BookingEntity booking )
         {
             _scheduler.Schedule( booking );
+        }
+
+        // Observer: anropas av BookingNotifier när något händer med en bokning
+        public void OnBookingEvent(BookingEvent bookingEvent)
+        {
+            BookingEntity booking = bookingEvent.Booking;
+
+            switch (bookingEvent.Type)
+            {
+                case BookingEventType.Confirmed:
+                    AddBookingConfirmed(booking);
+                    AddPickupReminder(booking);
+                    break;
+
+                case BookingEventType.Cancelled:
+                    _notificationRepository.CancelNotification(booking);
+                    _scheduler.Cancel(Guid.Parse(booking.BookingId));
+                    AddCancellationConfirmed(booking);
+                    break;
+
+                case BookingEventType.RentalReturned:
+                    AddRentalReturned(booking);
+                    break;
+
+                case BookingEventType.LateReturn:
+                    AddLateReturn(booking);
+                    break;
+            }
         }
 
         // Sends a message to all channels

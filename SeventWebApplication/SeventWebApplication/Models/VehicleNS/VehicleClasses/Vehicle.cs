@@ -31,6 +31,9 @@ namespace SeventWebApplication.Models.VehicleNS
         // Kan bilen köras överhuvudtaget? (inte trasig, på service eller avställd)
         public bool IsOperational => VehicleStatus == VehicleStatus.Active;
 
+        //För viewmodels, för att kunna visa bild på bilen. Kan vara null om ingen bild finns.
+        public string? ImagePath { get; set; }
+
         // Skickas när statusen ändras. Här kan VehicleStatusHistory koppla in sig senare.
         public event Action<Vehicle, VehicleStatus, VehicleStatus>? StatusChanged;
 
@@ -43,8 +46,7 @@ namespace SeventWebApplication.Models.VehicleNS
             decimal luggageCapacity,
             IEngine engine,
             TransmissionType transmissionType)
-        {
-            VehicleId = Guid.NewGuid();
+        {      
 
             RegistrationPlate = registrationPlate
                 ?? throw new ArgumentNullException(nameof(registrationPlate));

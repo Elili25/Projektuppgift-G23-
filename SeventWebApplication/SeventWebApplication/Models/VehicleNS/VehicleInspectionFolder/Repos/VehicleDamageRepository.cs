@@ -6,6 +6,9 @@
 
             public void Add(VehicleDamage damage)
             {
+                if (damage == null)
+                    throw new ArgumentNullException(nameof(damage));
+
                 _damages.Add(damage);
             }
 
