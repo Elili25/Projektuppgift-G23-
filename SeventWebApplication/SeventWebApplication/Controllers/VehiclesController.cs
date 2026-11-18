@@ -306,7 +306,7 @@ namespace SeventWebApplication.Controllers
         // Bilderna ligger i wwwroot/lib/Images/FeaturedVehicleImages, en per biltyp
         private static string? CategoryImage(string categoryKey) => categoryKey switch
         {
-            "Sedan" => "/lib/Images/FeaturedVehicleImages/PassengerCar/VehicleFamily-Luxury-Sedan-FeaturedImage.png",
+            "Sedan" => "/lib/Images/FeaturedVehicleImages/PassengerCar/White-Tesla-Model-3-Product-Cutout.png",
             "SUV" => "/lib/Images/FeaturedVehicleImages/PassengerCar/VehicleFamily-Premium-SUV-FeaturedImage.png",
             "Hatchback" => "/lib/Images/FeaturedVehicleImages/PassengerCar/VehicleFamily-Standard-Hatchback-FeaturedImage.png",
             "StationWagon" => "/lib/Images/FeaturedVehicleImages/PassengerCar/VehicleFamily-Economy-StationWagon-FeaturedImage.png",

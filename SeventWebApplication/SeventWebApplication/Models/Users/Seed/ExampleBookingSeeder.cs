@@ -58,6 +58,10 @@ namespace SeventWebApplication.Models.Users
                 MakeVan("Mercedes-Benz", "Vito Tourer", "PVN001", VanCategoryType.PassengerVan, TransmissionType.Automatic, 2023, 190, 4.5, 800.0, 8)
             };
 
+            // Teslan har en egen bild (vit Model 3), samma som Luxury Sedan-familjen visar
+            foreach (var tesla in vehicles.Where(v => v.Model.Brand.BrandName == "Tesla"))
+                tesla.ImagePath = "/lib/Images/FeaturedVehicleImages/PassengerCar/White-Tesla-Model-3-Product-Cutout.png";
+
             foreach (var vehicle in vehicles)
                 FleetManager.instance.AddVehicle(vehicle);
 

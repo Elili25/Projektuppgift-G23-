@@ -1,4 +1,4 @@
-﻿namespace SeventWebApplication.Models.VehicleNS
+namespace SeventWebApplication.Models.VehicleNS
 {
     // Färdiga fordonsfamiljer som läggs in vid uppstart (Program.cs).
     // Varje seedad bil i ExampleBookingSeeder och FleetManager.SeedTestVehicle matchar en familj här,
@@ -30,7 +30,7 @@
                     VehicleComfortType.Luxury,
                     PassengerCarCategoryType.Sedan)
                 {
-                    ImagePath = "/lib/Images/FeaturedVehicleImages/PassengerCar/VehicleFamily-Luxury-Sedan-FeaturedImage.png"
+                    ImagePath = "/lib/Images/FeaturedVehicleImages/PassengerCar/White-Tesla-Model-3-Product-Cutout.png"
                 },
 
                 // Premium SUV
