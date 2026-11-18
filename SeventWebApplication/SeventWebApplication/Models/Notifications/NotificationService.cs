@@ -24,7 +24,7 @@ namespace SeventWebApplication.Models.Notifications
 
         public void AddChannel( INotificationChannel channel )
         {
-            if( _notificationChannels.TryAdd( channel.GetChannelType(), channel ) )
+            if( !_notificationChannels.TryAdd( channel.GetChannelType(), channel ) )
                 throw new InvalidOperationException( "A notification channel of the same type already exists" );
         }
 
