@@ -1,6 +1,7 @@
 using SeventWebApplication.Models.Booking;
 using SeventWebApplication.Models.BookingValidation;
 using SeventWebApplication.Models.Notifications;
+using SeventWebApplication.Models.Observers;
 using SeventWebApplication.Models.Pricing;
 using SeventWebApplication.Models.Pricing.PricingCategories;
 using SeventWebApplication.Models.Users;
@@ -18,6 +19,9 @@ namespace SeventWebApplication
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            // ---- Observers ----
+            builder.Services.AddSingleton<BookingNotifier>();
 
             // ---- Notifications ----
             // Singletons först så den initieras i Build() annars finns den inte första gången vi kör igenom programmet 

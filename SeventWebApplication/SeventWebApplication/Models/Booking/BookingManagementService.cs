@@ -1,4 +1,5 @@
-﻿using SeventWebApplication.Models.Users;
+﻿using SeventWebApplication.Models.Observers;
+using SeventWebApplication.Models.Users;
 using SeventWebApplication.Models.VehicleNS;
 
 namespace SeventWebApplication.Models.Booking
@@ -11,15 +12,18 @@ namespace SeventWebApplication.Models.Booking
         private readonly BookingRepository _bookingRepository;
         private readonly VehicleAssignmentService _assignmentService;
         private readonly RentalReturnService _rentalReturnService;
+        private readonly BookingNotifier _bookingNotifier;
 
         public BookingManagementService(
             BookingRepository bookingRepository,
             VehicleAssignmentService assignmentService,
-            RentalReturnService rentalReturnService)
+            RentalReturnService rentalReturnService,
+            BookingNotifier bookingNotifier)
         {
             _bookingRepository = bookingRepository;
             _assignmentService = assignmentService;
             _rentalReturnService = rentalReturnService;
+            _bookingNotifier = bookingNotifier;
         }
 
         // Pending → Confirmed. Familjebokningar får en bil tilldelad här.
@@ -35,6 +39,8 @@ namespace SeventWebApplication.Models.Booking
                 throw new InvalidOperationException("No available vehicle in the family for this period.");
 
             booking.Status = BookingStatus.Confirmed;
+
+            _bookingNotifier.Notify( new BookingEvent( BookingEventType.Confirmed, booking ) );
         }
 
         // Pending/Confirmed → Cancelled
@@ -47,6 +53,8 @@ namespace SeventWebApplication.Models.Booking
                 throw new InvalidOperationException("Only pending or confirmed bookings can be cancelled.");
 
             booking.Status = BookingStatus.Cancelled;
+
+            _bookingNotifier.Notify( new BookingEvent( BookingEventType.Cancelled, booking ) );
         }
 
         // Confirmed → Active (pickup-inspektion, rental record och bilen spärras)
