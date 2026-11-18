@@ -453,3 +453,57 @@ button.accept-policy {
 }
 
 .sevent-drawer__btn:hover { filter: brightness(1.12); color: #fff; }
+
+/* Ikoner, undermeny (Browse Vehicles) i hamburgarmenyn */
+.sevent-drawer .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sevent-drawer .nav-link svg {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.sevent-drawer__toggle {
+    width: 100%;
+    background: none;
+    text-align: left;
+}
+
+.sevent-drawer__chevron { display: inline-flex; margin-left: auto; transition: transform 0.2s ease; }
+.sevent-drawer__toggle[aria-expanded="true"] .sevent-drawer__chevron { transform: rotate(180deg); }
+
+.sevent-drawer__sub {
+    display: flex;
+    flex-direction: column;
+    margin: 4px 0 6px 21px;
+    padding-left: 12px;
+    border-left: 1px solid rgba(142, 121, 198, 0.22);
+}
+
+.sevent-drawer__sub a {
+    padding: 6px 10px;
+    border-radius: 8px;
+    color: #C7C1DD;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.sevent-drawer__sub a:hover { background: rgba(124, 92, 255, 0.16); color: #fff; }
+
+.sevent-drawer__group {
+    margin: 8px 10px 2px;
+    color: #8F86AB;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}

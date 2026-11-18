@@ -1,0 +1,36 @@
+@{
+    ViewData["Title"] = "About Sevent";
+}
+
+<link rel="stylesheet" href="~/css/Sevent-Guest.css" asp-append-version="true" />
+
+<section class="guest">
+    <span class="guest__badge">About Sevent</span>
+    <h1 class="guest__title">Car and van rental, made simple</h1>
+    <p class="guest__lead">
+        Sevent rents out passenger cars and vans. We keep the process clear: you choose a vehicle,
+        see the price up front and get a confirmed booking from our staff.
+    </p>
+
+    <div class="guest__grid">
+        <article class="guest__card">
+            <span class="guest__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l1.6-4.2A2 2 0 0 1 8.5 6.5h7a2 2 0 0 1 1.9 1.3L19 12M4 17v-3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3h-2M4 17h2M10 17h4" /><circle cx="8" cy="17" r="2" /><circle cx="16" cy="17" r="2" /></svg></span>
+            <h3>A fleet for every trip</h3>
+            <p>Sedans, SUVs, hatchbacks and station wagons, plus cargo and passenger vans.</p>
+        </article>
+
+        <article class="guest__card">
+            <span class="guest__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z" /><path d="M9 12l2 2 4-4" /></svg></span>
+            <h3>Inspected and cared for</h3>
+            <p>Every vehicle is inspected at pickup and return, and damaged vehicles are repaired before they go out again.</p>
+        </article>
+
+        <article class="guest__card">
+            <span class="guest__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg></span>
+            <h3>Clear prices</h3>
+            <p>You see the price, including extras, before you send your booking.</p>
+        </article>
+    </div>
+
+    <a class="guest__cta" asp-controller="Home" asp-action="Contact">Get in touch</a>
+</section>

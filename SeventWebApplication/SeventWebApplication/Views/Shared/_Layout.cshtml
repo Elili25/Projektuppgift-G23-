@@ -34,6 +34,25 @@
         // Markerar länken för sidan man är på
         string routeController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
         string routeAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+        // Små linjeikoner (24x24) till menyn
+        Microsoft.AspNetCore.Html.IHtmlContent Icon(string name)
+        {
+            string path = name switch
+            {
+                "home" => "<path d=\"M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z\"/>",
+                "car" => "<path d=\"M5 12l1.6-4.2A2 2 0 0 1 8.5 6.5h7a2 2 0 0 1 1.9 1.3L19 12M4 17v-3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3h-2M4 17h2M10 17h4\"/><circle cx=\"8\" cy=\"17\" r=\"2\"/><circle cx=\"16\" cy=\"17\" r=\"2\"/>",
+                "steps" => "<path d=\"M4 6h4v4H4zM10 14h4v4h-4zM16 6h4v4h-4zM8 8h2a2 2 0 0 1 2 2v4M14 8h2\"/>",
+                "info" => "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 11v5M12 8h.01\"/>",
+                "mail" => "<rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M3 7l9 6 9-6\"/>",
+                "dashboard" => "<rect x=\"3\" y=\"3\" width=\"7\" height=\"9\" rx=\"1.5\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"5\" rx=\"1.5\"/><rect x=\"14\" y=\"12\" width=\"7\" height=\"9\" rx=\"1.5\"/><rect x=\"3\" y=\"16\" width=\"7\" height=\"5\" rx=\"1.5\"/>",
+                "bookings" => "<rect x=\"3\" y=\"5\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M3 10h18M8 3v4M16 3v4\"/>",
+                "plus" => "<rect x=\"3\" y=\"5\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M12 11v6M9 14h6\"/>",
+                "chevron" => "<path d=\"M6 9l6 6 6-6\"/>",
+                _ => ""
+            };
+            return Html.Raw($"<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\">{path}</svg>");
+        }
+
         string Active(string controller, string action) =>
             string.Equals(routeController, controller, StringComparison.OrdinalIgnoreCase) &&
             string.Equals(routeAction, action, StringComparison.OrdinalIgnoreCase)
@@ -69,23 +88,52 @@
 
             <div class="offcanvas-body sevent-drawer__body">
                 <ul class="navbar-nav sevent-drawer__links">
-                    <li class="nav-item"><a class="@Active("Home", "Index")" asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="nav-item"><a class="@Active("Home", "Index")" asp-area="" asp-controller="Home" asp-action="Index">@Icon("home")Home</a></li>
 
-                    @if (isStaff)
+                    @if (currentUser == null)
+                    {
+                        @* Gäst: utforska utan konto *@
+                        bool inBrowse = routeController.Equals("Vehicles", StringComparison.OrdinalIgnoreCase);
+                        <li class="nav-item">
+                            <button class="nav-link sevent-drawer__toggle @(inBrowse ? "active" : "")" type="button" data-bs-toggle="collapse" data-bs-target="#browseMenu"
+                                    aria-expanded="@(inBrowse ? "true" : "false")" aria-controls="browseMenu">
+                                @Icon("car")Browse Vehicles<span class="sevent-drawer__chevron">@Icon("chevron")</span>
+                            </button>
+                            <div class="collapse @(inBrowse ? "show" : "")" id="browseMenu">
+                                <div class="sevent-drawer__sub">
+                                    <a asp-controller="Vehicles" asp-action="Index">All vehicles</a>
+
+                                    <span class="sevent-drawer__group">Passenger cars</span>
+                                    <a asp-controller="Vehicles" asp-action="Index" asp-route-kind="cars" asp-route-category="Sedan">Sedan</a>
+                                    <a asp-controller="Vehicles" asp-action="Index" asp-route-kind="cars" asp-route-category="SUV">SUV</a>
+                                    <a asp-controller="Vehicles" asp-action="Index" asp-route-kind="cars" asp-route-category="Hatchback">Hatchback</a>
+                                    <a asp-controller="Vehicles" asp-action="Index" asp-route-kind="cars" asp-route-category="StationWagon">Station wagon</a>
+
+                                    <span class="sevent-drawer__group">Vans</span>
+                                    <a asp-controller="Vehicles" asp-action="Index" asp-route-kind="vans" asp-route-category="CargoVan">Cargo van</a>
+                                    <a asp-controller="Vehicles" asp-action="Index" asp-route-kind="vans" asp-route-category="PassengerVan">Passenger van</a>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="nav-item"><a class="@Active("Home", "HowItWorks")" asp-area="" asp-controller="Home" asp-action="HowItWorks">@Icon("steps")How It Works</a></li>
+                        <li class="nav-item"><a class="@Active("Home", "About")" asp-area="" asp-controller="Home" asp-action="About">@Icon("info")About Sevent</a></li>
+                        <li class="nav-item"><a class="@Active("Home", "Contact")" asp-area="" asp-controller="Home" asp-action="Contact">@Icon("mail")Contact</a></li>
+                    }
+                    else if (isStaff)
                     {
                         @* Personal hittar allt (bokningar, flotta, användare ...) i dashboarden, så den är det enda valet *@
-                        <li class="nav-item"><a class="@Active("Admin", "Index")" asp-area="" asp-controller="Admin" asp-action="Index">Admin dashboard</a></li>
+                        <li class="nav-item"><a class="@Active("Admin", "Index")" asp-area="" asp-controller="Admin" asp-action="Index">@Icon("dashboard")Admin dashboard</a></li>
                     }
                     else
                     {
                         @* Kunder: egna bokningar och boka bil *@
                         @if (currentUser is SeventWebApplication.Models.Users.IBookingViewer)
                         {
-                            <li class="nav-item"><a class="@Active("Bookings", "Index")" asp-area="" asp-controller="Bookings" asp-action="Index">Mina bokningar</a></li>
+                            <li class="nav-item"><a class="@Active("Bookings", "Index")" asp-area="" asp-controller="Bookings" asp-action="Index">@Icon("bookings")Mina bokningar</a></li>
                         }
                         @if (currentUser is SeventWebApplication.Models.Users.IBookingCreator)
                         {
-                            <li class="nav-item"><a class="@Active("Bookings", "Create")" asp-area="" asp-controller="Bookings" asp-action="Create">Boka bil</a></li>
+                            <li class="nav-item"><a class="@Active("Bookings", "Create")" asp-area="" asp-controller="Bookings" asp-action="Create">@Icon("plus")Boka bil</a></li>
                         }
                     }
                 </ul>

@@ -23,6 +23,13 @@ namespace SeventWebApplication.Controllers
             return View();
         }
 
+        // Publika informationssidor (länkas från hamburgarmenyn för gäster)
+        public IActionResult HowItWorks() => View();
+
+        public IActionResult About() => View();
+
+        public IActionResult Contact() => View();
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

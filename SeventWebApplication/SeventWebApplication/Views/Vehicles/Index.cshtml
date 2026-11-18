@@ -1,0 +1,69 @@
+@using SeventWebApplication.Models.Guest
+@model BrowseVehiclesViewModel
+@{
+    ViewData["Title"] = "Browse Vehicles";
+    string kind = Context.Request.Query["kind"].ToString();
+    string category = Context.Request.Query["category"].ToString();
+    string Filter(string k, string c) =>
+        string.Equals(kind, k, StringComparison.OrdinalIgnoreCase) && string.Equals(category, c, StringComparison.OrdinalIgnoreCase)
+            ? "guest__filter is-active" : "guest__filter";
+}
+
+<link rel="stylesheet" href="~/css/Sevent-Guest.css" asp-append-version="true" />
+
+<section class="guest">
+    <span class="guest__badge">Browse Vehicles</span>
+    <h1 class="guest__title">@Model.Title</h1>
+    <p class="guest__lead">Our vehicle families and the cars and vans in each. Log in to book one.</p>
+
+    <nav class="guest__filters" aria-label="Filter vehicles">
+        <a class="@Filter("", "")" asp-action="Index">All</a>
+        <a class="@Filter("cars", "")" asp-action="Index" asp-route-kind="cars">Passenger cars</a>
+        <a class="@Filter("cars", "Sedan")" asp-action="Index" asp-route-kind="cars" asp-route-category="Sedan">Sedan</a>
+        <a class="@Filter("cars", "SUV")" asp-action="Index" asp-route-kind="cars" asp-route-category="SUV">SUV</a>
+        <a class="@Filter("cars", "Hatchback")" asp-action="Index" asp-route-kind="cars" asp-route-category="Hatchback">Hatchback</a>
+        <a class="@Filter("cars", "StationWagon")" asp-action="Index" asp-route-kind="cars" asp-route-category="StationWagon">Station wagon</a>
+        <a class="@Filter("vans", "")" asp-action="Index" asp-route-kind="vans">Vans</a>
+        <a class="@Filter("vans", "CargoVan")" asp-action="Index" asp-route-kind="vans" asp-route-category="CargoVan">Cargo van</a>
+        <a class="@Filter("vans", "PassengerVan")" asp-action="Index" asp-route-kind="vans" asp-route-category="PassengerVan">Passenger van</a>
+    </nav>
+
+    @if (Model.Families.Count == 0)
+    {
+        <div class="guest__card guest__empty">No vehicle families in this category yet.</div>
+    }
+    else
+    {
+        <div class="guest__grid">
+            @foreach (var f in Model.Families)
+            {
+                <article class="guest__card">
+                    <h2>@f.Name</h2>
+                    <div class="guest__tags">
+                        <span class="guest__tag">@f.Category</span>
+                        <span class="guest__tag">@f.Transmission</span>
+                        @if (f.Comfort != null) { <span class="guest__tag">@f.Comfort</span> }
+                    </div>
+                    <p>@f.Description</p>
+
+                    <ul class="guest__list">
+                        @foreach (var v in f.Vehicles)
+                        {
+                            <li>@v</li>
+                        }
+                        @if (f.VehicleCount == 0)
+                        {
+                            <li>No vehicles in this family right now.</li>
+                        }
+                        else if (f.VehicleCount > f.Vehicles.Count)
+                        {
+                            <li>+ @(f.VehicleCount - f.Vehicles.Count) more</li>
+                        }
+                    </ul>
+                </article>
+            }
+        </div>
+    }
+
+    <a class="guest__cta" asp-controller="Bookings" asp-action="Create">Book a vehicle</a>
+</section>
