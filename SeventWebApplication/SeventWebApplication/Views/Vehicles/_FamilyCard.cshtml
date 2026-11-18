@@ -23,6 +23,9 @@
     <div class="gv-card__foot">
         <p class="gv-card__specs">@string.Join("  ·  ", Model.Specs.Select(s => $"{s.Label} {s.Value}"))</p>
 
+        <div class="gv-card__actions">
+            <a class="gv-link" asp-controller="Vehicles" asp-action="Family" asp-route-id="@Model.FamilyId">View details</a>
+
         @if (start != null && end != null)
         {
             <a class="gv-button" asp-controller="Bookings" asp-action="Create"
@@ -34,5 +37,6 @@
         {
             <a class="gv-button" asp-controller="Bookings" asp-action="Create" asp-route-family="@Model.FamilyId">Book</a>
         }
+        </div>
     </div>
 </article>

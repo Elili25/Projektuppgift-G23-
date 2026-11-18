@@ -1,4 +1,4 @@
-﻿@*
+@*
     "Explore Our Vehicle Families": en rad med rutor (en per bil- och skåpbilskategori), direkt under hero.
     Data: VehicleFamilyService.GetVehicleCategoryTiles(). Styles: wwwroot/css/Sevent-VehicleFamilies.css
 *@
@@ -9,7 +9,7 @@
 <section class="vf" aria-labelledby="vf-title">
 
     <header class="vf__head">
-        <h2 id="vf-title">Explore Our Vehicle Families</h2>
+        <h2 id="vf-title">Explore Our Cars and Vans</h2>
         <a class="vf__all" asp-controller="Vehicles" asp-action="Cars">
             View all vehicles
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
@@ -22,8 +22,8 @@
             <li>
                 @if (t.IsAvailable)
                 {
-                    @* Rutan öppnar fordonssidan för kategorin (Cars eller Vans) *@
-                    <a class="vf__card" asp-controller="Vehicles" asp-action="@(t.IsVan ? "Vans" : "Cars")" asp-route-category="@t.CategoryKey">
+                    @* Rutan öppnar produktsidan för familjen *@
+                    <a class="vf__card" asp-controller="Vehicles" asp-action="Family" asp-route-id="@t.FamilyId">
                         <span class="vf__media">
                             @if (!string.IsNullOrEmpty(t.ImagePath))
                             {

@@ -1,0 +1,113 @@
+@*
+    Produktsida för en fordonsfamilj (/Vehicles/Family/{id}). Fungerar som mall:
+    vilka specifikationsgrupper och rader som helst i Model.SpecGroups ritas ut utan att vyn ändras.
+*@
+@using SeventWebApplication.Models.Guest
+@model FamilyPageViewModel
+@{
+    ViewData["Title"] = Model.Name;
+    var en = System.Globalization.CultureInfo.GetCultureInfo("en-GB");
+    string backAction = Model.IsVan ? "Vans" : "Cars";
+}
+
+<link rel="stylesheet" href="~/css/Sevent-Guest.css" asp-append-version="true" />
+
+<div class="fp">
+
+    <a class="fp__back" asp-action="@backAction">← Back to @(Model.IsVan ? "vans" : "passenger cars")</a>
+
+    @* ---------- Överdel: namn, pris, knapp och stor bild ---------- *@
+    <section class="fp__hero">
+        <div class="fp__intro">
+            <span class="fp__eyebrow">@Model.Category</span>
+            <h1>@Model.Name</h1>
+
+            <div class="fp__tags">
+                @foreach (var tag in Model.Tags)
+                {
+                    <span>@tag</span>
+                }
+            </div>
+
+            <p class="fp__desc">@Model.Description</p>
+
+            @if (Model.FromDailyPrice is decimal price)
+            {
+                <p class="fp__price">From <strong>@price.ToString("N0", en) kr</strong> <small>/ day</small></p>
+            }
+
+            <div class="fp__actions">
+                <a class="fp__btn" asp-controller="Bookings" asp-action="Create" asp-route-family="@Model.FamilyId">Book this @(Model.IsVan ? "van" : "car")</a>
+                <a class="fp__btn fp__btn--ghost" asp-controller="Home" asp-action="Index">Check availability</a>
+            </div>
+        </div>
+
+        <div class="fp__stage">
+            @if (!string.IsNullOrEmpty(Model.ImagePath))
+            {
+                <img src="@Model.ImagePath" alt="@Model.Name" />
+            }
+        </div>
+    </section>
+
+    @* ---------- Nyckelfakta ---------- *@
+    @if (Model.Highlights.Count > 0)
+    {
+        <ul class="fp__highlights">
+            @foreach (var (label, value) in Model.Highlights)
+            {
+                <li><strong>@value</strong><span>@label</span></li>
+            }
+        </ul>
+    }
+
+    @* ---------- Specifikationer: en kort per grupp ---------- *@
+    @if (Model.SpecGroups.Count > 0)
+    {
+        <section class="fp__section" aria-labelledby="fp-specs">
+            <h2 id="fp-specs">Specifications</h2>
+            <div class="fp__groups">
+                @foreach (var group in Model.SpecGroups)
+                {
+                    <article class="fp__group">
+                        <h3>@group.Title</h3>
+                        <dl>
+                            @foreach (var (label, value) in group.Items)
+                            {
+                                <div><dt>@label</dt><dd>@value</dd></div>
+                            }
+                        </dl>
+                    </article>
+                }
+            </div>
+        </section>
+    }
+
+    @* ---------- Modeller i familjen ---------- *@
+    <section class="fp__section" aria-labelledby="fp-models">
+        <h2 id="fp-models">Available models</h2>
+
+        @if (Model.Models.Count == 0)
+        {
+            <p class="fp__muted">There are no @(Model.IsVan ? "vans" : "cars") of this type right now.</p>
+        }
+        else
+        {
+            <p class="fp__muted">You get one of these or a similar @(Model.IsVan ? "van" : "car").</p>
+            <ul class="fp__models">
+                @foreach (var m in Model.Models)
+                {
+                    <li><strong>@m.Name</strong><span>@m.Details</span></li>
+                }
+            </ul>
+        }
+    </section>
+
+    <section class="fp__cta">
+        <div>
+            <h2>Ready to hit the road?</h2>
+            <p>Pick your dates and we'll confirm your booking.</p>
+        </div>
+        <a class="fp__btn" asp-controller="Bookings" asp-action="Create" asp-route-family="@Model.FamilyId">Book @Model.Name</a>
+    </section>
+</div>

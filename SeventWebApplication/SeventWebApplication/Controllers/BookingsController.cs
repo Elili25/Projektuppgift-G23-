@@ -224,11 +224,11 @@ namespace SeventWebApplication.Controllers
             {
                 VehicleFamily? family = form.VehicleFamilyId is Guid familyId ? _families.GetById(familyId) : null;
                 if (family is null)
-                    return Json(new { ok = false, reason = "Choose a vehicle class to see the price." });
+                    return Json(new { ok = false, reason = "Choose a car or van to see the price." });
 
                 vehicle = _fleetManager.GetAllVehicles().FirstOrDefault(v => family.Matches(v));
                 if (vehicle is null)
-                    return Json(new { ok = false, reason = "There are no vehicles in that class to price." });
+                    return Json(new { ok = false, reason = "There are no vehicles of that type to price." });
 
                 vehicleLabel = family.Name;
             }
