@@ -7,7 +7,7 @@ namespace SeventWebApplication.Models.Notifications
     {
         private Dictionary<Guid, Reminder> _reminders = new(); // <ReminderId, Reminder>
 
-        // How many minutes before the schedule the reminder should be sent
+        // How many minutes before the scheduled time the reminder should be sent
         public uint ScheduleBeforeMinutes;
 
         public ReminderScheduler( uint scheduleBeforeMinutes )

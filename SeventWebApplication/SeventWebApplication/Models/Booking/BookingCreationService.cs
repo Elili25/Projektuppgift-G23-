@@ -1,5 +1,6 @@
 using SeventWebApplication.Models.Addon;
 using SeventWebApplication.Models.BookingValidation;
+using SeventWebApplication.Models.Observers;
 using SeventWebApplication.Models.Users;
 using SeventWebApplication.Models.VehicleNS;
 
@@ -22,17 +23,20 @@ namespace SeventWebApplication.Models.Booking
         private readonly IUserRepository _users;
         private readonly FleetManager _fleetManager;
         private readonly VehicleAssignmentService _assignmentService;
+        private readonly BookingNotifier _bookingNotifier;
 
         public BookingCreationService(
             BookingValidator bookingValidator,
             IUserRepository users,
             FleetManager fleetManager,
-            VehicleAssignmentService assignmentService)
+            VehicleAssignmentService assignmentService,
+            BookingNotifier bookingNotifier)
         {
             _bookingValidator = bookingValidator;
             _users = users;
             _fleetManager = fleetManager;
             _assignmentService = assignmentService;
+            _bookingNotifier = bookingNotifier;
         }
 
         public BookingResult CreateBooking(IBookingCreator actor, BookingRequest request)
@@ -119,6 +123,8 @@ namespace SeventWebApplication.Models.Booking
             {
                 return Fail("Booking", ex.Message);
             }
+
+            _bookingNotifier.Notify( new BookingEvent( BookingEventType.Created, booking ) );
 
             // 6. Personal: godkänn direkt. Familjebokningar får en bil först.
             // Går det inte att tilldela en bil ligger bokningen kvar som Pending och kan godkännas senare.

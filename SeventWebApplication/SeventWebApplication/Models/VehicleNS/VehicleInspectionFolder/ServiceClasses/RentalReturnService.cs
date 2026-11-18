@@ -1,4 +1,5 @@
 ﻿using SeventWebApplication.Models.Booking;
+using SeventWebApplication.Models.Observers;
 using SeventWebApplication.Models.Pricing;
 using BookingEntity = SeventWebApplication.Models.Booking.Booking;
 
@@ -11,19 +12,23 @@ namespace SeventWebApplication.Models.VehicleNS
         private readonly VehicleInspectionRepository _inspectionRepository;
         private readonly VehicleDamageService _damageService;
         private readonly PricingServices _pricingService;
+        private readonly BookingNotifier _bookingNotifier;
+
 
         public RentalReturnService(
             BookingRepository bookingRepository,
             VehicleRentalRecordRepository recordRepository,
             VehicleInspectionRepository inspectionRepository,
             VehicleDamageService damageService,
-            PricingServices pricingService)
+            PricingServices pricingService,
+            BookingNotifier bookingNotifier)
         {
             _bookingRepository = bookingRepository;
             _recordRepository = recordRepository;
             _inspectionRepository = inspectionRepository;
             _damageService = damageService;
             _pricingService = pricingService;
+            _bookingNotifier = bookingNotifier;
         }
 
         public void RegisterPickup(
@@ -80,6 +85,8 @@ namespace SeventWebApplication.Models.VehicleNS
             // 3. Uppdatera bil och bokning
             vehicle.IsAvailable = false;
             booking.Status = BookingStatus.Active;
+
+            _bookingNotifier.Notify( new BookingEvent( BookingEventType.RentalStarted, booking ) );
         }
 
         public void RegisterReturn(
@@ -149,6 +156,8 @@ namespace SeventWebApplication.Models.VehicleNS
             //    redan satt VehicleStatus = InRepair, så den kan ändå inte hyras ut.
             vehicle.IsAvailable = true;
             booking.Status = BookingStatus.Completed;
+
+            _bookingNotifier.Notify( new BookingEvent( BookingEventType.RentalReturned, booking ) );
         }
 
         public decimal CalculateLateFee(string bookingId)

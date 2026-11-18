@@ -5,7 +5,7 @@ using BookingEntity = SeventWebApplication.Models.Booking.Booking;
 
 namespace SeventWebApplication.Models.Notifications
 {
-    public class NotificationService : BackgroundService
+    public class NotificationService : BackgroundService, IBookingObserver
     {
         private readonly INotificationRepository _notificationRepository = new NotificationRepository();
         private readonly Dictionary<NotificationChannelType, INotificationChannel> _notificationChannels = [];
@@ -15,18 +15,17 @@ namespace SeventWebApplication.Models.Notifications
 
         private BookingRepository _bookingRepository;
 
-        public NotificationService( BookingRepository bookingRepository ) 
+        public NotificationService( BookingRepository bookingRepository, BookingNotifier bookingNotifier ) 
         {
-            _scheduler = new ReminderScheduler( 30 /*minutes*/);
+            _scheduler = new ReminderScheduler( 30 );
             _bookingRepository = bookingRepository;
+            bookingNotifier.Subscribe( this );
         }
 
         public void AddChannel( INotificationChannel channel )
         {
-            if( _notificationChannels.TryGetValue( channel.GetChannelType(), out INotificationChannel? _ ) )
-                throw new InvalidOperationException( "En channel av samma typ finns redan" );
-
-            _notificationChannels.Add( channel.GetChannelType(), channel );
+            if( _notificationChannels.TryAdd( channel.GetChannelType(), channel ) )
+                throw new InvalidOperationException( "A notification channel of the same type already exists" );
         }
 
         public void RemoveChannel( NotificationChannelType type )
@@ -153,7 +152,6 @@ namespace SeventWebApplication.Models.Notifications
                 return;
             }
 
-            // ToDo: Lite skumt att göra såhär när vi har en scheduleAt i Notification, kanske får fixa sen
             Notification reminderNotification = new(
                 $"Reminder: your booking for today is at {reminder.ScheduleAt.Hour}:{reminder.ScheduleAt.Minute}",
                 reminder.BookingId,
@@ -165,10 +163,7 @@ namespace SeventWebApplication.Models.Notifications
             inApp.Send( reminderNotification );
         }
 
-        // Jag har ingen aning om det här blir thread safe
-        // Async funktioner och await behöver inte vara på en annan thread men att while loopen inte är blocking är lite sus
-        // Vad jag kan se i output så skapas ingen ny thread
-        // Called after app.Run() in main
+        // Called after app.Run()
         protected override async Task ExecuteAsync( CancellationToken stoppingToken )
         {
             if( _timer != null )
