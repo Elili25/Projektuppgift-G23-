@@ -1,0 +1,134 @@
+@using SeventWebApplication.Models.Guest
+@model BrowseVehiclesViewModel
+@{
+    ViewData["Title"] = Model.Title;
+    string action = Model.IsVans ? "Vans" : "Cars";
+    string Chip(string? c) =>
+        string.Equals(Model.Category ?? "", c ?? "", StringComparison.OrdinalIgnoreCase) ? "guest__filter is-active" : "guest__filter";
+}
+
+<link rel="stylesheet" href="~/css/Sevent-Guest.css" asp-append-version="true" />
+
+<section class="guest guest--void">
+    <header class="gv-head">
+        @* Cars | Vans: två egna sidor, det här är växlaren mellan dem *@
+        <div class="guest__switch" role="tablist" aria-label="Vehicle type">
+            <a class="@(Model.IsVans ? "" : "is-active")" asp-action="Cars">Passenger cars</a>
+            <a class="@(Model.IsVans ? "is-active" : "")" asp-action="Vans">Vans</a>
+        </div>
+
+        <h1 class="gv-head__title">@(Model.IsVans ? "The right van for the job" : "The perfect car for your next trip")</h1>
+
+        <nav class="guest__filters" aria-label="Filter by type">
+            <a class="@Chip(null)" asp-action="@action">All</a>
+            @if (Model.IsVans)
+            {
+                <a class="@Chip("CargoVan")" asp-action="Vans" asp-route-category="CargoVan">Cargo van</a>
+                <a class="@Chip("PassengerVan")" asp-action="Vans" asp-route-category="PassengerVan">Passenger van</a>
+            }
+            else
+            {
+                <a class="@Chip("Sedan")" asp-action="Cars" asp-route-category="Sedan">Sedan</a>
+                <a class="@Chip("SUV")" asp-action="Cars" asp-route-category="SUV">SUV</a>
+                <a class="@Chip("Hatchback")" asp-action="Cars" asp-route-category="Hatchback">Hatchback</a>
+                <a class="@Chip("StationWagon")" asp-action="Cars" asp-route-category="StationWagon">Station wagon</a>
+            }
+        </nav>
+    </header>
+
+    @if (Model.Families.Count == 0)
+    {
+        <div class="gv-empty">Nothing in this category yet.</div>
+    }
+    else
+    {
+        <div class="gv-carousel" data-carousel>
+            @* Två kort åt gången, alltid hela kort. Pilarna och prickarna byter sida. *@
+            <div class="gv-track" tabindex="0">
+                @foreach (var f in Model.Families)
+                {
+                    <article class="gv-card">
+                        <div class="gv-card__head">
+                            <h2>@f.Name</h2>
+                            <span>
+                                @(f.Example != null ? f.Example + " or similar" : "Sevent fleet") | @f.Category
+                            </span>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(f.ImagePath))
+                        {
+                            <img class="gv-card__img" src="@f.ImagePath" alt="@f.Name" loading="lazy" />
+                        }
+
+                        <div class="gv-card__foot">
+                            <p class="gv-card__specs">
+                                @string.Join("  ·  ", f.Specs.Select(s => $"{s.Label} {s.Value}"))
+                            </p>
+                            <a class="gv-button" asp-controller="Bookings" asp-action="Create">Book</a>
+                        </div>
+                    </article>
+                }
+            </div>
+
+            <div class="gv-controls">
+                <div class="gv-dots" data-dots></div>
+                <div class="gv-arrows">
+                    <button class="gv-nav" type="button" data-dir="-1" aria-label="Previous">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg>
+                    </button>
+                    <button class="gv-nav" type="button" data-dir="1" aria-label="Next">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</section>
+
+@section Scripts {
+    <script>
+        // Karusell: scrollar en hel sida (två kort) åt gången, prickar och pilar följer med
+        document.querySelectorAll("[data-carousel]").forEach(function (root) {
+            var track = root.querySelector(".gv-track");
+            var dotsBox = root.querySelector("[data-dots]");
+            var arrows = root.querySelectorAll(".gv-nav");
+            var cards = track.querySelectorAll(".gv-card");
+
+            function perPage() { return window.innerWidth <= 760 ? 1 : 2; }
+            function pageCount() { return Math.max(1, Math.ceil(cards.length / perPage())); }
+            function pageWidth() { return track.clientWidth + parseFloat(getComputedStyle(track).columnGap || 24); }
+            function current() { return Math.min(pageCount() - 1, Math.round(track.scrollLeft / pageWidth())); }
+
+            function buildDots() {
+                dotsBox.innerHTML = "";
+                for (var i = 0; i < pageCount(); i++) {
+                    var d = document.createElement("button");
+                    d.type = "button";
+                    d.setAttribute("aria-label", "Page " + (i + 1));
+                    (function (n) { d.addEventListener("click", function () { go(n); }); })(i);
+                    dotsBox.appendChild(d);
+                }
+                update();
+            }
+
+            function go(page) {
+                track.scrollTo({ left: Math.max(0, Math.min(pageCount() - 1, page)) * pageWidth(), behavior: "smooth" });
+            }
+
+            function update() {
+                var page = current();
+                dotsBox.querySelectorAll("button").forEach(function (d, i) { d.classList.toggle("is-active", i === page); });
+                arrows[0].disabled = page <= 0;
+                arrows[1].disabled = page >= pageCount() - 1;
+                root.classList.toggle("is-single", pageCount() === 1);
+            }
+
+            arrows.forEach(function (btn) {
+                btn.addEventListener("click", function () { go(current() + Number(btn.dataset.dir)); });
+            });
+            track.addEventListener("scroll", function () { window.requestAnimationFrame(update); });
+            window.addEventListener("resize", buildDots);
+            buildDots();
+        });
+    </script>
+}

@@ -101,17 +101,17 @@
                             </button>
                             <div class="collapse @(inBrowse ? "show" : "")" id="browseMenu">
                                 <div class="sevent-drawer__sub">
-                                    <a asp-controller="Vehicles" asp-action="Index">All vehicles</a>
-
                                     <span class="sevent-drawer__group">Passenger cars</span>
-                                    <a asp-controller="Vehicles" asp-action="Index" asp-route-kind="cars" asp-route-category="Sedan">Sedan</a>
-                                    <a asp-controller="Vehicles" asp-action="Index" asp-route-kind="cars" asp-route-category="SUV">SUV</a>
-                                    <a asp-controller="Vehicles" asp-action="Index" asp-route-kind="cars" asp-route-category="Hatchback">Hatchback</a>
-                                    <a asp-controller="Vehicles" asp-action="Index" asp-route-kind="cars" asp-route-category="StationWagon">Station wagon</a>
+                                    <a asp-controller="Vehicles" asp-action="Cars">All passenger cars</a>
+                                    <a asp-controller="Vehicles" asp-action="Cars" asp-route-category="Sedan">Sedan</a>
+                                    <a asp-controller="Vehicles" asp-action="Cars" asp-route-category="SUV">SUV</a>
+                                    <a asp-controller="Vehicles" asp-action="Cars" asp-route-category="Hatchback">Hatchback</a>
+                                    <a asp-controller="Vehicles" asp-action="Cars" asp-route-category="StationWagon">Station wagon</a>
 
                                     <span class="sevent-drawer__group">Vans</span>
-                                    <a asp-controller="Vehicles" asp-action="Index" asp-route-kind="vans" asp-route-category="CargoVan">Cargo van</a>
-                                    <a asp-controller="Vehicles" asp-action="Index" asp-route-kind="vans" asp-route-category="PassengerVan">Passenger van</a>
+                                    <a asp-controller="Vehicles" asp-action="Vans">All vans</a>
+                                    <a asp-controller="Vehicles" asp-action="Vans" asp-route-category="CargoVan">Cargo van</a>
+                                    <a asp-controller="Vehicles" asp-action="Vans" asp-route-category="PassengerVan">Passenger van</a>
                                 </div>
                             </div>
                         </li>

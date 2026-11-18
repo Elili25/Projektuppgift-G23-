@@ -4,8 +4,8 @@ using SeventWebApplication.Models.VehicleNS;
 
 namespace SeventWebApplication.Controllers
 {
-    // Publik sida där man bläddrar bland fordonsfamiljerna och fordonen (/Vehicles).
-    // kind = cars | vans, category = t.ex. SUV, Sedan, CargoVan (båda valfria).
+    // Publik sida där man bläddrar bland fordonsfamiljerna. Personbilar och skåpbilar har varsin sida:
+    //   /Vehicles/Cars?category=SUV   och   /Vehicles/Vans?category=CargoVan   (category är valfri)
     // Öppen för alla, ingen inloggning krävs.
     public class VehiclesController : Controller
     {
@@ -18,69 +18,107 @@ namespace SeventWebApplication.Controllers
             _assignment = assignment;
         }
 
+        // /Vehicles (och äldre länkar med ?category=) skickas vidare till rätt sida
         [HttpGet]
-        public IActionResult Index(string? kind, string? category)
+        public IActionResult Index(string? category)
         {
-            bool carsOnly = string.Equals(kind, "cars", StringComparison.OrdinalIgnoreCase);
-            bool vansOnly = string.Equals(kind, "vans", StringComparison.OrdinalIgnoreCase);
+            if (category is "CargoVan" or "PassengerVan" or "Van")
+                return RedirectToAction(nameof(Vans), new { category = category == "Van" ? null : category });
 
+            bool isCarCategory = Enum.TryParse<PassengerCarCategoryType>(category, true, out _);
+            return RedirectToAction(nameof(Cars), new { category = isCarCategory ? category : null });
+        }
+
+        [HttpGet]
+        public IActionResult Cars(string? category) => View("Browse", Build(isVans: false, category));
+
+        [HttpGet]
+        public IActionResult Vans(string? category) => View("Browse", Build(isVans: true, category));
+
+        private BrowseVehiclesViewModel Build(bool isVans, string? category)
+        {
             var cards = new List<FamilyCardViewModel>();
 
             foreach (var family in _families.GetAll())
             {
-                string kindLabel, categoryLabel, categoryKey;
-                string? comfort = null;
+                string categoryKey, categoryLabel;
 
-                switch (family)
+                if (family is PassengerCarFamily car && !isVans)
                 {
-                    case PassengerCarFamily car when !vansOnly:
-                        kindLabel = "Passenger car";
-                        categoryKey = car.CategoryType.ToString();
-                        categoryLabel = car.CategoryType == PassengerCarCategoryType.StationWagon ? "Station wagon" : categoryKey;
-                        comfort = car.ComfortType.ToString();
-                        break;
-
-                    case VanFamily van when !carsOnly:
-                        kindLabel = "Van";
-                        categoryKey = van.CategoryType.ToString();
-                        categoryLabel = van.CategoryType == VanCategoryType.CargoVan ? "Cargo van" : "Passenger van";
-                        break;
-
-                    default:
-                        continue;
+                    categoryKey = car.CategoryType.ToString();
+                    categoryLabel = car.CategoryType == PassengerCarCategoryType.StationWagon ? "Station wagon" : categoryKey;
+                }
+                else if (family is VanFamily van && isVans)
+                {
+                    categoryKey = van.CategoryType.ToString();
+                    categoryLabel = van.CategoryType == VanCategoryType.CargoVan ? "Cargo van" : "Passenger van";
+                }
+                else
+                {
+                    continue;
                 }
 
                 if (!string.IsNullOrEmpty(category) &&
                     !string.Equals(category, categoryKey, StringComparison.OrdinalIgnoreCase))
                     continue;
 
-                var vehicles = _assignment.FindMatchingVehicles(family.FamilyId).ToList();
+                // Ett exempelfordon ur familjen ger specifikationerna och namnet ("Volvo V60 or similar")
+                Vehicle? example = _assignment.FindMatchingVehicles(family.FamilyId).FirstOrDefault();
+
+                var tags = new List<string> { family.TransmissionType.ToString() };
+                if (family is PassengerCarFamily pc)
+                    tags.Add(pc.ComfortType.ToString());
+
+                var specs = new List<(string, string)> { ("Gearbox", family.TransmissionType.ToString()) };
+                if (family is PassengerCarFamily comfortFamily)
+                    specs.Add(("Comfort", comfortFamily.ComfortType.ToString()));
+
+                if (example != null)
+                {
+                    specs.Add(("Seats", example.PassengerCapacity.ToString()));
+                    if (example is Van v)
+                    {
+                        specs.Add(("Cargo", $"{v.CargoCapacityM3:0.#} m³"));
+                        specs.Add(("Payload", $"{v.MaxPayloadKg:0} kg"));
+                    }
+                    else
+                    {
+                        specs.Add(("Luggage", $"{example.LuggageCapacity:0} L"));
+                    }
+                }
 
                 cards.Add(new FamilyCardViewModel
                 {
                     Name = family.Name,
                     Description = family.Description,
-                    Kind = kindLabel,
                     Category = categoryLabel,
-                    Transmission = family.TransmissionType.ToString(),
-                    Comfort = comfort,
-                    VehicleCount = vehicles.Count,
-                    Vehicles = vehicles
-                        .Take(4)
-                        .Select(v => $"{v.Model.Brand.BrandName} {v.Model.ModelName} · {v.Year} · {v.PassengerCapacity} seats")
-                        .ToList()
+                    Tags = tags,
+                    Specs = specs,
+                    Example = example is null ? null : $"{example.Model.Brand.BrandName} {example.Model.ModelName}",
+                    ImagePath = family.ImagePath
+                        ?? CategoryImage(categoryKey)
+                        ?? example?.ImagePath
                 });
             }
 
-            string title = (carsOnly, vansOnly, string.IsNullOrEmpty(category)) switch
+            return new BrowseVehiclesViewModel
             {
-                (_, _, false) => cards.FirstOrDefault()?.Category ?? category!,
-                (true, _, _) => "Passenger cars",
-                (_, true, _) => "Vans",
-                _ => "All vehicles"
+                IsVans = isVans,
+                Category = category,
+                Families = cards.OrderBy(c => c.Category).ThenBy(c => c.Name).ToList()
             };
-
-            return View(new BrowseVehiclesViewModel { Title = title, Families = cards.OrderBy(c => c.Kind).ThenBy(c => c.Name).ToList() });
         }
+
+        // Bilderna ligger i wwwroot/lib/Images/FeaturedVehicleImages, en per biltyp
+        private static string? CategoryImage(string categoryKey) => categoryKey switch
+        {
+            "Sedan" => "/lib/Images/FeaturedVehicleImages/PassengerCar/VehicleFamily-Luxury-Sedan-FeaturedImage.png",
+            "SUV" => "/lib/Images/FeaturedVehicleImages/PassengerCar/VehicleFamily-Premium-SUV-FeaturedImage.png",
+            "Hatchback" => "/lib/Images/FeaturedVehicleImages/PassengerCar/VehicleFamily-Standard-Hatchback-FeaturedImage.png",
+            "StationWagon" => "/lib/Images/FeaturedVehicleImages/PassengerCar/VehicleFamily-Economy-StationWagon-FeaturedImage.png",
+            "CargoVan" => "/lib/Images/FeaturedVehicleImages/Van/VehicleFamily-Cargo-Van-FeaturedImage.png",
+            "PassengerVan" => "/lib/Images/FeaturedVehicleImages/Van/VehicleFamily-PassengerVan-FeaturedImage.png",
+            _ => null
+        };
     }
 }
