@@ -7,6 +7,7 @@ namespace SeventWebApplication.Models.Guest
         public Guid FamilyId { get; init; }
         public string Name { get; init; } = "";
         public string Description { get; init; } = "";
+        public bool IsVan { get; init; }
         public string Category { get; init; } = "";       // SUV, Cargo van ...
         public string? ImagePath { get; init; }
         public string? Example { get; init; }             // t.ex. "Volvo V60", visas som "or similar"

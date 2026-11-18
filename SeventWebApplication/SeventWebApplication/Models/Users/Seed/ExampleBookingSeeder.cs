@@ -26,19 +26,36 @@ namespace SeventWebApplication.Models.Users
 
             var random = new Random();
 
-            // Varje bil matchar en familj i VehicleFamilySeeder:
-            //   Luxury Sedan       = Sedan + Luxury + Automatic
-            //   Premium SUV        = SUV + Premium + Automatic
-            //   Standard Hatchback = Hatchback + Standard + Manual
-            //   Cargo Van          = CargoVan + Manual, minst 8 m³ och 500 kg
-            // (Economy Station Wagon fylls av FleetManager.SeedTestVehicle, regnr ABC123)
+            // Tio bilar, varje bil matchar en familj i VehicleFamilySeeder och varje familj har minst en:
+            //   Luxury Sedan          = Sedan + Luxury + Automatic                       (2 bilar)
+            //   Premium SUV           = SUV + Premium + Automatic                        (2 bilar)
+            //   Standard Hatchback    = Hatchback + Standard + Manual                    (2 bilar)
+            //   Economy Station Wagon = StationWagon + Economy + Automatic               (1 bil, samma som FleetManager.SeedTestVehicle, ABC123)
+            //   Cargo Van             = CargoVan + Manual, minst 8 m³ och 500 kg         (2 bilar)
+            //   Passenger Van         = PassengerVan + Automatic, minst 7 passagerare    (1 bil)
             var vehicles = new List<Vehicle>
             {
+                // Luxury Sedan
                 MakeCar("Tesla", "Model 3", "DEF456", PassengerCarCategoryType.Sedan, VehicleComfortType.Luxury, TransmissionType.Automatic, 2023, 283, FuelType.Electric, 425m),
                 MakeCar("BMW", "i4", "BMW999", PassengerCarCategoryType.Sedan, VehicleComfortType.Luxury, TransmissionType.Automatic, 2022, 340, FuelType.Electric, 470m),
+
+                // Premium SUV
                 MakeCar("Volvo", "XC60", "PRE123", PassengerCarCategoryType.SUV, VehicleComfortType.Premium, TransmissionType.Automatic, 2024, 250, FuelType.Petrol, 483m),
+                MakeCar("BMW", "X3", "BMX305", PassengerCarCategoryType.SUV, VehicleComfortType.Premium, TransmissionType.Automatic, 2023, 292, FuelType.Diesel, 550m),
+
+                // Standard Hatchback
                 MakeCar("Volkswagen", "Golf", "GLF777", PassengerCarCategoryType.Hatchback, VehicleComfortType.Standard, TransmissionType.Manual, 2022, 150, FuelType.Diesel, 380m),
-                MakeVan("Volkswagen", "Transporter", "VAN001", VanCategoryType.CargoVan, TransmissionType.Manual, 2021, 150, 10.0, 900.0)
+                MakeCar("Toyota", "Corolla", "COR123", PassengerCarCategoryType.Hatchback, VehicleComfortType.Standard, TransmissionType.Manual, 2023, 122, FuelType.Petrol, 361m),
+
+                // Economy Station Wagon (samma bil som FleetManager.SeedTestVehicle, som hoppar över den om den redan finns)
+                MakeCar("Volvo", "V60", "ABC123", PassengerCarCategoryType.StationWagon, VehicleComfortType.Economy, TransmissionType.Automatic, 2024, 197, FuelType.Petrol, 529m),
+
+                // Cargo Van
+                MakeVan("Volkswagen", "Transporter", "VAN001", VanCategoryType.CargoVan, TransmissionType.Manual, 2021, 150, 10.0, 900.0, 3),
+                MakeVan("Renault", "Master", "VAN002", VanCategoryType.CargoVan, TransmissionType.Manual, 2022, 135, 12.0, 1100.0, 3),
+
+                // Passenger Van
+                MakeVan("Mercedes-Benz", "Vito Tourer", "PVN001", VanCategoryType.PassengerVan, TransmissionType.Automatic, 2023, 190, 4.5, 800.0, 8)
             };
 
             foreach (var vehicle in vehicles)
@@ -162,7 +179,8 @@ namespace SeventWebApplication.Models.Users
             int year,
             int horsePower,
             double cargoCapacityM3,
-            double maxPayloadKg)
+            double maxPayloadKg,
+            int passengerCapacity)
         {
             return new Van(
                 new RegistrationPlate(regNr, CountryCode.SE),
@@ -170,7 +188,7 @@ namespace SeventWebApplication.Models.Users
                 VehicleCategoryType.Van,
                 categoryType,
                 year,
-                3,
+                passengerCapacity,
                 0m,
                 MakeEngine(FuelType.Diesel, horsePower),
                 transmissionType,

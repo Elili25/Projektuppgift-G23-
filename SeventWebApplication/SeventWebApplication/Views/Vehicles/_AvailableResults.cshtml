@@ -5,6 +5,11 @@
 @model AvailabilityResultViewModel
 @{
     var en = System.Globalization.CultureInfo.GetCultureInfo("en-US");
+
+    // "cars", "vans" eller "cars or vans" beroende på vad sökningen gällde
+    string noun = Model.Families.Count > 0 && Model.Families.All(f => f.IsVan) ? "vans"
+                : Model.Families.Count > 0 && Model.Families.All(f => !f.IsVan) ? "cars"
+                : "cars or vans";
 }
 
 <link rel="stylesheet" href="~/css/Sevent-Guest.css" asp-append-version="true" />
@@ -21,11 +26,11 @@
             <p>
                 @if (Model.Families.Count == 0)
                 {
-                    <text>No vehicle classes are free for these dates. Try other dates.</text>
+                    <text>No @noun are free for these dates. Try other dates.</text>
                 }
                 else
                 {
-                    <text>@Model.Families.Count vehicle class@(Model.Families.Count == 1 ? "" : "es") available. Log in to complete your booking.</text>
+                    <text>@Model.Families.Count @(Model.Families.Count == 1 ? "option" : "options") available. Log in to complete your booking.</text>
                 }
             </p>
         </header>

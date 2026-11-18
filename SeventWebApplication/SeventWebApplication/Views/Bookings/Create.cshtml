@@ -79,7 +79,7 @@
 
                 <div class="bk-segmented vehicle-choice" role="group" aria-label="Choose how to pick a vehicle">
                     <input type="radio" name="Form.VehicleChoice" id="choice-family" value="family" @(familyChosen ? "checked" : "") />
-                    <label for="choice-family">Vehicle class</label>
+                    <label for="choice-family">Car or van</label>
 
                     <input type="radio" name="Form.VehicleChoice" id="choice-vehicle" value="vehicle" @(!familyChosen ? "checked" : "") />
                     <label for="choice-vehicle">Specific vehicle</label>
@@ -91,9 +91,9 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5.5A2 2 0 0 1 8.4 9h7.2a2 2 0 0 1 1.9 1.5L19 16" /><rect x="3" y="16" width="18" height="4" rx="1.5" /><circle cx="7.5" cy="18" r=".6" /><circle cx="16.5" cy="18" r=".6" /></svg>
                         </span>
                         <div class="bk-field__content">
-                            <label class="bk-field__label" asp-for="Form.VehicleFamilyId">Vehicle class</label>
+                            <label class="bk-field__label" asp-for="Form.VehicleFamilyId">Car or van</label>
                             <select asp-for="Form.VehicleFamilyId">
-                                <option value="">Choose a vehicle class...</option>
+                                <option value="">Choose a car or van...</option>
                                 @foreach (var f in Model.Families)
                                 {
                                     <option value="@f.Value" title="@f.Hint">@f.Text</option>
@@ -101,7 +101,7 @@
                             </select>
                         </div>
                     </div>
-                    <p class="bk-hint">You get an available vehicle in the class when the booking is confirmed.</p>
+                    <p class="bk-hint">You get an available vehicle of this type when the booking is confirmed.</p>
                 </div>
 
                 <div id="vehicle-picker" class="@(familyChosen ? "d-none" : "")">

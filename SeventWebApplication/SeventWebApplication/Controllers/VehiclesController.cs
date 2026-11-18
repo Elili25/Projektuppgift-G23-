@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using SeventWebApplication.Models.Guest;
+using SeventWebApplication.Models.Pricing;
 using SeventWebApplication.Models.VehicleNS;
+using SeventWebApplication.Models.VehicleNS.Engine;
 
 namespace SeventWebApplication.Controllers
 {
@@ -11,11 +13,13 @@ namespace SeventWebApplication.Controllers
     {
         private readonly VehicleFamilyRepository _families;
         private readonly VehicleAssignmentService _assignment;
+        private readonly PricingServices _pricing;
 
-        public VehiclesController(VehicleFamilyRepository families, VehicleAssignmentService assignment)
+        public VehiclesController(VehicleFamilyRepository families, VehicleAssignmentService assignment, PricingServices pricing)
         {
             _families = families;
             _assignment = assignment;
+            _pricing = pricing;
         }
 
         // /Vehicles (och äldre länkar med ?category=) skickas vidare till rätt sida
@@ -27,6 +31,17 @@ namespace SeventWebApplication.Controllers
 
             bool isCarCategory = Enum.TryParse<PassengerCarCategoryType>(category, true, out _);
             return RedirectToAction(nameof(Cars), new { category = isCarCategory ? category : null });
+        }
+
+        // GET /Vehicles/Family/{id} – produktsida för en fordonsfamilj
+        [HttpGet]
+        public IActionResult Family(Guid id)
+        {
+            VehicleFamily? family = _families.GetById(id);
+            if (family is null)
+                return NotFound();
+
+            return View(BuildFamilyPage(family));
         }
 
         [HttpGet]
@@ -129,12 +144,12 @@ namespace SeventWebApplication.Controllers
                     specs.Add(("Seats", example.PassengerCapacity.ToString()));
                     if (example is Van v)
                     {
-                        specs.Add(("Cargo", $"{v.CargoCapacityM3:0.#} m³"));
-                        specs.Add(("Payload", $"{v.MaxPayloadKg:0} kg"));
+                        specs.Add(("Cargo", FormattableString.Invariant($"{v.CargoCapacityM3:0.#} m³")));
+                        specs.Add(("Payload", FormattableString.Invariant($"{v.MaxPayloadKg:0} kg")));
                     }
                     else
                     {
-                        specs.Add(("Luggage", $"{example.LuggageCapacity:0} L"));
+                        specs.Add(("Luggage", FormattableString.Invariant($"{example.LuggageCapacity:0} L")));
                     }
                 }
 
@@ -143,6 +158,7 @@ namespace SeventWebApplication.Controllers
                     FamilyId = family.FamilyId,
                     Name = family.Name,
                     Description = family.Description,
+                    IsVan = isVans,
                     Category = categoryLabel,
                     Tags = tags,
                     Specs = specs,
@@ -159,6 +175,132 @@ namespace SeventWebApplication.Controllers
                 Category = category,
                 Families = cards.OrderBy(c => c.Category).ThenBy(c => c.Name).ToList()
             };
+        }
+
+        // Bygger produktsidan. Specifikationerna är en lista av grupper med rader (SpecGroup), så en ny spec
+        // läggs bara till här som en rad i rätt grupp, vyn Family.cshtml ritar ut allt som finns.
+        // Värden sammanfattas över alla fordon i familjen (t.ex. "361–550 L" om bilarna skiljer sig åt).
+        private FamilyPageViewModel BuildFamilyPage(VehicleFamily family)
+        {
+            var vehicles = _assignment.FindMatchingVehicles(family.FamilyId).ToList();
+            var cars = vehicles.OfType<Car>().ToList();
+            var vans = vehicles.OfType<Van>().ToList();
+
+            bool isVan = family is VanFamily;
+            string categoryKey = family switch
+            {
+                PassengerCarFamily pc => pc.CategoryType.ToString(),
+                VanFamily vf => vf.CategoryType.ToString(),
+                _ => ""
+            };
+            string categoryLabel = categoryKey switch
+            {
+                "StationWagon" => "Station wagon",
+                "CargoVan" => "Cargo van",
+                "PassengerVan" => "Passenger van",
+                var other => other
+            };
+
+            // ---- Specifikationer ----
+            var overview = new SpecGroup { Title = "Overview" };
+            overview.Items.Add(("Type", isVan ? "Van" : "Passenger car"));
+            overview.Items.Add(("Category", categoryLabel));
+            if (family is PassengerCarFamily comfortFamily)
+                overview.Items.Add(("Comfort level", comfortFamily.ComfortType.ToString()));
+            overview.Items.Add(("Gearbox", family.TransmissionType.ToString()));
+            if (vehicles.Count > 0)
+                overview.Items.Add(("Model years", Range(vehicles.Select(v => (double)v.Year), "")));
+
+            var capacity = new SpecGroup { Title = "Capacity" };
+            if (vehicles.Count > 0)
+                capacity.Items.Add(("Seats", Range(vehicles.Select(v => (double)v.PassengerCapacity), "")));
+            if (cars.Count > 0)
+                capacity.Items.Add(("Luggage space", Range(cars.Select(c => (double)c.LuggageCapacity), " L")));
+            if (vans.Count > 0)
+            {
+                capacity.Items.Add(("Cargo volume", Range(vans.Select(v => v.CargoCapacityM3), " m³")));
+                capacity.Items.Add(("Max payload", Range(vans.Select(v => v.MaxPayloadKg), " kg")));
+            }
+            if (family is VanFamily requirements)
+            {
+                if (requirements.MinCargoVolumeM3 is double minCargo) capacity.Items.Add(("Guaranteed cargo volume", FormattableString.Invariant($"At least {minCargo:0.#} m³")));
+                if (requirements.MinPayloadKg is double minPayload) capacity.Items.Add(("Guaranteed payload", FormattableString.Invariant($"At least {minPayload:0} kg")));
+                if (requirements.MinPassengerCapacity is int minSeats) capacity.Items.Add(("Guaranteed seats", $"At least {minSeats}"));
+            }
+
+            var engine = new SpecGroup { Title = "Engine & efficiency" };
+            if (vehicles.Count > 0)
+            {
+                engine.Items.Add(("Fuel", string.Join(", ", vehicles.Select(v => v.Engine.FuelType.ToString()).Distinct())));
+                engine.Items.Add(("Power", Range(vehicles.Select(v => (double)v.Engine.HorsePower), " hp")));
+
+                var electric = vehicles.Select(v => v.Engine).OfType<ElectricEngine>().ToList();
+                if (electric.Count > 0)
+                {
+                    engine.Items.Add(("Battery", Range(electric.Select(e => (double)e.BatteryCapacityKwh), " kWh")));
+                    engine.Items.Add(("Range", Range(electric.Select(e => (double)e.RangeKm), " km")));
+                }
+            }
+
+            // Tomma grupper visas inte
+            var groups = new[] { overview, capacity, engine }.Where(g => g.Items.Count > 0).ToList();
+
+            // ---- Nyckelfakta överst ----
+            var highlights = new List<(string, string)> { ("Gearbox", family.TransmissionType.ToString()) };
+            if (vehicles.Count > 0)
+            {
+                highlights.Insert(0, ("Seats", Range(vehicles.Select(v => (double)v.PassengerCapacity), "")));
+                highlights.Add(("Fuel", string.Join(" / ", vehicles.Select(v => v.Engine.FuelType.ToString()).Distinct())));
+            }
+
+            // ---- Pris: det lägsta dagspriset i familjen ----
+            decimal? fromPrice = null;
+            foreach (var v in vehicles)
+            {
+                try
+                {
+                    decimal daily = _pricing.CalculateBaseRate(v, 1);
+                    fromPrice = fromPrice is null ? daily : Math.Min(fromPrice.Value, daily);
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    // Fordon utan prissättning hoppas över
+                }
+            }
+
+            return new FamilyPageViewModel
+            {
+                FamilyId = family.FamilyId,
+                Name = family.Name,
+                Description = family.Description,
+                IsVan = isVan,
+                Category = categoryLabel,
+                ImagePath = family.ImagePath ?? CategoryImage(categoryKey) ?? vehicles.Select(v => v.ImagePath).FirstOrDefault(p => !string.IsNullOrEmpty(p)),
+                FromDailyPrice = fromPrice,
+                Tags = new List<string> { categoryLabel, family.TransmissionType.ToString() }
+                    .Concat(family is PassengerCarFamily c ? new[] { c.ComfortType.ToString() } : Array.Empty<string>())
+                    .ToList(),
+                Highlights = highlights,
+                SpecGroups = groups,
+                Models = vehicles
+                    .OrderBy(v => v.Model.Brand.BrandName).ThenBy(v => v.Model.ModelName)
+                    .Select(v => new FamilyModelItem
+                    {
+                        Name = $"{v.Model.Brand.BrandName} {v.Model.ModelName}",
+                        Details = $"{v.Year} · {v.Engine.HorsePower} hp · {v.Engine.FuelType} · {v.PassengerCapacity} seats"
+                    })
+                    .ToList()
+            };
+        }
+
+        // "5" om alla är lika, annars "361–550"; unit läggs till efter, t.ex. " L"
+        private static string Range(IEnumerable<double> values, string unit)
+        {
+            var list = values.ToList();
+            double min = list.Min(), max = list.Max();
+            return min == max
+                ? FormattableString.Invariant($"{min:0.#}{unit}")
+                : FormattableString.Invariant($"{min:0.#}–{max:0.#}{unit}");
         }
 
         // Bilderna ligger i wwwroot/lib/Images/FeaturedVehicleImages, en per biltyp

@@ -95,7 +95,7 @@ namespace SeventWebApplication.Models.Booking
                 if (resolvedRequest.VehicleFamilyId is Guid familyId)
                 {
                     if (!_assignmentService.IsFamilyAvailable(familyId, resolvedRequest.Start, resolvedRequest.End))
-                        return Fail(nameof(request.VehicleFamilyId), "There are no available vehicles in this family during the period.");
+                        return Fail(nameof(request.VehicleFamilyId), "There are no available vehicles of this type during the period.");
 
                     builder.WithVehicleFamily(familyId);
                 }
