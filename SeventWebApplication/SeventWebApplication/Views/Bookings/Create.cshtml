@@ -1,6 +1,7 @@
 @using SeventWebApplication.Models.Booking
 @model CreateBookingViewModel
 @{
+    if (Model.IsStaff) { Layout = "~/Views/Shared/_AdminLayout.cshtml"; }
     ViewData["Title"] = Model.IsStaff ? "Ny bokning" : "Boka bil";
     var sv = System.Globalization.CultureInfo.GetCultureInfo("sv-SE");
     bool familyChosen = Model.Form.VehicleChoice != "vehicle";
