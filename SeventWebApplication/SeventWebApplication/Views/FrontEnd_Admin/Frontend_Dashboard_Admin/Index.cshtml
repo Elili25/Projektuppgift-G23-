@@ -1,5 +1,55 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+@*
+    Sevent – Admin dashboard (Operation Overview)
+    Styles: wwwroot/css/Sevent-AdminDashboard.css
+
+    Barebone: layout, sidebar, topbar och alla sektioner finns, men ingen data än.
+    Varje sektion ligger i en egen partial under Partials/ och får sin data senare
+    (ViewModel eller ViewComponent, samma upplägg som FeaturedVehicles).
 *@
 @{
+    Layout = null;   // egen layout med sidebar, inte publika _Layout
+    ViewData["Title"] = "Operation Overview";
+    const string Root = "~/Views/FrontEnd_Admin/Frontend_Dashboard_Admin/";
 }
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] – Sevent Admin</title>
+    <link rel="stylesheet" href="~/css/Sevent-AdminDashboard.css" asp-append-version="true" />
+</head>
+<body class="adm">
+
+    <div class="adm-shell">
+
+        @await Html.PartialAsync(Root + "_AdminSidebar.cshtml")
+
+        <div class="adm-main">
+
+            @await Html.PartialAsync(Root + "_AdminNavbar.cshtml")
+
+            <main class="adm-content">
+
+                @* KPI-kort: Active bookings, Available vehicles, In service, Revenue *@
+                @await Html.PartialAsync(Root + "Partials/_StatisticsOverview.cshtml")
+
+                <div class="adm-row adm-row--bookings">
+                    @await Html.PartialAsync(Root + "Partials/_UpcomingBookings.cshtml")
+                    @await Html.PartialAsync(Root + "Partials/_BookingCalendar.cshtml")
+                </div>
+
+                <div class="adm-row adm-row--fleet">
+                    @await Html.PartialAsync(Root + "Partials/_FleetAvailability.cshtml")
+                    @await Html.PartialAsync(Root + "Partials/_QuickActions.cshtml")
+                </div>
+
+            </main>
+
+            @await Html.PartialAsync(Root + "_AdminFooter.cshtml")
+        </div>
+    </div>
+
+</body>
+</html>
