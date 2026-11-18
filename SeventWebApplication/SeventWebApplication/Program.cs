@@ -67,6 +67,7 @@ namespace SeventWebApplication
             builder.Services.AddSingleton<VehicleFamilyFactory>();
             builder.Services.AddSingleton<VehicleFamilyValidator>();
             builder.Services.AddSingleton<VehicleFamilyService>();
+            builder.Services.AddSingleton<SeventWebApplication.Models.Admin.ImageUploadService>();
             builder.Services.AddSingleton<VehicleFamilyRepository>();
             builder.Services.AddSingleton<VehicleFamilyAssignmentRepository>();
             builder.Services.AddSingleton<VehicleAssignmentService>();
@@ -118,6 +119,7 @@ namespace SeventWebApplication
 
             app.UseAuthorization();
 
+            app.UseStaticFiles();   // serverar bilder som personal laddar upp under wwwroot/uploads
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",

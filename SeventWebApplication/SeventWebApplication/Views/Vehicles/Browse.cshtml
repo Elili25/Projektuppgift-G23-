@@ -47,26 +47,7 @@
             <div class="gv-track" tabindex="0">
                 @foreach (var f in Model.Families)
                 {
-                    <article class="gv-card">
-                        <div class="gv-card__head">
-                            <h2>@f.Name</h2>
-                            <span>
-                                @(f.Example != null ? f.Example + " or similar" : "Sevent fleet") | @f.Category
-                            </span>
-                        </div>
-
-                        @if (!string.IsNullOrEmpty(f.ImagePath))
-                        {
-                            <img class="gv-card__img" src="@f.ImagePath" alt="@f.Name" loading="lazy" />
-                        }
-
-                        <div class="gv-card__foot">
-                            <p class="gv-card__specs">
-                                @string.Join("  ·  ", f.Specs.Select(s => $"{s.Label} {s.Value}"))
-                            </p>
-                            <a class="gv-button" asp-controller="Bookings" asp-action="Create">Book</a>
-                        </div>
-                    </article>
+                    <partial name="~/Views/Vehicles/_FamilyCard.cshtml" model="f" />
                 }
             </div>
 

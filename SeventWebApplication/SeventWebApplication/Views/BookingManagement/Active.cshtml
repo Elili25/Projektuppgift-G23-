@@ -32,7 +32,7 @@
                         <td>@b.Start.ToString("yyyy-MM-dd") → @b.End.ToString("yyyy-MM-dd") (@b.Days d)</td>
                         <td><span class="adm-status adm-status--active">Active</span></td>
                         <td>
-                            <a class="adm-btn" asp-controller="Returns" asp-action="Register" asp-route-bookingId="@b.BookingId">Avsluta uthyrning</a>
+                            <a class="adm-btn" asp-controller="Returns" asp-action="Register" asp-route-bookingId="@b.BookingId">End rental</a>
                         </td>
                     </tr>
                 }

@@ -91,7 +91,7 @@ namespace SeventWebApplication.Controllers
             try
             {
                 User created = _accounts.CreateUser(admin, form.Role, form.Name, form.Mail, form.Phone, form.Password);
-                TempData["Success"] = $"{created.Name} skapades som {RoleText(created.Role)}.";
+                TempData["Success"] = $"{created.Name} was created as {RoleText(created.Role)}.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
@@ -139,7 +139,7 @@ namespace SeventWebApplication.Controllers
             {
                 // Kolla namnet först, så inget hinner sparas om formuläret är fel
                 if (string.IsNullOrWhiteSpace(form.Name))
-                    throw new ArgumentException("Namnet får inte vara tomt.");
+                    throw new ArgumentException("The name cannot be empty.");
 
                 // Rollen ska bara bytas om den faktiskt ändrats, annars säger AccountService nej,
                 // Rollbytet görs först eftersom det skapar ett nytt objekt, sen uppdateras namn/telefon på det.
@@ -148,7 +148,7 @@ namespace SeventWebApplication.Controllers
 
                 _accounts.UpdateContactInfo(admin, form.UserId, form.Name, form.Phone);
 
-                TempData["Success"] = $"Ändringarna för {form.Name.Trim()} sparades.";
+                TempData["Success"] = $"The changes for {form.Name.Trim()} were saved.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
@@ -164,14 +164,14 @@ namespace SeventWebApplication.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Deactivate(Guid id)
         {
-            return RunAction(admin => _accounts.Deactivate(admin, id), id, "inaktiverades");
+            return RunAction(admin => _accounts.Deactivate(admin, id), id, "was deactivated");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Reactivate(Guid id)
         {
-            return RunAction(admin => _accounts.Reactivate(admin, id), id, "aktiverades igen");
+            return RunAction(admin => _accounts.Reactivate(admin, id), id, "was activated again");
         }
 
 
@@ -211,7 +211,7 @@ namespace SeventWebApplication.Controllers
 
             try
             {
-                string name = FindUser(admin, id)?.Name ?? "Användaren";
+                string name = FindUser(admin, id)?.Name ?? "The user";
                 action(admin);
                 TempData["Success"] = $"{name} {doneText}.";
             }
@@ -225,8 +225,8 @@ namespace SeventWebApplication.Controllers
 
         public static string RoleText(Role role) => role switch
         {
-            Role.Customer => "Kund",
-            Role.Employee => "Anställd",
+            Role.Customer => "Customer",
+            Role.Employee => "Employee",
             Role.Admin => "Admin",
             _ => role.ToString()
         };

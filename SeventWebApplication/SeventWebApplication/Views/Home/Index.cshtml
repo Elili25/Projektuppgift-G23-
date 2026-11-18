@@ -1,9 +1,12 @@
-﻿
+
 @{
-    ViewData["Title"] = "Översikt";
+    ViewData["Title"] = "Overview";
 }
 
 @await Html.PartialAsync("Partials/_HeroSection_Partials/_HeroSection")
+
+@* Sökresultatet från sökrutan hamnar här (fylls av scriptet längst ner) *@
+<div id="search-results" aria-live="polite"></div>
 
 @await Component.InvokeAsync("FeaturedVehicles")
 
@@ -14,3 +17,54 @@
 @* @await Html.PartialAsync("_BookingModuleFrontend")
 
 @await Html.PartialAsync("_CarDemo") *@
+
+@section Scripts {
+    <script>
+        // Sökrutan: kollar vilka fordonsklasser som är lediga och visar dem under sökrutan, utan att lämna sidan
+        (function () {
+            var form = document.getElementById("booking-search");
+            if (!form) return;
+
+            var start = document.getElementById("bs-start");
+            var end = document.getElementById("bs-end");
+            var box = document.getElementById("search-results");
+            var button = form.querySelector(".booking-search__submit");
+
+            function iso(d) { return d.toISOString().slice(0, 10); }
+            function addDays(value, n) { var d = new Date(value + "T00:00:00"); d.setDate(d.getDate() + n); return iso(d); }
+
+            // Tidigast idag, och återlämning tidigast dagen efter upphämtning
+            var today = new Date(); today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+            start.min = iso(today);
+            end.min = addDays(start.min, 1);
+
+            start.addEventListener("change", function () {
+                if (!start.value) return;
+                end.min = addDays(start.value, 1);
+                if (!end.value || end.value < end.min) end.value = end.min;
+            });
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                var url = form.action + "?" + new URLSearchParams(new FormData(form)).toString();
+                button.disabled = true;
+                button.textContent = "Searching…";
+
+                fetch(url, { headers: { "X-Requested-With": "fetch" } })
+                    .then(function (r) { return r.text(); })
+                    .then(function (html) {
+                        box.innerHTML = html;
+                        box.scrollIntoView({ behavior: "smooth", block: "start" });
+                    })
+                    .catch(function () {
+                        box.innerHTML = '<p class="gv-results__msg gv-results__msg--error">Something went wrong. Please try again.</p>';
+                    })
+                    .finally(function () {
+                        button.disabled = false;
+                        button.textContent = "Search vehicles →";
+                    });
+            });
+        })();
+    </script>
+}

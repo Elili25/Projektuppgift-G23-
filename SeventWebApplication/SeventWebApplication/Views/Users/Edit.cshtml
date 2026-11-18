@@ -3,14 +3,14 @@
 @model EditUserViewModel
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Redigera användare";
+    ViewData["Title"] = "Edit user";
 }
 
 <section class="adm-card adm-panel adm-formcard">
-        <a asp-action="Index" class="text-decoration-none">&larr; Tillbaka till användare</a>
+        <a asp-action="Index" class="text-decoration-none">&larr; Back to users</a>
         <h2 class="mt-2">@Model.User.Name</h2>
         <p class="text-muted mb-3">
-            @(Model.User.IsActive ? "Aktivt konto" : "Inaktiverat konto")
+            @(Model.User.IsActive ? "Active account" : "Deactivated account")
         </p>
 
         @if (ViewBag.Error != null)
@@ -23,21 +23,21 @@
             <input type="hidden" name="UserId" value="@Model.Form.UserId" />
 
             <div class="mb-3">
-                <label class="form-label" for="mail">E-post</label>
+                <label class="form-label" for="mail">Email</label>
                 @* Mailen visas men går inte att ändra, den används för inloggning *@
                 <input class="form-control" id="mail" value="@Model.User.Mail" disabled />
-                <div class="form-text">Går inte att ändra eftersom den används för att logga in.</div>
+                <div class="form-text">Cannot be changed because it is used to log in.</div>
             </div>
             <div class="mb-3">
-                <label class="form-label" for="name">Namn</label>
+                <label class="form-label" for="name">Name</label>
                 <input class="form-control" id="name" name="Name" value="@Model.Form.Name" required />
             </div>
             <div class="mb-3">
-                <label class="form-label" for="phone">Telefon</label>
+                <label class="form-label" for="phone">Phone</label>
                 <input class="form-control" id="phone" name="Phone" value="@Model.Form.Phone" />
             </div>
             <div class="mb-4">
-                <label class="form-label" for="role">Roll</label>
+                <label class="form-label" for="role">Role</label>
                 @if (Model.CanChangeRole)
                 {
                     <select class="form-select" id="role" name="Role">
@@ -53,12 +53,12 @@
                     <input class="form-control" id="role" value="@UsersController.RoleText(Model.User.Role)" disabled />
                     <input type="hidden" name="Role" value="@Model.User.Role" />
                     <div class="form-text">
-                        @(Model.IsMe ? "Du kan inte byta roll på dig själv." : "Admin-kontot kan inte byta roll.")
+                        @(Model.IsMe ? "You cannot change your own role." : "The admin account cannot change role.")
                     </div>
                 }
             </div>
 
-            <button class="btn btn-primary" type="submit">Spara</button>
-            <a class="btn btn-outline-secondary" asp-action="Index">Avbryt</a>
+            <button class="btn btn-primary" type="submit">Save</button>
+            <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
         </form>
 </section>

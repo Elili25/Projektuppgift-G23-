@@ -19,10 +19,10 @@ namespace SeventWebApplication.Models.Users
             User? user = _users.GetByMail(mail);
 
             if (user is null || !user.CheckPassword(password))
-                throw new InvalidOperationException("Fel e-postadress eller lösenord.");
+                throw new InvalidOperationException("Wrong email address or password.");
 
             if (!user.IsActive)
-                throw new InvalidOperationException("Kontot är inaktiverat. Kontakta personalen.");
+                throw new InvalidOperationException("The account is deactivated. Please contact our staff.");
 
             return user;
         }
@@ -32,10 +32,10 @@ namespace SeventWebApplication.Models.Users
         public Customer Register(string name, string mail, string phone, string password)
         {
             if (string.IsNullOrWhiteSpace(password) || password.Length < 8)
-                throw new ArgumentException("Lösenordet måste vara minst 8 tecken.", nameof(password));
+                throw new ArgumentException("The password must be at least 8 characters.", nameof(password));
 
             if (_users.GetByMail(mail) is not null)
-                throw new InvalidOperationException("Det finns redan ett konto med den e-postadressen.");
+                throw new InvalidOperationException("An account with that email address already exists.");
 
             var customer = (Customer)UserFactory.Create(
                 Role.Customer, Guid.NewGuid(), name, phone, mail, password);

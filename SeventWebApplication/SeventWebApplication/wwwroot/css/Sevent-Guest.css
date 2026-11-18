@@ -336,3 +336,17 @@
 @media (max-width: 760px) {
     .gv-head { padding-top: 26px; }
 }
+
+/* ========================================
+   Sökresultat på startsidan (lediga klasser som rutnät)
+======================================== */
+
+.gv-results { margin-top: 28px; }
+.gv-results__head { margin-bottom: 22px; text-align: center; }
+.gv-results__head h2 { margin: 0 0 6px; color: #fff; font-size: clamp(1.2rem, 2.2vw, 1.6rem); font-weight: 800; text-transform: uppercase; }
+.gv-results__head p { margin: 0; color: var(--g-muted); }
+.gv-results__msg { margin: 0; padding: 10px 0; color: #d7d0ee; text-align: center; }
+.gv-results__msg--error { color: #ff9aa8; }
+
+.gv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 24px; }
+.gv-grid .gv-card { flex: none; }

@@ -27,7 +27,7 @@ namespace SeventWebApplication.Models.Users
             ArgumentException.ThrowIfNullOrWhiteSpace(password);
 
             if (!mail.Contains('@'))
-                throw new ArgumentException("Ogiltig e-postadress.", nameof(mail));
+                throw new ArgumentException("Invalid email address.", nameof(mail));
 
             UserId = userId;
             Name = name.Trim();

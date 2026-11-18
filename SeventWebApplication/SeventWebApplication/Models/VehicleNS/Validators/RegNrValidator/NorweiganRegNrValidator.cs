@@ -1,4 +1,4 @@
-﻿using SeventWebApplication.Models.VehicleNS;
+using SeventWebApplication.Models.VehicleNS;
 using System.Text.RegularExpressions;
 
 namespace SeventWebApplication.Models.VehicleNS
@@ -9,7 +9,7 @@ namespace SeventWebApplication.Models.VehicleNS
         public void ValidateRegNr(string regNr)
         {
             if (regNr is null || !Regex.IsMatch(regNr.Trim(), @"^[A-Z]{2}\s?\d{4,5}$"))
-                throw new ArgumentException($"Ogiltigt norskt registreringsnummer: {regNr}");
+                throw new ArgumentException($"Invalid Norwegian registration number: {regNr}");
         }
     }
 

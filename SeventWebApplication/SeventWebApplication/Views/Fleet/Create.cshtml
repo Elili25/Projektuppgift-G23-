@@ -7,7 +7,7 @@
 }
 
 <section class="adm-card adm-panel">
-    <form method="post" asp-action="Create">
+    <form method="post" asp-action="Create" enctype="multipart/form-data">
         @if (ViewData.ModelState.Values.Any(v => v.Errors.Count > 0))
         {
             <ul class="adm-errors">
@@ -19,6 +19,10 @@
         }
 
         <div class="adm-form">
+            <label class="adm-field adm-field--wide">Image
+                <input type="file" name="Image" accept="image/png,image/jpeg,image/webp" />
+                <small>Optional. PNG, JPG or WebP, max 5 MB. A transparent PNG with the vehicle from the side looks best.</small>
+            </label>
             <label class="adm-field">Type
                 <select asp-for="Type" asp-items="Html.GetEnumSelectList<VehicleType>()" id="vehicle-type"></select>
             </label>

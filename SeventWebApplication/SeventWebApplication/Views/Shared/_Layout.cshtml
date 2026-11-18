@@ -64,7 +64,7 @@
         <nav class="sevent-navbar sevent-navbar--slim border-bottom mb-3" aria-label="Main">
             <div class="container-fluid sevent-navbar__inner">
                 <button class="sevent-burger" type="button" data-bs-toggle="offcanvas" data-bs-target="#seventMenu"
-                        aria-controls="seventMenu" aria-label="Öppna menyn">
+                        aria-controls="seventMenu" aria-label="Open menu">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
                 </button>
 
@@ -81,7 +81,7 @@
                     <img src="/lib/S_Icon.png" alt="Sevent Logo" />
                     <span>Sevent</span>
                 </a>
-                <button type="button" class="sevent-drawer__close" data-bs-dismiss="offcanvas" aria-label="Stäng menyn">
+                <button type="button" class="sevent-drawer__close" data-bs-dismiss="offcanvas" aria-label="Close menu">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
                 </button>
             </div>
@@ -129,11 +129,11 @@
                         @* Kunder: egna bokningar och boka bil *@
                         @if (currentUser is SeventWebApplication.Models.Users.IBookingViewer)
                         {
-                            <li class="nav-item"><a class="@Active("Bookings", "Index")" asp-area="" asp-controller="Bookings" asp-action="Index">@Icon("bookings")Mina bokningar</a></li>
+                            <li class="nav-item"><a class="@Active("Bookings", "Index")" asp-area="" asp-controller="Bookings" asp-action="Index">@Icon("bookings")My bookings</a></li>
                         }
                         @if (currentUser is SeventWebApplication.Models.Users.IBookingCreator)
                         {
-                            <li class="nav-item"><a class="@Active("Bookings", "Create")" asp-area="" asp-controller="Bookings" asp-action="Create">@Icon("plus")Boka bil</a></li>
+                            <li class="nav-item"><a class="@Active("Bookings", "Create")" asp-area="" asp-controller="Bookings" asp-action="Create">@Icon("plus")Book a vehicle</a></li>
                         }
                     }
                 </ul>
@@ -150,12 +150,12 @@
                             </span>
                         </div>
                         <form asp-controller="Account" asp-action="Logout" method="post">
-                            <button type="submit" class="sevent-drawer__btn">Logga ut</button>
+                            <button type="submit" class="sevent-drawer__btn">Log out</button>
                         </form>
                     }
                     else
                     {
-                        <a class="sevent-drawer__btn" asp-controller="Account" asp-action="Login">Logga in</a>
+                        <a class="sevent-drawer__btn" asp-controller="Account" asp-action="Login">Log in</a>
                     }
                 </div>
             </div>

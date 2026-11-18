@@ -30,10 +30,10 @@ namespace SeventWebApplication.Models.Users
             ArgumentNullException.ThrowIfNull(user);
 
             if (_usersByMail.ContainsKey(user.Mail))
-                throw new InvalidOperationException("Det finns redan ett konto med den e-postadressen.");
+                throw new InvalidOperationException("An account with that email address already exists.");
 
             if (_usersById.ContainsKey(user.UserId))
-                throw new InvalidOperationException("Användaren finns redan.");
+                throw new InvalidOperationException("The user already exists.");
 
             _usersById[user.UserId] = user;
             _usersByMail[user.Mail] = user;
@@ -49,7 +49,7 @@ namespace SeventWebApplication.Models.Users
             ArgumentNullException.ThrowIfNull(user);
 
             if (!_usersById.TryGetValue(user.UserId, out User? old))
-                throw new InvalidOperationException("Användaren finns inte.");
+                throw new InvalidOperationException("The user does not exist.");
 
             string normalizedNewMail = User.NormalizeMail(user.Mail);
             string normalizedOldMail = User.NormalizeMail(old.Mail);
@@ -57,7 +57,7 @@ namespace SeventWebApplication.Models.Users
             if (!string.Equals(normalizedOldMail, normalizedNewMail, StringComparison.OrdinalIgnoreCase)
                 && _usersByMail.ContainsKey(normalizedNewMail))
             {
-                throw new InvalidOperationException("Det finns redan ett konto med den e-postadressen.");
+                throw new InvalidOperationException("An account with that email address already exists.");
             }
 
             _usersByMail.Remove(normalizedOldMail);

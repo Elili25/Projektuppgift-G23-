@@ -39,7 +39,7 @@ namespace SeventWebApplication.Models.Users
             User target = GetTargetForChange(actor, userId);
 
             if (target is IAccountManager)
-                throw new InvalidOperationException("Admin-kontot kan inte byta roll.");
+                throw new InvalidOperationException("The admin account cannot change role.");
 
             if (target.Role == newRole)
                 return target;   // redan rätt roll, inget att göra
@@ -66,10 +66,10 @@ namespace SeventWebApplication.Models.Users
 
             // Samma lösenordskrav som när man registrerar sig själv
             if (string.IsNullOrWhiteSpace(password) || password.Length < 8)
-                throw new ArgumentException("Lösenordet måste vara minst 8 tecken.", nameof(password));
+                throw new ArgumentException("The password must be at least 8 characters.", nameof(password));
 
             if (_users.GetByMail(mail) is not null)
-                throw new InvalidOperationException("Det finns redan ett konto med den e-postadressen.");
+                throw new InvalidOperationException("An account with that email address already exists.");
 
             User user = UserFactory.Create(role, Guid.NewGuid(), name, phone, mail, password);
             _users.Add(user);
@@ -97,7 +97,7 @@ namespace SeventWebApplication.Models.Users
 
             User? current = _users.GetById(actor.UserId);
             if (current is not IAccountManager || !current.IsActive)
-                throw new UnauthorizedAccessException("Du har inte behörighet att administrera konton.");
+                throw new UnauthorizedAccessException("You do not have permission to manage accounts.");
         }
 
         // Rollerna admin får dela ut. Admin är inte med, det finns bara det förseedade kontot, men kan ändras om man vill.
@@ -106,13 +106,13 @@ namespace SeventWebApplication.Models.Users
         private static void EnsureAssignableRole(Role role)
         {
             if (!AssignableRoles.Contains(role))
-                throw new InvalidOperationException("Man kan bara välja Kund eller Anställd.");
+                throw new InvalidOperationException("You can only choose Customer or Employee.");
         }
 
         private User GetUser(Guid userId)
         {
             return _users.GetById(userId)
-                ?? throw new InvalidOperationException("Användaren hittades inte.");
+                ?? throw new InvalidOperationException("User not found.");
         }
 
         // Admin får inte inaktivera eller byta roll på sig själv,
@@ -122,7 +122,7 @@ namespace SeventWebApplication.Models.Users
             EnsureActorIsValid(actor);
 
             if (actor.UserId == userId)
-                throw new InvalidOperationException("Du kan inte ändra ditt eget konto på det här sättet.");
+                throw new InvalidOperationException("You cannot change your own account this way.");
 
             return GetUser(userId);
         }

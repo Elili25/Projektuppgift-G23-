@@ -24,7 +24,7 @@ namespace SeventWebApplication.Models.Users
         // Sessionen för anropet som pågår just nu
         private ISession Session =>
             _http.HttpContext?.Session
-            ?? throw new InvalidOperationException("Ingen aktiv HTTP-session.");
+            ?? throw new InvalidOperationException("No active HTTP session.");
 
         // Null om ingen är inloggad, eller om kontot har blivit inaktiverat
         public User? CurrentUser

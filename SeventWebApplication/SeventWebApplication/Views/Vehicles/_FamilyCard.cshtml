@@ -1,0 +1,38 @@
+@*
+    Ett fordonskort (en fordonsfamilj). Används av karusellen på /Vehicles/Cars och /Vehicles/Vans
+    och av sökresultaten på startsidan. Om ViewData["Start"] och ["End"] finns förifylls bokningen med datumen.
+*@
+@using SeventWebApplication.Models.Guest
+@model FamilyCardViewModel
+@{
+    DateTime? start = ViewData["Start"] as DateTime?;
+    DateTime? end = ViewData["End"] as DateTime?;
+}
+
+<article class="gv-card">
+    <div class="gv-card__head">
+        <h2>@Model.Name</h2>
+        <span>@(Model.Example != null ? Model.Example + " or similar" : "Sevent fleet") | @Model.Category</span>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ImagePath))
+    {
+        <img class="gv-card__img" src="@Model.ImagePath" alt="@Model.Name" loading="lazy" />
+    }
+
+    <div class="gv-card__foot">
+        <p class="gv-card__specs">@string.Join("  ·  ", Model.Specs.Select(s => $"{s.Label} {s.Value}"))</p>
+
+        @if (start != null && end != null)
+        {
+            <a class="gv-button" asp-controller="Bookings" asp-action="Create"
+               asp-route-start="@start.Value.ToString("yyyy-MM-dd")"
+               asp-route-end="@end.Value.ToString("yyyy-MM-dd")"
+               asp-route-family="@Model.FamilyId">Book for these dates</a>
+        }
+        else
+        {
+            <a class="gv-button" asp-controller="Bookings" asp-action="Create" asp-route-family="@Model.FamilyId">Book</a>
+        }
+    </div>
+</article>

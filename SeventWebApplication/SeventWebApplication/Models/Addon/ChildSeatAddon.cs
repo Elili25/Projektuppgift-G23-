@@ -6,7 +6,7 @@ namespace SeventWebApplication.Models.Addon
 {
     public class ChildSeatAddon : IAddon
     {
-        public string DisplayName => "Barnstolar";
+        public string DisplayName => "Child seats";
         public int MaxLimit => 3;
 
         public AddonType AddonType => AddonType.ChildSeat;

@@ -1,4 +1,4 @@
-﻿
+
 using SeventWebApplication.Models.VehicleNS;
 
 namespace SeventWebApplication.Repositories
@@ -22,7 +22,7 @@ namespace SeventWebApplication.Repositories
             if (brand == null)
             {
                 throw new InvalidOperationException(
-                    $"Det finns inget bilmärke med ID {model.BrandId}.");
+                    $"There is no brand with ID {model.BrandId}.");
             }
 
             if (_models.Any(m => m.ModelId == model.ModelId))
@@ -82,7 +82,7 @@ namespace SeventWebApplication.Repositories
             if (brand == null)
             {
                 throw new InvalidOperationException(
-                    $"Bilmärket '{brandName}' måste seedas innan modellerna.");
+                    $"The brand '{brandName}' must be seeded before the models.");
             }
 
             foreach (var modelName in modelNames)

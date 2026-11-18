@@ -45,7 +45,7 @@ namespace SeventWebApplication.Models.Booking
         public BookingBuilder WithVehicleFamily(Guid vehicleFamilyId)
         {
             if (vehicleFamilyId == Guid.Empty)
-                throw new ArgumentException("Ogiltig fordonsfamilj.");
+                throw new ArgumentException("Invalid vehicle family.");
 
             _vehicleFamilyId = vehicleFamilyId;
             return this;
@@ -54,7 +54,7 @@ namespace SeventWebApplication.Models.Booking
         public BookingBuilder FromTo(DateTime start, DateTime end)
         {
             if (end <= start)
-                throw new ArgumentException("Slutdatumet måste vara efter startdatumet.");
+                throw new ArgumentException("The end date must be after the start date.");
 
             _start = start;
             _end = end;
@@ -79,16 +79,16 @@ namespace SeventWebApplication.Models.Booking
         public Booking Build()
         {
             if (_userId is null)
-                throw new InvalidOperationException("Bokningen saknar användare (ForUser).");
+                throw new InvalidOperationException("The booking has no user (ForUser).");
 
             if (_start is null || _end is null)
-                throw new InvalidOperationException("Bokningen saknar datum (FromTo).");
+                throw new InvalidOperationException("The booking has no dates (FromTo).");
 
             if (_vehicle is null && _vehicleFamilyId is null)
-                throw new InvalidOperationException("Välj en bil eller en fordonsfamilj.");
+                throw new InvalidOperationException("Choose a vehicle or a vehicle family.");
 
             if (_vehicle is not null && _vehicleFamilyId is not null)
-                throw new InvalidOperationException("Välj antingen en bil eller en fordonsfamilj, inte båda.");
+                throw new InvalidOperationException("Choose either a vehicle or a vehicle family, not both.");
 
             string bookingId = Guid.NewGuid().ToString();
 

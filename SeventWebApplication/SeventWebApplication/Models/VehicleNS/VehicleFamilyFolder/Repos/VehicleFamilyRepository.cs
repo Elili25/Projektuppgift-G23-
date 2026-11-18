@@ -15,7 +15,7 @@
             if (!_families.TryAdd(family.FamilyId, family))
             {
                 throw new InvalidOperationException(
-                    $"En fordonsfamilj med ID {family.FamilyId} finns redan.");
+                    $"A vehicle family with ID {family.FamilyId} already exists.");
             }
         }
 

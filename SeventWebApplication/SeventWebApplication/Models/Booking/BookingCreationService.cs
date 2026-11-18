@@ -42,7 +42,7 @@ namespace SeventWebApplication.Models.Booking
 
             // 1. Inaktiverade konton får inte boka
             if (!actor.IsActive)
-                return Fail("Actor", "Inaktiverade konton kan inte skapa bokningar.");
+                return Fail("Actor", "Deactivated accounts cannot create bookings.");
 
             // 2. Strategin bestämmer vem bokningen gäller
             IBookingCreationStrategy strategy = actor.CreationStrategy;
@@ -57,7 +57,7 @@ namespace SeventWebApplication.Models.Booking
             }
 
             if (!Guid.TryParse(targetUserId, out Guid targetGuid) || _users.GetById(targetGuid) is not { IsActive: true })
-                return Fail(nameof(request.TargetUserId), "Användaren finns inte eller är inaktiverad.");
+                return Fail(nameof(request.TargetUserId), "The user does not exist or is deactivated.");
 
             // Kopia av förfrågan med rätt kund ifylld, så valideringsreglerna ser samma sak som bokningen får
             BookingRequest resolvedRequest = request with { TargetUserId = targetUserId };
@@ -84,10 +84,10 @@ namespace SeventWebApplication.Models.Booking
                 {
                     Vehicle? vehicle = _fleetManager.GetVehicle(vehicleId);
                     if (vehicle is null)
-                        return Fail(nameof(request.VehicleId), "Bilen finns inte.");
+                        return Fail(nameof(request.VehicleId), "The vehicle does not exist.");
 
                     if (!_fleetManager.IsAvailable(vehicle, resolvedRequest.Start, resolvedRequest.End))
-                        return Fail(nameof(request.VehicleId), "Bilen är redan bokad eller ur drift under perioden.");
+                        return Fail(nameof(request.VehicleId), "The vehicle is already booked or out of service during the period.");
 
                     builder.WithVehicle(vehicle);
                 }
@@ -95,7 +95,7 @@ namespace SeventWebApplication.Models.Booking
                 if (resolvedRequest.VehicleFamilyId is Guid familyId)
                 {
                     if (!_assignmentService.IsFamilyAvailable(familyId, resolvedRequest.Start, resolvedRequest.End))
-                        return Fail(nameof(request.VehicleFamilyId), "Det finns inga lediga bilar i den här familjen under perioden.");
+                        return Fail(nameof(request.VehicleFamilyId), "There are no available vehicles in this family during the period.");
 
                     builder.WithVehicleFamily(familyId);
                 }

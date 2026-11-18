@@ -5,7 +5,7 @@ namespace SeventWebApplication.Models.Addon
 {
     public class ExtraDriverAddon : IAddon
     {
-        public string DisplayName => "Extra förare";
+        public string DisplayName => "Extra driver";
         public int MaxLimit => 1;
 
         public AddonType AddonType => AddonType.ExtraDriver;

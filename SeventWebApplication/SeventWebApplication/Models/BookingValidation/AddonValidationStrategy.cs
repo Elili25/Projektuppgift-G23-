@@ -1,4 +1,4 @@
-﻿using SeventWebApplication.Models.Addon;
+using SeventWebApplication.Models.Addon;
 using SeventWebApplication.Models.Addon.Interfaces;
 using SeventWebApplication.Models.Booking;
 
@@ -28,7 +28,7 @@ namespace SeventWebApplication.Models.BookingValidation
                         errors.Add(new ValidationError
                         {
                             Property = nameof(request.Addons),
-                            Message = $"Du kan lägga till max {rules.MaxLimit} {rules.DisplayName}. Du har angett {addon.Total} st."
+                            Message = $"You can add at most {rules.MaxLimit} {rules.DisplayName}. You entered {addon.Total}."
                         });
                     }
                 }
@@ -37,7 +37,7 @@ namespace SeventWebApplication.Models.BookingValidation
                     errors.Add(new ValidationError
                     {
                         Property = nameof(request.Addons),
-                        Message = $"Tillägget '{addon.AddonKey}' är inte ett giltigt alternativ i systemet."
+                        Message = $"The add-on '{addon.AddonKey}' is not a valid option."
                     });
                 }
             }

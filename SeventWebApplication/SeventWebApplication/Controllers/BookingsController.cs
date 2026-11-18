@@ -123,13 +123,26 @@ namespace SeventWebApplication.Controllers
         // det gör användarens CreationStrategy inne i BookingCreationService.
         // Här kollar vi bara inloggning, att rollen får boka alls, och bygger listorna till formuläret.
 
+        // start/end/family kommer från startsidans sökruta ("Book" på ett sökresultat) och fyller i formuläret
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult Create(DateTime? start, DateTime? end, Guid? family)
         {
             if (GetCreator(out _) is IActionResult denied)
                 return denied;
 
-            return View(BuildCreateModel(new CreateBookingForm(), new List<ValidationError>()));
+            var form = new CreateBookingForm();
+            if (start is DateTime s && end is DateTime e && e.Date > s.Date && s.Date >= DateTime.Today)
+            {
+                form.Start = s.Date.AddHours(10);
+                form.End = e.Date.AddHours(10);
+            }
+            if (family is Guid familyId)
+            {
+                form.VehicleChoice = "family";
+                form.VehicleFamilyId = familyId;
+            }
+
+            return View(BuildCreateModel(form, new List<ValidationError>()));
         }
 
         [HttpPost]
@@ -145,8 +158,8 @@ namespace SeventWebApplication.Controllers
             {
                 string shortId = booking.BookingId[..8].ToUpper();
                 TempData["Success"] = booking.Status == BookingStatus.Confirmed
-                    ? $"Bokning #{shortId} är skapad och bekräftad."
-                    : $"Bokningsförfrågan #{shortId} är skickad och väntar på godkännande.";
+                    ? $"Booking #{shortId} has been created and confirmed."
+                    : $"Booking request #{shortId} has been sent and is waiting for approval.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -192,7 +205,7 @@ namespace SeventWebApplication.Controllers
                 return StatusCode(403);
 
             if (form.End <= form.Start)
-                return Json(new { ok = false, reason = "Återlämningen måste vara efter upphämtningen." });
+                return Json(new { ok = false, reason = "The return must be after the pickup." });
 
             // PricingServices prissätter en bil. Vald bil används direkt; vid bara en vald klass
             // används en bil ur klassen (alla bilar i en klass har samma dagspris).
@@ -203,7 +216,7 @@ namespace SeventWebApplication.Controllers
             {
                 vehicle = form.VehicleId is Guid vehicleId ? _fleetManager.GetVehicle(vehicleId) : null;
                 if (vehicle is null)
-                    return Json(new { ok = false, reason = "Välj en bil för att se priset." });
+                    return Json(new { ok = false, reason = "Choose a vehicle to see the price." });
 
                 vehicleLabel = $"{vehicle.Model.Brand.BrandName} {vehicle.Model.ModelName}";
             }
@@ -211,11 +224,11 @@ namespace SeventWebApplication.Controllers
             {
                 VehicleFamily? family = form.VehicleFamilyId is Guid familyId ? _families.GetById(familyId) : null;
                 if (family is null)
-                    return Json(new { ok = false, reason = "Välj en fordonsklass för att se priset." });
+                    return Json(new { ok = false, reason = "Choose a vehicle class to see the price." });
 
                 vehicle = _fleetManager.GetAllVehicles().FirstOrDefault(v => family.Matches(v));
                 if (vehicle is null)
-                    return Json(new { ok = false, reason = "Det finns inga bilar i den klassen att räkna pris på." });
+                    return Json(new { ok = false, reason = "There are no vehicles in that class to price." });
 
                 vehicleLabel = family.Name;
             }
@@ -306,7 +319,7 @@ namespace SeventWebApplication.Controllers
                         .ThenBy(u => u.Name)
                         .Select(u => new BookingOption(
                             u.UserId.ToString(),
-                            u.UserId == currentUser!.UserId ? $"{u.Name} (du)" : u.Name,
+                            u.UserId == currentUser!.UserId ? $"{u.Name} (you)" : u.Name,
                             u.Role == Role.Customer ? u.Mail : $"{u.Mail}, {UsersController.RoleText(u.Role)}"))
                         .ToList()
                     : new List<BookingOption>(),

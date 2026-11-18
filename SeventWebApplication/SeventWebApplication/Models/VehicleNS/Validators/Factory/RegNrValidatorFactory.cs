@@ -1,4 +1,4 @@
-﻿using SeventWebApplication.Models.VehicleNS;
+using SeventWebApplication.Models.VehicleNS;
 
 namespace SeventWebApplication.Models.VehicleNS
 {
@@ -17,7 +17,7 @@ namespace SeventWebApplication.Models.VehicleNS
         public static IRegNrValidator Create(CountryCode country)
         {
             if (!_validators.TryGetValue(country, out var validator))
-                throw new NotSupportedException($"Inget stöd för land: {country}");
+                throw new NotSupportedException($"Country not supported: {country}");
 
             return validator;
         }

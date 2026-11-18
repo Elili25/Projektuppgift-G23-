@@ -37,6 +37,12 @@
 }
 
 .adm-btn:hover { filter: brightness(1.08); }
+.adm-btn,
+.adm-btn:hover,
+.adm-btn:focus,
+.adm-btn:visited { color: #fff; }
+.adm-btn--ghost,
+.adm-btn--ghost:hover { color: var(--adm-purple-text); }
 .adm-btn--ghost { background: transparent; border-color: var(--adm-border); color: var(--adm-purple-text); }
 .adm-btn--danger { background: #b42323; }
 .adm-btn--ok { background: #22764a; }
@@ -318,7 +324,8 @@
 ======================================== */
 
 .adm-bs { color: var(--adm-text); font-size: 0.92rem; }
-.adm-bs a { color: var(--adm-purple-text); }
+/* Vanliga länkar lila, men inte knappar (de har egen textfärg, vit på de fyllda) */
+.adm-bs a:not(.btn):not(.adm-btn) { color: var(--adm-purple-text); }
 .adm-bs .text-muted { color: var(--adm-muted) !important; }
 .adm-bs h2 { color: var(--adm-text); font-size: 1.25rem; font-weight: 700; }
 .adm-bs code { color: var(--adm-purple-text); background: var(--adm-surface-soft); padding: 2px 6px; border-radius: 6px; }
@@ -466,3 +473,15 @@
 .adm-bs .booking-page .bk-badge { display: none; }
 
 .adm-bs .booking-page .bk-header p { margin-bottom: 18px; }
+
+/* Miniatyrbild i fordons- och familjetabellerna */
+.adm-thumb {
+    display: block;
+    width: 64px;
+    height: 36px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #eee4ff, #dfcdfb);
+}
+
+.adm-field input[type="file"] { padding: 8px 10px; }

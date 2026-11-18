@@ -13,7 +13,7 @@ namespace SeventWebApplication.Models.Booking
             if (!string.IsNullOrWhiteSpace(requestedId)
                 && !string.Equals(requestedId.Trim(), actorId, StringComparison.OrdinalIgnoreCase))
             {
-                throw new UnauthorizedAccessException("Kunder kan bara skapa bokningar åt sig själva.");
+                throw new UnauthorizedAccessException("Customers can only create bookings for themselves.");
             }
 
             return actorId;

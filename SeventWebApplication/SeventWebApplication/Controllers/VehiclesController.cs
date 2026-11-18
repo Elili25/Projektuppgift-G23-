@@ -35,7 +35,50 @@ namespace SeventWebApplication.Controllers
         [HttpGet]
         public IActionResult Vans(string? category) => View("Browse", Build(isVans: true, category));
 
-        private BrowseVehiclesViewModel Build(bool isVans, string? category)
+        // GET /Vehicles/Available?start=2026-12-01&end=2026-12-05&type=cars|vans (type är valfri)
+        // Startsidans sökruta anropar den med fetch och får tillbaka bara resultatdelen (partial).
+        // Utan fetch visas samma resultat som en egen sida.
+        [HttpGet]
+        public IActionResult Available(DateTime? start, DateTime? end, string? type)
+        {
+            AvailabilityResultViewModel model;
+
+            if (start is null || end is null)
+            {
+                model = new AvailabilityResultViewModel { Error = "Choose both a pickup and a return date." };
+            }
+            else if (start.Value.Date < DateTime.Today)
+            {
+                model = new AvailabilityResultViewModel { Start = start, End = end, Error = "The pickup date cannot be in the past." };
+            }
+            else if (end.Value.Date <= start.Value.Date)
+            {
+                model = new AvailabilityResultViewModel { Start = start, End = end, Error = "The return date must be after the pickup date." };
+            }
+            else
+            {
+                // Samma standardtider som bokningsformuläret (kl 10)
+                DateTime from = start.Value.Date.AddHours(10);
+                DateTime to = end.Value.Date.AddHours(10);
+
+                bool carsOnly = string.Equals(type, "cars", StringComparison.OrdinalIgnoreCase);
+                bool vansOnly = string.Equals(type, "vans", StringComparison.OrdinalIgnoreCase);
+
+                var families = new List<FamilyCardViewModel>();
+                if (!vansOnly) families.AddRange(Build(isVans: false, null, from, to).Families);
+                if (!carsOnly) families.AddRange(Build(isVans: true, null, from, to).Families);
+
+                model = new AvailabilityResultViewModel { Start = start, End = end, Families = families };
+            }
+
+            // fetch skickar den här headern, då räcker själva resultatdelen
+            if (Request.Headers["X-Requested-With"] == "fetch")
+                return PartialView("_AvailableResults", model);
+
+            return View("Available", model);
+        }
+
+        private BrowseVehiclesViewModel Build(bool isVans, string? category, DateTime? from = null, DateTime? to = null)
         {
             var cards = new List<FamilyCardViewModel>();
 
@@ -60,6 +103,10 @@ namespace SeventWebApplication.Controllers
 
                 if (!string.IsNullOrEmpty(category) &&
                     !string.Equals(category, categoryKey, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                // Sökning med datum: bara klasser som har en ledig bil under perioden
+                if (from is DateTime f && to is DateTime t && !_assignment.IsFamilyAvailable(family.FamilyId, f, t))
                     continue;
 
                 // Ett exempelfordon ur familjen ger specifikationerna och namnet ("Volvo V60 or similar")
@@ -89,6 +136,7 @@ namespace SeventWebApplication.Controllers
 
                 cards.Add(new FamilyCardViewModel
                 {
+                    FamilyId = family.FamilyId,
                     Name = family.Name,
                     Description = family.Description,
                     Category = categoryLabel,

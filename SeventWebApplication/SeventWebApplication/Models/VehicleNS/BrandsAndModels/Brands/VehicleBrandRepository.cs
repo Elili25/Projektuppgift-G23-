@@ -1,4 +1,4 @@
-﻿
+
 namespace SeventWebApplication.Models.VehicleNS
 {
     public class VehicleBrandRepository : IVehicleBrandRepository
@@ -26,7 +26,7 @@ namespace SeventWebApplication.Models.VehicleNS
                     StringComparison.OrdinalIgnoreCase)))
             {
                 throw new InvalidOperationException(
-                    "Märket finns redan.");
+                    "The brand already exists.");
             }
 
             _brands.Add(brand);

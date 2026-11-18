@@ -12,12 +12,14 @@ namespace SeventWebApplication.Controllers
     {
         private readonly FleetManager _fleet;
         private readonly VehicleDamageService _damages;
+        private readonly ImageUploadService _images;
 
-        public FleetController(UserSession session, FleetManager fleet, VehicleDamageService damages)
+        public FleetController(UserSession session, FleetManager fleet, VehicleDamageService damages, ImageUploadService images)
             : base(session)
         {
             _fleet = fleet;
             _damages = damages;
+            _images = images;
         }
 
         // GET /Fleet – alla fordon med status
@@ -91,7 +93,7 @@ namespace SeventWebApplication.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Create(VehicleForm form)
+        public async Task<IActionResult> Create(VehicleForm form)
         {
             if (GetStaff(out _) is IActionResult denied)
                 return denied;
@@ -101,8 +103,15 @@ namespace SeventWebApplication.Controllers
 
             try
             {
+                // Kolla bilden först, så fordonet inte läggs till om den är ogiltig
+                if (form.Image is { Length: > 0 })
+                    _images.Validate(form.Image);
+
                 Vehicle vehicle = BuildVehicle(form);
                 _fleet.AddVehicle(vehicle);
+
+                if (form.Image is { Length: > 0 })
+                    vehicle.ImagePath = await _images.SaveAsync(form.Image, "vehicles");
 
                 TempData["Success"] = $"{vehicle.Model.Brand.BrandName} {vehicle.Model.ModelName} ({vehicle.RegistrationPlate.RegNr}) was added to the fleet.";
                 return RedirectToAction(nameof(Index));
@@ -182,6 +191,7 @@ namespace SeventWebApplication.Controllers
                     VehicleId = v.VehicleId,
                     RegNr = v.RegistrationPlate.RegNr,
                     Name = $"{v.Model.Brand.BrandName} {v.Model.ModelName}",
+                    ImagePath = v.ImagePath,
                     Type = v is Van ? "Van" : "Car",
                     Year = v.Year,
                     Status = v.VehicleStatus,

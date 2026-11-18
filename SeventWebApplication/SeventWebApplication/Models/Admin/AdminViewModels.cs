@@ -10,6 +10,7 @@ namespace SeventWebApplication.Models.Admin
         public Guid VehicleId { get; init; }
         public string RegNr { get; init; } = "";
         public string Name { get; init; } = "";
+        public string? ImagePath { get; init; }
         public string Type { get; init; } = "";
         public int Year { get; init; }
         public VehicleStatus Status { get; init; }
@@ -21,6 +22,8 @@ namespace SeventWebApplication.Models.Admin
     public class VehicleForm
     {
         public VehicleType Type { get; set; } = VehicleType.Car;
+
+        public IFormFile? Image { get; set; }   // valfri bild (PNG, JPG eller WebP)
 
         [Required] public string RegNr { get; set; } = "";
         public CountryCode CountryCode { get; set; } = CountryCode.SE;
@@ -51,6 +54,7 @@ namespace SeventWebApplication.Models.Admin
     public class FamilyForm
     {
         public VehicleType Type { get; set; } = VehicleType.Car;
+        public IFormFile? Image { get; set; }   // valfri bild (PNG, JPG eller WebP)
         [Required] public string Name { get; set; } = "";
         public string Description { get; set; } = "";
         public TransmissionType TransmissionType { get; set; } = TransmissionType.Automatic;
@@ -70,6 +74,7 @@ namespace SeventWebApplication.Models.Admin
     {
         public string Name { get; init; } = "";
         public string Description { get; init; } = "";
+        public string? ImagePath { get; init; }
         public string Kind { get; init; } = "";
         public string Transmission { get; init; } = "";
         public int VehicleCount { get; init; }

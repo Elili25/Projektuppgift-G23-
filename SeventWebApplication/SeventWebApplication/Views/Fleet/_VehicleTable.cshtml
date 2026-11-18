@@ -11,6 +11,7 @@
         <table class="adm-table">
             <thead>
                 <tr>
+                    <th scope="col"></th>
                     <th scope="col">Reg nr</th>
                     <th scope="col">Vehicle</th>
                     <th scope="col">Type</th>
@@ -24,6 +25,7 @@
                 @foreach (var v in Model)
                 {
                     <tr>
+                        <td>@if (!string.IsNullOrEmpty(v.ImagePath)) { <img class="adm-thumb" src="@v.ImagePath" alt="" /> }</td>
                         <td>@v.RegNr</td>
                         <td>@v.Name</td>
                         <td>@v.Type</td>
@@ -55,7 +57,7 @@
                 }
                 @if (Model.Count == 0)
                 {
-                    <tr class="adm-table__empty"><td colspan="7">No vehicles to show.</td></tr>
+                    <tr class="adm-table__empty"><td colspan="8">No vehicles to show.</td></tr>
                 }
             </tbody>
         </table>

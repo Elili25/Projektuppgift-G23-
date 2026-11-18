@@ -2,8 +2,8 @@
 @model CreateBookingViewModel
 @{
     if (Model.IsStaff) { Layout = "~/Views/Shared/_AdminLayout.cshtml"; }
-    ViewData["Title"] = Model.IsStaff ? "Ny bokning" : "Boka bil";
-    var sv = System.Globalization.CultureInfo.GetCultureInfo("sv-SE");
+    ViewData["Title"] = Model.IsStaff ? "New booking" : "Book a vehicle";
+    var sv = System.Globalization.CultureInfo.GetCultureInfo("en-GB");
     bool familyChosen = Model.Form.VehicleChoice != "vehicle";
 
     // Gör fältet rött om BookingCreationService/valideringen hittade fel i det
@@ -16,18 +16,18 @@
 <section class="booking-page">
     <header class="bk-header">
         <a asp-action="Index" class="bk-back">
-            &larr; Tillbaka till @(Model.IsStaff ? "alla bokningar" : "mina bokningar")
+            &larr; Back to @(Model.IsStaff ? "all bookings" : "my bookings")
         </a>
-        <div><span class="bk-badge">@(Model.IsStaff ? "Personal" : "Bokning")</span></div>
+        <div><span class="bk-badge">@(Model.IsStaff ? "Staff" : "Booking")</span></div>
         <h1>@ViewData["Title"]</h1>
         <p>
             @if (Model.IsStaff)
             {
-                <span>Skapa en bokning åt en kund, en kollega eller dig själv. Bokningar som personal skapar bekräftas direkt.</span>
+                <span>Create a booking for a customer, a colleague or yourself. Bookings created by staff are confirmed immediately.</span>
             }
             else
             {
-                <span>Skicka en bokningsförfrågan. Den bekräftas av personal innan den blir klar.</span>
+                <span>Send a booking request. It is confirmed by our staff before it is final.</span>
             }
         </p>
     </header>
@@ -36,7 +36,7 @@
     @if (Model.Errors.Count > 0)
     {
         <div class="bk-errors" role="alert">
-            <strong>Bokningen kunde inte skapas:</strong>
+            <strong>The booking could not be created:</strong>
             <ul>
                 @foreach (var error in Model.Errors)
                 {
@@ -54,14 +54,14 @@
             @if (Model.IsStaff)
             {
                 <div class="bk-card">
-                    <h2 class="bk-card__title">Bokas åt</h2>
+                    <h2 class="bk-card__title">Booking for</h2>
                     @* Ingen tom "Välj..."-rad: första valet är du själv, så det går att boka åt sig själv direkt *@
                     <div class="bk-field@(Invalid("TargetUserId"))">
                         <span class="bk-field__icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" /></svg>
                         </span>
                         <div class="bk-field__content">
-                            <label class="bk-field__label" asp-for="Form.TargetUserId">Vem gäller bokningen?</label>
+                            <label class="bk-field__label" asp-for="Form.TargetUserId">Who is the booking for?</label>
                             <select asp-for="Form.TargetUserId">
                                 @foreach (var c in Model.Customers)
                                 {
@@ -75,14 +75,14 @@
 
             @* Fordon: familj eller specifik bil *@
             <div class="bk-card">
-                <h2 class="bk-card__title">Fordon</h2>
+                <h2 class="bk-card__title">Vehicle</h2>
 
-                <div class="bk-segmented vehicle-choice" role="group" aria-label="Välj typ av fordonsval">
+                <div class="bk-segmented vehicle-choice" role="group" aria-label="Choose how to pick a vehicle">
                     <input type="radio" name="Form.VehicleChoice" id="choice-family" value="family" @(familyChosen ? "checked" : "") />
-                    <label for="choice-family">Fordonsklass</label>
+                    <label for="choice-family">Vehicle class</label>
 
                     <input type="radio" name="Form.VehicleChoice" id="choice-vehicle" value="vehicle" @(!familyChosen ? "checked" : "") />
-                    <label for="choice-vehicle">Specifik bil</label>
+                    <label for="choice-vehicle">Specific vehicle</label>
                 </div>
 
                 <div id="family-picker" class="@(familyChosen ? "" : "d-none")">
@@ -91,9 +91,9 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5.5A2 2 0 0 1 8.4 9h7.2a2 2 0 0 1 1.9 1.5L19 16" /><rect x="3" y="16" width="18" height="4" rx="1.5" /><circle cx="7.5" cy="18" r=".6" /><circle cx="16.5" cy="18" r=".6" /></svg>
                         </span>
                         <div class="bk-field__content">
-                            <label class="bk-field__label" asp-for="Form.VehicleFamilyId">Fordonsklass</label>
+                            <label class="bk-field__label" asp-for="Form.VehicleFamilyId">Vehicle class</label>
                             <select asp-for="Form.VehicleFamilyId">
-                                <option value="">Välj fordonsklass...</option>
+                                <option value="">Choose a vehicle class...</option>
                                 @foreach (var f in Model.Families)
                                 {
                                     <option value="@f.Value" title="@f.Hint">@f.Text</option>
@@ -101,7 +101,7 @@
                             </select>
                         </div>
                     </div>
-                    <p class="bk-hint">Du får en ledig bil i klassen när bokningen bekräftas.</p>
+                    <p class="bk-hint">You get an available vehicle in the class when the booking is confirmed.</p>
                 </div>
 
                 <div id="vehicle-picker" class="@(familyChosen ? "d-none" : "")">
@@ -110,9 +110,9 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5.5A2 2 0 0 1 8.4 9h7.2a2 2 0 0 1 1.9 1.5L19 16" /><rect x="3" y="16" width="18" height="4" rx="1.5" /><circle cx="7.5" cy="18" r=".6" /><circle cx="16.5" cy="18" r=".6" /></svg>
                         </span>
                         <div class="bk-field__content">
-                            <label class="bk-field__label" asp-for="Form.VehicleId">Bil</label>
+                            <label class="bk-field__label" asp-for="Form.VehicleId">Vehicle</label>
                             <select asp-for="Form.VehicleId">
-                                <option value="">Välj bil...</option>
+                                <option value="">Choose a vehicle...</option>
                                 @foreach (var v in Model.Vehicles)
                                 {
                                     <option value="@v.Value">@v.Text – @v.Hint</option>
@@ -132,7 +132,7 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>
                         </span>
                         <div class="bk-field__content">
-                            <label class="bk-field__label" asp-for="Form.Start">Upphämtning</label>
+                            <label class="bk-field__label" asp-for="Form.Start">Pickup</label>
                             <input asp-for="Form.Start" type="datetime-local" required />
                         </div>
                     </div>
@@ -141,7 +141,7 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>
                         </span>
                         <div class="bk-field__content">
-                            <label class="bk-field__label" asp-for="Form.End">Återlämning</label>
+                            <label class="bk-field__label" asp-for="Form.End">Return</label>
                             <input asp-for="Form.End" type="datetime-local" required />
                         </div>
                     </div>
@@ -152,7 +152,7 @@
             @if (Model.Addons.Count > 0)
             {
                 <div class="bk-card">
-                    <h2 class="bk-card__title">Tillval</h2>
+                    <h2 class="bk-card__title">Add-ons</h2>
                     @foreach (var addon in Model.Addons)
                     {
                         <div class="bk-addon">
@@ -163,7 +163,7 @@
                             <div class="bk-field@(Model.HasError("Addons") && Quantity(addon.Key) > addon.MaxLimit ? " is-invalid" : "")">
                                 <div class="bk-field__content">
                                     <input type="number" name="Form.Addons[@addon.Key]" value="@Quantity(addon.Key)"
-                                           min="0" max="@addon.MaxLimit" aria-label="Antal @addon.Name" />
+                                           min="0" max="@addon.MaxLimit" aria-label="Quantity @addon.Name" />
                                 </div>
                             </div>
                         </div>
@@ -178,9 +178,9 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v16H5z" /><path d="M8.5 9h7M8.5 13h7M8.5 17h4" /></svg>
                     </span>
                     <div class="bk-field__content">
-                        <label class="bk-field__label" asp-for="Form.Notes">Anteckning (valfritt)</label>
+                        <label class="bk-field__label" asp-for="Form.Notes">Note (optional)</label>
                         <textarea asp-for="Form.Notes" rows="2" maxlength="500"
-                                  placeholder="T.ex. önskad upphämtningstid eller annat vi bör veta"></textarea>
+                                  placeholder="E.g. preferred pickup time or anything else we should know"></textarea>
                     </div>
                 </div>
             </div>
@@ -188,11 +188,11 @@
 
         @* Preliminärt pris: uppdateras medan man fyller i, innan bokningen skapas *@
         <aside class="bk-summary" aria-live="polite">
-            <h2 class="bk-summary__title">Preliminärt pris</h2>
+            <h2 class="bk-summary__title">Estimated price</h2>
             <p class="bk-summary__sub" id="price-sub">&nbsp;</p>
 
             <div class="bk-summary__body">
-                <p class="bk-summary__empty" id="price-empty">Välj fordon och period för att se priset.</p>
+                <p class="bk-summary__empty" id="price-empty">Choose a vehicle and period to see the price.</p>
 
                 <div id="price-body" hidden>
                     <ul class="bk-lines" id="price-lines"></ul>
@@ -203,12 +203,12 @@
                 </div>
             </div>
 
-            <p class="bk-note">Preliminärt pris. Slutpriset fastställs vid återlämning, t.ex. kan förseningsavgift tillkomma.</p>
+            <p class="bk-note">Estimated price. The final price is set at return, for example a late fee may be added.</p>
 
             <button class="bk-submit" type="submit">
-                @(Model.IsStaff ? "Skapa bokning" : "Skicka bokningsförfrågan")
+                @(Model.IsStaff ? "Create booking" : "Send booking request")
             </button>
-            <a class="bk-cancel" asp-action="Index">Avbryt</a>
+            <a class="bk-cancel" asp-action="Index">Cancel</a>
         </aside>
     </form>
 </section>
@@ -676,8 +676,8 @@
             const lines = document.getElementById('price-lines');
             const total = document.getElementById('price-total');
 
-            const kr = n => n.toLocaleString('sv-SE', { maximumFractionDigits: 2 }) + ' kr';
-            const dagar = n => n + (n === 1 ? ' dag' : ' dagar');
+            const kr = n => n.toLocaleString('en-GB', { maximumFractionDigits: 2 }) + ' kr';
+            const dagar = n => n + (n === 1 ? ' day' : ' days');
 
             // textContent (inte innerHTML) så namn från servern aldrig tolkas som HTML
             function addLine(label, amount, detail, cssClass) {
@@ -712,10 +712,10 @@
                 sub.textContent = d.vehicleLabel + ' · ' + dagar(d.days);
                 lines.replaceChildren();
 
-                addLine('Hyra', kr(d.baseRate), kr(d.dailyRate) + ' × ' + dagar(d.days));
-                if (d.discount > 0) addLine('Rabatt', '−' + kr(d.discount), null, 'is-discount');
-                addLine('Bokningsavgift', kr(d.baseFee));
-                d.addons.forEach(a => addLine(a.name, kr(a.amount), 'Antal: ' + a.quantity));
+                addLine('Rental', kr(d.baseRate), kr(d.dailyRate) + ' × ' + dagar(d.days));
+                if (d.discount > 0) addLine('Discount', '−' + kr(d.discount), null, 'is-discount');
+                addLine('Booking fee', kr(d.baseFee));
+                d.addons.forEach(a => addLine(a.name, kr(a.amount), 'Qty: ' + a.quantity));
 
                 total.textContent = kr(d.total);
                 empty.hidden = true;
@@ -736,7 +736,7 @@
                     const data = await response.json();
                     if (mine === latest) render(data);
                 } catch {
-                    if (mine === latest) showMessage('Priset kunde inte räknas ut just nu. Du kan ändå skicka bokningen.');
+                    if (mine === latest) showMessage('The price could not be calculated right now. You can still send the booking.');
                 } finally {
                     if (mine === latest) page.classList.remove('is-loading');
                 }

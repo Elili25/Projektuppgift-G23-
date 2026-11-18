@@ -12,7 +12,7 @@ namespace SeventWebApplication.Models.Users
                 Role.Customer => new Customer(userId, name, phone, mail, password, isActive),
                 Role.Employee => new Employee(userId, name, phone, mail, password, isActive),
                 Role.Admin    => new Admin(userId, name, phone, mail, password, isActive),
-                _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Okänd roll.")
+                _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Unknown role.")
             };
         }
 

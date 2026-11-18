@@ -1,4 +1,4 @@
-﻿using SeventWebApplication.Models.VehicleNS.Engine;
+using SeventWebApplication.Models.VehicleNS.Engine;
 
 namespace SeventWebApplication.Models.VehicleNS
 {
@@ -97,7 +97,7 @@ namespace SeventWebApplication.Models.VehicleNS
                 FuelType.Petrol => new PetrolEngine(horsePower, fuelCapacityLiters),
                 FuelType.Diesel => new DieselEngine(horsePower, fuelCapacityLiters),
                 _ => throw new ArgumentException(
-                    "Använd CreateElectric för elbilar. Hybrid stöds inte än.",
+                    "Use CreateElectric for electric vans. Hybrid is not supported yet.",
                     nameof(fuelType))
             };
 
@@ -192,7 +192,7 @@ namespace SeventWebApplication.Models.VehicleNS
 
             if (model?.Brand == null)
                 throw new ArgumentException(
-                    "Modellen måste ha ett kopplat bilmärke.",
+                    "The model must have a brand.",
                     nameof(model));
 
             _brandModelValidator.ValidateBrand(model.Brand.BrandName);

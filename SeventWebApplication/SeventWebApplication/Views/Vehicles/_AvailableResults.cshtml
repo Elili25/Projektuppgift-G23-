@@ -1,0 +1,41 @@
+@*
+    Resultatet av sökningen på startsidan: lediga fordonsklasser under vald period, eller ett felmeddelande.
+*@
+@using SeventWebApplication.Models.Guest
+@model AvailabilityResultViewModel
+@{
+    var en = System.Globalization.CultureInfo.GetCultureInfo("en-US");
+}
+
+<link rel="stylesheet" href="~/css/Sevent-Guest.css" asp-append-version="true" />
+
+<section class="guest guest--void gv-results" id="search-results-panel">
+    @if (Model.Error != null)
+    {
+        <p class="gv-results__msg gv-results__msg--error" role="alert">@Model.Error</p>
+    }
+    else
+    {
+        <header class="gv-results__head">
+            <h2>Available @Model.Start!.Value.ToString("d MMM", en) – @Model.End!.Value.ToString("d MMM yyyy", en)</h2>
+            <p>
+                @if (Model.Families.Count == 0)
+                {
+                    <text>No vehicle classes are free for these dates. Try other dates.</text>
+                }
+                else
+                {
+                    <text>@Model.Families.Count vehicle class@(Model.Families.Count == 1 ? "" : "es") available. Log in to complete your booking.</text>
+                }
+            </p>
+        </header>
+
+        <div class="gv-grid">
+            @foreach (var f in Model.Families)
+            {
+                <partial name="~/Views/Vehicles/_FamilyCard.cshtml" model="f"
+                         view-data="@(new ViewDataDictionary(ViewData) { { "Start", Model.Start }, { "End", Model.End } })" />
+            }
+        </div>
+    }
+</section>

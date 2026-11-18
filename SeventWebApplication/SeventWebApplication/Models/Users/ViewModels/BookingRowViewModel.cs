@@ -35,7 +35,7 @@ namespace SeventWebApplication.Models.Users
             return new BookingRowViewModel
             {
                 BookingId = booking.BookingId,
-                CustomerName = customer?.Name ?? "Okänd kund",
+                CustomerName = customer?.Name ?? "Unknown customer",
                 CustomerMail = customer?.Mail ?? "",
                 Vehicle = booking.Vehicle is null
                     ? "–"
@@ -62,8 +62,8 @@ namespace SeventWebApplication.Models.Users
                     string name = a.AddonType switch
                     {
                         AddonType.Gps => "GPS",
-                        AddonType.ChildSeat => "Barnstol",
-                        AddonType.ExtraDriver => "Extra förare",
+                        AddonType.ChildSeat => "Child seat",
+                        AddonType.ExtraDriver => "Extra driver",
                         _ => a.AddonType.ToString()   // nya tillval syns ändå, bara med enumnamnet
                     };
                     return a.Quantity > 1 ? $"{name} ×{a.Quantity}" : name;

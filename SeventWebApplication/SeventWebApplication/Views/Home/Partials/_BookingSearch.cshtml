@@ -1,4 +1,4 @@
-﻿@*
+@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
@@ -6,20 +6,22 @@
         <link rel="stylesheet" href="~/css/Sevent-BookingSearch-Partial.css" asp-append-version="true" />
     </head>
 
-    <form class="booking-search" method="get">
+    <form class="booking-search" method="get" asp-controller="Vehicles" asp-action="Available" id="booking-search" novalidate>
 
         <div class="booking-field">
             <span class="booking-field__icon">
-                <i class="bi bi-geo-alt"></i>
+                <i class="bi bi-car-front"></i>
             </span>
 
             <div class="booking-field__content">
-                <label class="booking-field__label">
-                    Location
+                <label class="booking-field__label" for="bs-type">
+                    Vehicle type
                 </label>
 
-                <select name="location">
-                    <option value="">Choose location</option>
+                <select name="type" id="bs-type">
+                    <option value="">Cars and vans</option>
+                    <option value="cars">Passenger cars</option>
+                    <option value="vans">Vans</option>
                 </select>
             </div>
         </div>
@@ -30,11 +32,11 @@
             </span>
 
             <div class="booking-field__content">
-                <label class="booking-field__label">
+                <label class="booking-field__label" for="bs-start">
                     Pickup date
                 </label>
 
-                <input type="date" name="pickupDate" />
+                <input type="date" name="start" id="bs-start" required />
             </div>
         </div>
 
@@ -44,11 +46,11 @@
             </span>
 
             <div class="booking-field__content">
-                <label class="booking-field__label">
+                <label class="booking-field__label" for="bs-end">
                     Return date
                 </label>
 
-                <input type="date" name="returnDate" />
+                <input type="date" name="end" id="bs-end" required />
             </div>
         </div>
 

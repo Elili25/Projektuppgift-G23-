@@ -4,18 +4,18 @@
 @{
     if (Model.IsStaff) { Layout = "~/Views/Shared/_AdminLayout.cshtml"; }
     ViewData["OwnFlash"] = true;
-    ViewData["Title"] = Model.IsStaff ? "Alla bokningar" : "Mina bokningar";
-    var sv = System.Globalization.CultureInfo.GetCultureInfo("sv-SE");
+    ViewData["Title"] = Model.IsStaff ? "All bookings" : "My bookings";
+    var sv = System.Globalization.CultureInfo.GetCultureInfo("en-GB");
 
     // Hjälpmetoder för flikarna och statusbadgen, så HTML:en nedanför blir lättare att läsa
     string TabClass(BookingStatus? s) => Model.SelectedStatus == s ? "nav-link active" : "nav-link";
     string StatusText(BookingStatus s) => s switch
     {
-        BookingStatus.Pending => "Väntande",
-        BookingStatus.Confirmed => "Bekräftad",
-        BookingStatus.Active => "Pågående",
-        BookingStatus.Completed => "Avslutad",
-        _ => "Avbokad"
+        BookingStatus.Pending => "Pending",
+        BookingStatus.Confirmed => "Confirmed",
+        BookingStatus.Active => "Active",
+        BookingStatus.Completed => "Completed",
+        _ => "Cancelled"
     };
     string StatusBadge(BookingStatus s) => s switch
     {
@@ -35,7 +35,7 @@
             <h2 class="mb-0">@ViewData["Title"]</h2>
         }
         <small class="text-muted">
-            @(Model.IsStaff ? "Du ser alla kunders bokningar." : "Här ser du bokningarna som är dina.")
+            @(Model.IsStaff ? "You are viewing all customers' bookings." : "These are your bookings.")
         </small>
     </div>
 
@@ -49,16 +49,16 @@
                 <input type="hidden" name="status" value="@(Model.SelectedStatus.Value.ToString().ToLower())" />
             }
             <input class="form-control" type="search" name="search" value="@Model.Search"
-                   placeholder="Sök kund, regnr, bil..." aria-label="Sök bokningar" />
-            <button class="btn btn-primary" type="submit">Sök</button>
+                   placeholder="Search customer, reg. no., vehicle..." aria-label="Search bookings" />
+            <button class="btn btn-primary" type="submit">Search</button>
             @if (!string.IsNullOrEmpty(Model.Search))
             {
                 <a class="btn btn-outline-secondary" asp-action="Index"
-                   asp-route-status="@(Model.SelectedStatus?.ToString().ToLower())">Rensa</a>
+                   asp-route-status="@(Model.SelectedStatus?.ToString().ToLower())">Clear</a>
             }
         </form>
     }
-        <a class="btn btn-primary text-nowrap" asp-action="Create">+ @(Model.IsStaff ? "Ny bokning" : "Boka bil")</a>
+        <a class="btn btn-primary text-nowrap" asp-action="Create">+ @(Model.IsStaff ? "New booking" : "Book a vehicle")</a>
     </div>
 </div>
 
@@ -67,7 +67,7 @@
 {
     <div class="alert alert-success alert-dismissible fade show">
         @success
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Stäng"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 
@@ -75,32 +75,32 @@
 <ul class="nav nav-pills mb-3">
     <li class="nav-item">
         <a class="@TabClass(null)" asp-action="Index" asp-route-search="@Model.Search">
-            Alla <span class="badge bg-light text-dark">@Model.CountAll</span>
+            All <span class="badge bg-light text-dark">@Model.CountAll</span>
         </a>
     </li>
     <li class="nav-item">
         <a class="@TabClass(BookingStatus.Pending)" asp-action="Index" asp-route-status="pending" asp-route-search="@Model.Search">
-            Väntande <span class="badge bg-light text-dark">@Model.CountPending</span>
+            Pending <span class="badge bg-light text-dark">@Model.CountPending</span>
         </a>
     </li>
     <li class="nav-item">
         <a class="@TabClass(BookingStatus.Confirmed)" asp-action="Index" asp-route-status="confirmed" asp-route-search="@Model.Search">
-            Bekräftade <span class="badge bg-light text-dark">@Model.CountConfirmed</span>
+            Confirmed <span class="badge bg-light text-dark">@Model.CountConfirmed</span>
         </a>
     </li>
     <li class="nav-item">
         <a class="@TabClass(BookingStatus.Active)" asp-action="Index" asp-route-status="active" asp-route-search="@Model.Search">
-            Pågående <span class="badge bg-light text-dark">@Model.CountActive</span>
+            Active <span class="badge bg-light text-dark">@Model.CountActive</span>
         </a>
     </li>
     <li class="nav-item">
         <a class="@TabClass(BookingStatus.Completed)" asp-action="Index" asp-route-status="completed" asp-route-search="@Model.Search">
-            Avslutade <span class="badge bg-light text-dark">@Model.CountCompleted</span>
+            Completed <span class="badge bg-light text-dark">@Model.CountCompleted</span>
         </a>
     </li>
     <li class="nav-item">
         <a class="@TabClass(BookingStatus.Cancelled)" asp-action="Index" asp-route-status="cancelled" asp-route-search="@Model.Search">
-            Avbokade <span class="badge bg-light text-dark">@Model.CountCancelled</span>
+            Cancelled <span class="badge bg-light text-dark">@Model.CountCancelled</span>
         </a>
     </li>
 </ul>
@@ -111,15 +111,15 @@
     <div class="alert alert-light border text-center py-4">
         @if (!string.IsNullOrEmpty(Model.Search))
         {
-            <span>Inga bokningar matchar "<strong>@Model.Search</strong>".</span>
+            <span>No bookings match "<strong>@Model.Search</strong>".</span>
         }
         else if (Model.SelectedStatus != null)
         {
-            <span>Inga bokningar med den statusen.</span>
+            <span>No bookings with that status.</span>
         }
         else
         {
-            <span>Det finns inga bokningar än.</span>
+            <span>There are no bookings yet.</span>
         }
     </div>
 }
@@ -129,15 +129,15 @@ else
         <table class="table table-hover align-middle">
             <thead>
                 <tr>
-                    <th>Bokning</th>
+                    <th>Booking</th>
                     @if (Model.IsStaff)
                     {
-                        <th>Kund</th>
+                        <th>Customer</th>
                     }
-                    <th>Bil</th>
+                    <th>Vehicle</th>
                     <th>Period</th>
-                    <th>Tillval</th>
-                    <th class="text-end">Pris</th>
+                    <th>Add-ons</th>
+                    <th class="text-end">Price</th>
                     <th>Status</th>
                 </tr>
 
@@ -163,7 +163,7 @@ else
 
                         <td>
                             <div>@b.Start.ToString("d MMM HH:mm", sv) – @b.End.ToString("d MMM HH:mm", sv)</div>
-                            <small class="text-muted">@b.Days @(b.Days == 1 ? "dag" : "dagar")</small>
+                            <small class="text-muted">@b.Days @(b.Days == 1 ? "day" : "days")</small>
                         </td>
 
                         <td>

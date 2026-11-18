@@ -33,10 +33,10 @@
                         <td><span class="adm-status adm-status--pending">Pending</span></td>
                         <td>
                             <form class="adm-inline" method="post" asp-action="Approve" asp-route-id="@b.BookingId">
-                                <button class="adm-btn adm-btn--ok" type="submit">Godkänn</button>
+                                <button class="adm-btn adm-btn--ok" type="submit">Approve</button>
                             </form>
                             <form class="adm-inline" method="post" asp-action="Cancel" asp-route-id="@b.BookingId">
-                                <button class="adm-btn adm-btn--danger" type="submit">Avboka</button>
+                                <button class="adm-btn adm-btn--danger" type="submit">Cancel</button>
                             </form>
                         </td>
                     </tr>

@@ -13,17 +13,20 @@ namespace SeventWebApplication.Controllers
         private readonly VehicleAssignmentService _assignmentService;
         private readonly VehicleFamilyService _familyService;
         private readonly UserSession _session;
+        private readonly ImageUploadService _images;
 
         public FamiliesController(
             VehicleFamilyRepository familyRepository,
             VehicleAssignmentService assignmentService,
             VehicleFamilyService familyService,
-            UserSession session)
+            UserSession session,
+            ImageUploadService images)
         {
             _familyRepository = familyRepository;
             _assignmentService = assignmentService;
             _familyService = familyService;
             _session = session;
+            _images = images;
         }
 
         // GET /Families  – alla familjer med antal matchande bilar
@@ -53,7 +56,7 @@ namespace SeventWebApplication.Controllers
 
         // POST /Families/Create – skapar en bil- eller skåpbilsfamilj via VehicleFamilyService
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Create(FamilyForm form)
+        public async Task<IActionResult> Create(FamilyForm form)
         {
             if (GetStaff(out _) is IActionResult denied)
                 return denied;
@@ -63,12 +66,20 @@ namespace SeventWebApplication.Controllers
 
             try
             {
+                // Kolla bilden först, så familjen inte skapas om den är ogiltig
+                if (form.Image is { Length: > 0 })
+                    _images.Validate(form.Image);
+
+                VehicleFamily created;
                 if (form.Type == VehicleType.Van)
-                    _familyService.CreateVanFamily(form.Name.Trim(), form.Description ?? "", form.TransmissionType,
+                    created = _familyService.CreateVanFamily(form.Name.Trim(), form.Description ?? "", form.TransmissionType,
                         form.VanCategory, form.MinCargoVolumeM3, form.MinPayloadKg, form.MinPassengerCapacity);
                 else
-                    _familyService.CreatePassengerCarFamily(form.Name.Trim(), form.Description ?? "", form.TransmissionType,
+                    created = _familyService.CreatePassengerCarFamily(form.Name.Trim(), form.Description ?? "", form.TransmissionType,
                         form.Comfort, form.CarCategory);
+
+                if (form.Image is { Length: > 0 })
+                    created.ImagePath = await _images.SaveAsync(form.Image, "families");
 
                 // Koppla redan befintliga bilar till den nya familjen
                 _assignmentService.AutoAssignAllVehicles();
@@ -90,6 +101,7 @@ namespace SeventWebApplication.Controllers
             {
                 Name = f.Name,
                 Description = f.Description,
+                ImagePath = f.ImagePath,
                 Kind = f is VanFamily ? "Van" : "Car",
                 Transmission = f.TransmissionType.ToString(),
                 VehicleCount = _assignmentService.FindMatchingVehicles(f.FamilyId).Count()
