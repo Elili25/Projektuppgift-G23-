@@ -2,33 +2,37 @@
     ViewData["Title"] = "Logga in";
 }
 
-@* Logga in till vänster, skapa konto till höger *@
-<div class="row">
-    <div class="col-md-5">
-        <h2>Logga in</h2>
+<link rel="stylesheet" href="~/css/Sevent-Auth.css" asp-append-version="true" />
+
+<section class="auth">
+    <div class="auth__card">
+        <span class="auth__badge">Välkommen tillbaka</span>
+        <h1 class="auth__title">Logga in</h1>
+        <p class="auth__lead">Logga in för att se och hantera dina bokningar.</p>
 
         @if (ViewBag.Error != null)
         {
-            <div class="alert alert-danger">@ViewBag.Error</div>
+            <div class="auth__error" role="alert">@ViewBag.Error</div>
         }
 
         <form asp-action="Login" method="post">
             @* Kommer ihåg vart man skulle innan man fick logga in *@
             <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
-            <div class="mb-2"><input class="form-control" type="email" name="mail" placeholder="E-post" required /></div>
-            <div class="mb-2"><input class="form-control" type="password" name="password" placeholder="Lösenord" required /></div>
-            <button class="btn btn-primary" type="submit">Logga in</button>
-        </form>
-    </div>
 
-    <div class="col-md-5 offset-md-1">
-        <h2>Skapa konto</h2>
-        <form asp-action="Register" method="post">
-            <div class="mb-2"><input class="form-control" name="name" placeholder="Namn" required /></div>
-            <div class="mb-2"><input class="form-control" type="email" name="mail" placeholder="E-post" required /></div>
-            <div class="mb-2"><input class="form-control" name="phone" placeholder="Telefon" /></div>
-            <div class="mb-2"><input class="form-control" type="password" name="password" placeholder="Lösenord (minst 8 tecken)" required minlength="8" /></div>
-            <button class="btn btn-secondary" type="submit">Registrera</button>
+            <div class="auth__field">
+                <label for="mail">E-post</label>
+                <input id="mail" type="email" name="mail" placeholder="namn@exempel.se" autocomplete="email" required />
+            </div>
+            <div class="auth__field">
+                <label for="password">Lösenord</label>
+                <input id="password" type="password" name="password" placeholder="••••••••" autocomplete="current-password" required />
+            </div>
+
+            <button class="auth__submit" type="submit">Logga in</button>
         </form>
+
+        <p class="auth__switch">
+            Har du inget konto? <a asp-action="Register">Skapa konto</a>
+        </p>
     </div>
-</div>
+</section>

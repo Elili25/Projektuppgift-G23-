@@ -61,7 +61,7 @@
             <a class="@Sub("Returns", "Damages")" asp-controller="Returns" asp-action="Damages">Damages</a>
         </details>
 
-        <a class="adm-nav__link" href="#">
+        <a class="@(controller == "Calendar" ? "adm-nav__link is-active" : "adm-nav__link")" asp-controller="Calendar" asp-action="Index">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>
             Calendar
         </a>

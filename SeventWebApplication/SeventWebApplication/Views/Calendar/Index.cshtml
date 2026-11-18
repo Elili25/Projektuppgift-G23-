@@ -1,0 +1,108 @@
+@using SeventWebApplication.Models.Admin
+@using SeventWebApplication.Models.Booking
+@model TimelineViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Calendar";
+
+    var en = System.Globalization.CultureInfo.GetCultureInfo("en-US");
+    var today = DateTime.Today;
+    string Iso(DateTime d) => d.ToString("yyyy-MM-dd");
+    string Tab(string v) => Model.View == v ? "adm-tl__tab is-active" : "adm-tl__tab";
+    string DayClass(DateTime d) =>
+        "adm-tl__cell" + (d.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday ? " is-weekend" : "") + (d.Date == today ? " is-today" : "");
+}
+
+<section class="adm-card adm-tl-card">
+
+    @* Verktygsrad: veckor/månader till vänster, navigering till höger *@
+    <div class="adm-tl__toolbar">
+        <nav class="adm-tl__tabs" aria-label="Calendar range">
+            <a class="@Tab("week")" asp-action="Index" asp-route-view="week" asp-route-date="@Iso(today)">Week</a>
+            <a class="@Tab("month")" asp-action="Index" asp-route-view="month" asp-route-date="@Iso(Model.View == "month" ? Model.Start : today)">Month</a>
+            <a class="@Tab("2months")" asp-action="Index" asp-route-view="2months" asp-route-date="@Iso(Model.View == "2months" ? Model.Start : today)">2 Months</a>
+        </nav>
+
+        <div class="adm-tl__nav">
+            <a class="adm-icon-btn" aria-label="Previous" asp-action="Index" asp-route-view="@Model.View" asp-route-date="@Iso(Model.Previous)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg></a>
+            <strong class="adm-tl__title">@Model.Title</strong>
+            <a class="adm-icon-btn" aria-label="Today" title="Today" asp-action="Index" asp-route-view="@Model.View" asp-route-date="@Iso(today)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" /><circle cx="12" cy="12" r="8" /></svg></a>
+            <a class="adm-icon-btn" aria-label="Next" asp-action="Index" asp-route-view="@Model.View" asp-route-date="@Iso(Model.Next)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg></a>
+        </div>
+    </div>
+
+    <div class="adm-tl__scroll">
+        <div class="adm-tl" style="--days:@Model.Days">
+
+            @* Rubrikrader: månad, veckodag, datum *@
+            <div class="adm-tl__row adm-tl__head">
+                <div class="adm-tl__label"></div>
+                @for (int i = 0; i < Model.Days; i++)
+                {
+                    var d = Model.Start.AddDays(i);
+                    <span class="adm-tl__month" style="grid-column:@(i + 2)">@((i == 0 || d.Day == 1) ? d.ToString("MMMM yyyy", en) : "")</span>
+                }
+            </div>
+            <div class="adm-tl__row adm-tl__head">
+                <div class="adm-tl__label"></div>
+                @for (int i = 0; i < Model.Days; i++)
+                {
+                    var d = Model.Start.AddDays(i);
+                    <span class="@DayClass(d) adm-tl__dow" style="grid-column:@(i + 2)">@d.ToString("ddd", en)</span>
+                }
+            </div>
+            <div class="adm-tl__row adm-tl__head adm-tl__head--last">
+                <div class="adm-tl__label"></div>
+                @for (int i = 0; i < Model.Days; i++)
+                {
+                    var d = Model.Start.AddDays(i);
+                    <span class="@DayClass(d)" style="grid-column:@(i + 2)">@d.ToString("dd")</span>
+                }
+            </div>
+
+            @foreach (var row in Model.Rows)
+            {
+                <div class="adm-tl__row @(row.IsGroup ? $"adm-tl__row--group adm-tl__row--level{row.GroupLevel}" : "")">
+                    <div class="adm-tl__label">
+                        @row.Label
+                        @if (!string.IsNullOrEmpty(row.Sub)) { <small>@row.Sub</small> }
+                    </div>
+
+                    @for (int i = 0; i < Model.Days; i++)
+                    {
+                        <span class="@DayClass(Model.Start.AddDays(i))" style="grid-column:@(i + 2)"></span>
+                    }
+
+                    @foreach (var bar in row.Bars)
+                    {
+                        <a class="adm-tl__bar adm-tl__bar--@bar.Status.ToString().ToLower() @(bar.ContinuesBefore ? "is-open-left" : "") @(bar.ContinuesAfter ? "is-open-right" : "")"
+                           style="grid-column:@(bar.ColStart + 1) / span @bar.Span"
+                           title="@bar.Tooltip"
+                           asp-controller="Bookings" asp-action="Index" asp-route-search="@bar.Label">
+                            @if (bar.VehicleStatus is not null)
+                            {
+                                <span class="adm-tl__dot adm-tl__dot--@bar.VehicleStatus.Value.ToString().ToLower()"></span>
+                            }
+                            <span class="adm-tl__name">@bar.Label</span>
+                            @foreach (var tag in bar.Tags)
+                            {
+                                <span class="adm-tl__tag">@tag</span>
+                            }
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="adm-cal__legend">
+        <span class="adm-chip adm-chip--pending">Pending</span>
+        <span class="adm-chip adm-chip--confirmed">Confirmed</span>
+        <span class="adm-chip adm-chip--active">Active</span>
+        <span class="adm-chip adm-chip--completed">Completed</span>
+        <span class="adm-tl__key"><span class="adm-tl__dot adm-tl__dot--active"></span>Vehicle active</span>
+        <span class="adm-tl__key"><span class="adm-tl__dot adm-tl__dot--inservice"></span>In service</span>
+        <span class="adm-tl__key"><span class="adm-tl__dot adm-tl__dot--inrepair"></span>In repair</span>
+        <span class="adm-tl__key"><span class="adm-tl__dot adm-tl__dot--outofservice"></span>Out of service</span>
+    </div>
+</section>

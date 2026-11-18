@@ -1,0 +1,52 @@
+@*
+    Månadsrutnät för kalendern. Används av kalendersidan (stor, med bokningar i rutorna)
+    och av den lilla kalendern på Overview (compact, bara prickar på dagar med bokning).
+    ViewData["Compact"] = true för den lilla varianten.
+*@
+@using SeventWebApplication.Models.Admin
+@using SeventWebApplication.Models.Booking
+@model CalendarViewModel
+@{
+    bool compact = ViewData["Compact"] is true;
+    var today = DateTime.Today;
+    const int MaxChips = 3;
+}
+
+<div class="adm-cal__grid @(compact ? "" : "adm-cal__grid--full")">
+    @foreach (var d in new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" })
+    {
+        <span class="adm-cal__dow">@d</span>
+    }
+    @for (var i = 0; i < Model.Offset; i++)
+    {
+        <span></span>
+    }
+    @for (var day = 1; day <= Model.DaysInMonth; day++)
+    {
+        bool isToday = Model.Month.Year == today.Year && Model.Month.Month == today.Month && day == today.Day;
+        bool has = Model.EntriesByDay.TryGetValue(day, out var entries);
+        string css = "adm-cal__day" + (isToday ? " is-today" : "") + (has ? " has-booking" : "");
+
+        if (compact)
+        {
+            <span class="@css" title="@(has ? entries!.Count + " booking(s)" : "")">@day</span>
+        }
+        else
+        {
+            <div class="@css">
+                <span class="adm-cal__num">@day</span>
+                @if (has)
+                {
+                    @foreach (var e in entries!.Take(MaxChips))
+                    {
+                        <span class="adm-chip adm-chip--@e.Status.ToString().ToLower()" title="@e.Tooltip">@e.Label</span>
+                    }
+                    @if (entries!.Count > MaxChips)
+                    {
+                        <span class="adm-chip adm-chip--more">+@(entries.Count - MaxChips) more</span>
+                    }
+                }
+            </div>
+        }
+    }
+</div>

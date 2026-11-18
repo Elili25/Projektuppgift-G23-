@@ -1,12 +1,15 @@
 @*
-    Recent bookings – tabell. Raderna läggs till med @foreach när datan finns.
+    Kommande bokningar – de närmaste (väntande, bekräftade och pågående), från DashboardViewModel.
 *@
+@using SeventWebApplication.Models.Admin
+@using SeventWebApplication.Models.Booking
+@model DashboardViewModel
 
 <section class="adm-card adm-panel" aria-labelledby="adm-bookings-title">
     <div class="adm-panel__head">
         <h2 id="adm-bookings-title">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>
-            Recent bookings
+            Upcoming bookings
         </h2>
         <a class="adm-link" asp-controller="Bookings" asp-action="Index">View all →</a>
     </div>
@@ -23,10 +26,22 @@
                 </tr>
             </thead>
             <tbody>
-                @* @foreach (var b in Model.RecentBookings) { <tr>…</tr> } *@
-                <tr class="adm-table__empty">
-                    <td colspan="5">No bookings to show yet.</td>
-                </tr>
+                @foreach (var b in Model.UpcomingBookings)
+                {
+                    <tr>
+                        <td>#@b.ShortId</td>
+                        <td>@b.CustomerName</td>
+                        <td>@b.Vehicle <small>@b.RegNr</small></td>
+                        <td>@b.Start.ToString("d MMM") → @b.End.ToString("d MMM")</td>
+                        <td><span class="adm-status adm-status--@b.Status.ToString().ToLower()">@b.Status</span></td>
+                    </tr>
+                }
+                @if (Model.UpcomingBookings.Count == 0)
+                {
+                    <tr class="adm-table__empty">
+                        <td colspan="5">No upcoming bookings.</td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>

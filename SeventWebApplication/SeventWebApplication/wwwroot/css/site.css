@@ -300,3 +300,156 @@ button.accept-policy {
 
 
 
+
+/* ========================================
+   Smal navbar + hamburgarmeny (panel från vänster)
+   ======================================== */
+
+.sevent-navbar--slim {
+    position: relative;
+    min-height: 0;
+    padding: 0;
+}
+
+.sevent-navbar__inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 50px;
+}
+
+.sevent-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    color: #fff !important;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.sevent-brand img { height: 26px; width: auto; }
+.sevent-brand:hover { color: #fff !important; }
+
+.sevent-burger,
+.sevent-drawer__close {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: transparent;
+    color: #C7C1DD;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.sevent-burger:hover,
+.sevent-drawer__close:hover {
+    border-color: rgba(142, 121, 198, 0.2);
+    background: rgba(124, 92, 255, 0.16);
+    color: #fff;
+}
+
+.sevent-burger svg,
+.sevent-drawer__close svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+}
+
+/* Panelen */
+.sevent-drawer {
+    --bs-offcanvas-width: 290px;
+    border-right: 1px solid rgba(142, 121, 198, 0.22);
+    background: radial-gradient(ellipse at 20% 0%, rgba(124, 92, 255, 0.18), transparent 55%), linear-gradient(160deg, #232039 0%, #1F2430 55%, #19182D 100%);
+    color: #C7C1DD;
+}
+
+.sevent-drawer .offcanvas-header {
+    justify-content: space-between;
+    height: 50px;
+    padding: 0 16px;
+    border-bottom: 1px solid rgba(142, 121, 198, 0.16);
+}
+
+/* Länkarna högst upp, inloggningen längst ner (mt-auto trycker ner den) */
+.sevent-drawer__body {
+    display: flex;
+    flex-direction: column;
+    padding: 14px 12px 16px;
+}
+
+.sevent-drawer__links { gap: 2px; }
+
+.sevent-drawer .nav-link {
+    padding: 10px 14px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    color: #C7C1DD;
+    font-weight: 600;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.sevent-drawer .nav-link:hover {
+    border-color: rgba(142, 121, 198, 0.16);
+    background: linear-gradient(110deg, rgba(124, 92, 255, 0.18), rgba(142, 121, 198, 0.08));
+    color: #fff;
+}
+
+.sevent-drawer .nav-link.active {
+    border-color: rgba(167, 143, 255, 0.22);
+    background: linear-gradient(110deg, #493477 0%, #392C59 65%, #33264F 100%);
+    color: #fff;
+}
+
+.sevent-drawer__footer {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid rgba(142, 121, 198, 0.16);
+}
+
+.sevent-drawer__user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 0 4px;
+    color: #fff;
+}
+
+.sevent-drawer__user strong,
+.sevent-drawer__user small { display: block; line-height: 1.25; }
+.sevent-drawer__user small { color: #A79FBE; font-size: 0.78rem; }
+
+.sevent-drawer__avatar {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #493477;
+    font-weight: 700;
+}
+
+.sevent-drawer__btn {
+    display: block;
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid rgba(167, 143, 255, 0.3);
+    border-radius: 10px;
+    background: linear-gradient(110deg, #5b43a3 0%, #493477 100%);
+    color: #fff;
+    font-weight: 650;
+    text-align: center;
+    text-decoration: none;
+    transition: filter 0.2s ease;
+}
+
+.sevent-drawer__btn:hover { filter: brightness(1.12); color: #fff; }

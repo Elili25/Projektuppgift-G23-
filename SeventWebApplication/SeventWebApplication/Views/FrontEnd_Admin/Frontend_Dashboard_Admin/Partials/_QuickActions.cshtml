@@ -1,5 +1,5 @@
 @*
-    Quick actions – genvägar. href="#" pekar på sidor som inte finns än.
+    Quick actions – genvägar till adminsidorna.
 *@
 
 <section class="adm-card adm-panel" aria-labelledby="adm-actions-title">
@@ -11,11 +11,11 @@
     </div>
 
     <div class="adm-actions">
-        <a class="adm-action" href="#">
+        <a class="adm-action" asp-controller="Fleet" asp-action="Create" asp-route-type="Car">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l1.6-4.2A2 2 0 0 1 8.5 6.5h7a2 2 0 0 1 1.9 1.3L19 12M4 17v-3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3h-2M4 17h2M10 17h4" /><circle cx="8" cy="17" r="2" /><circle cx="16" cy="17" r="2" /></svg>
             Create car
         </a>
-        <a class="adm-action" href="#">
+        <a class="adm-action" asp-controller="Fleet" asp-action="Create" asp-route-type="Van">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 16V8a2 2 0 0 1 2-2h10l5 5v5h-2M3 16h2M9 16h6" /><circle cx="7" cy="16.5" r="2" /><circle cx="17" cy="16.5" r="2" /></svg>
             Create van
         </a>

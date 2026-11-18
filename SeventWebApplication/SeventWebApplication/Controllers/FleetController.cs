@@ -82,12 +82,12 @@ namespace SeventWebApplication.Controllers
         // ---- Add vehicle (UC2) ----
 
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult Create(VehicleType? type)
         {
             if (GetStaff(out _) is IActionResult denied)
                 return denied;
 
-            return View(new VehicleForm());
+            return View(new VehicleForm { Type = type ?? VehicleType.Car });
         }
 
         [HttpPost, ValidateAntiForgeryToken]

@@ -3,7 +3,7 @@ using SeventWebApplication.Models.Users;
 
 namespace SeventWebApplication.Controllers
 {
-    // Tar emot det man gör på inloggningssidan (logga in, registrera, logga ut)
+    // Tar emot det man gör på inloggnings- och registreringssidan (logga in, registrera, logga ut)
     // och skickar vidare till UserSession/AuthService. Controller i GRASP alltså.
     public class AccountController : Controller
     {
@@ -48,6 +48,13 @@ namespace SeventWebApplication.Controllers
             }
         }
 
+        // Egen sida för att skapa konto (länkas från inloggningssidan)
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Register(string name, string mail, string phone, string password)
@@ -60,8 +67,12 @@ namespace SeventWebApplication.Controllers
             }
             catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
             {
+                // Visa felet på registreringssidan och behåll det som skrivits in (inte lösenordet)
                 ViewBag.Error = ex.Message;
-                return View("Login");
+                ViewBag.Name = name;
+                ViewBag.Mail = mail;
+                ViewBag.Phone = phone;
+                return View("Register");
             }
         }
 

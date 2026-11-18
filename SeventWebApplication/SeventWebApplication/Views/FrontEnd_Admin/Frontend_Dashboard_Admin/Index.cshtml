@@ -2,10 +2,11 @@
     Sevent – Admin dashboard (Operation Overview)
     Styles: wwwroot/css/Sevent-AdminDashboard.css
 
-    Barebone: layout, sidebar, topbar och alla sektioner finns, men ingen data än.
-    Varje sektion ligger i en egen partial under Partials/ och får sin data senare
-    (ViewModel eller ViewComponent, samma upplägg som FeaturedVehicles).
+    Datan kommer från AdminController via DashboardViewModel. Partialerna ärver modellen,
+    förutom kalendern som läser bokningarna själv.
 *@
+@using SeventWebApplication.Models.Admin
+@model DashboardViewModel
 @{
     Layout = null;   // egen layout med sidebar, inte publika _Layout
     ViewData["Title"] = "Operation Overview";
@@ -19,6 +20,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] – Sevent Admin</title>
     <link rel="stylesheet" href="~/css/Sevent-AdminDashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Sevent-AdminPages.css" asp-append-version="true" />
 </head>
 <body class="adm">
 

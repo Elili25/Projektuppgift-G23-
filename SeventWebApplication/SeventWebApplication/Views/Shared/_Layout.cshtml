@@ -27,74 +27,91 @@
 
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm sevent-navbar border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <div style="display: inline-flex;"> <img src="/lib/S_Icon.png" alt="Sevent Logo" style="height: 30px; width: auto;" /> <h4 style="color:white;">Sevent</h4></div> 
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+    @{
+        var currentUser = UserSession.CurrentUser;
+        bool isStaff = currentUser is SeventWebApplication.Models.Users.IBookingManager;
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Admin</a>
-                        </li>
-                        @* Bokningsvisaren syns bara när man är inloggad. Personal ser alla, kunder sina egna *@
-                        @if (UserSession.CurrentUser is SeventWebApplication.Models.Users.IBookingViewer)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Bookings" asp-action="Index">
-                                    @(UserSession.CurrentUser is SeventWebApplication.Models.Users.IBookingManager ? "Alla bokningar" : "Mina bokningar")
-                                </a>
-                            </li>
-                        }
-                        @* Boka, för alla roller som får skapa bokningar *@
-                        @if (UserSession.CurrentUser is SeventWebApplication.Models.Users.IBookingCreator)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Bookings" asp-action="Create">
-                                    @(UserSession.CurrentUser is SeventWebApplication.Models.Users.IBookingManager ? "Ny bokning" : "Boka bil")
-                                </a>
-                            </li>
-                        }
-                        @* Användarhantering, bara för admin *@
-                        @if (UserSession.CurrentUser is SeventWebApplication.Models.Users.IAccountManager)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index">Användarhantering</a>
-                            </li>
-                        }
-                    </ul>
-                    @* Inloggad? Visa namn + logga ut. Annars en länk till inloggningen *@
-                    @{ var currentUser = UserSession.CurrentUser; }
-                    <ul class="navbar-nav">
-                        @if (currentUser != null)
-                        {
-                            <li class="nav-item"><span class="nav-link text-dark">@currentUser.Name (@currentUser.Role)</span></li>
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-link nav-link text-dark">Logga ut</button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Logga in</a></li>
-                        }
-                    </ul>
-                </div>
+        // Markerar länken för sidan man är på
+        string routeController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+        string routeAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+        string Active(string controller, string action) =>
+            string.Equals(routeController, controller, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(routeAction, action, StringComparison.OrdinalIgnoreCase)
+                ? "nav-link active" : "nav-link";
+    }
+
+    @* Smal topbar: bara hamburgaren och logotypen. Menyn ligger i panelen som glider in från vänster. *@
+    <header>
+        <nav class="sevent-navbar sevent-navbar--slim border-bottom mb-3" aria-label="Main">
+            <div class="container-fluid sevent-navbar__inner">
+                <button class="sevent-burger" type="button" data-bs-toggle="offcanvas" data-bs-target="#seventMenu"
+                        aria-controls="seventMenu" aria-label="Öppna menyn">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+                </button>
+
+                <a class="navbar-brand sevent-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="/lib/S_Icon.png" alt="Sevent Logo" />
+                    <span>Sevent</span>
+                </a>
             </div>
         </nav>
+
+        <div class="offcanvas offcanvas-start sevent-drawer" tabindex="-1" id="seventMenu" aria-labelledby="seventMenuLabel">
+            <div class="offcanvas-header">
+                <a class="navbar-brand sevent-brand" id="seventMenuLabel" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="/lib/S_Icon.png" alt="Sevent Logo" />
+                    <span>Sevent</span>
+                </a>
+                <button type="button" class="sevent-drawer__close" data-bs-dismiss="offcanvas" aria-label="Stäng menyn">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                </button>
+            </div>
+
+            <div class="offcanvas-body sevent-drawer__body">
+                <ul class="navbar-nav sevent-drawer__links">
+                    <li class="nav-item"><a class="@Active("Home", "Index")" asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+
+                    @if (isStaff)
+                    {
+                        @* Personal hittar allt (bokningar, flotta, användare ...) i dashboarden, så den är det enda valet *@
+                        <li class="nav-item"><a class="@Active("Admin", "Index")" asp-area="" asp-controller="Admin" asp-action="Index">Admin dashboard</a></li>
+                    }
+                    else
+                    {
+                        @* Kunder: egna bokningar och boka bil *@
+                        @if (currentUser is SeventWebApplication.Models.Users.IBookingViewer)
+                        {
+                            <li class="nav-item"><a class="@Active("Bookings", "Index")" asp-area="" asp-controller="Bookings" asp-action="Index">Mina bokningar</a></li>
+                        }
+                        @if (currentUser is SeventWebApplication.Models.Users.IBookingCreator)
+                        {
+                            <li class="nav-item"><a class="@Active("Bookings", "Create")" asp-area="" asp-controller="Bookings" asp-action="Create">Boka bil</a></li>
+                        }
+                    }
+                </ul>
+
+                @* Ligger alltid längst ner i panelen: inloggad = namn + logga ut, annars logga in *@
+                <div class="sevent-drawer__footer">
+                    @if (currentUser != null)
+                    {
+                        <div class="sevent-drawer__user">
+                            <span class="sevent-drawer__avatar" aria-hidden="true">@currentUser.Name.Substring(0, 1).ToUpper()</span>
+                            <span>
+                                <strong>@currentUser.Name</strong>
+                                <small>@currentUser.Role</small>
+                            </span>
+                        </div>
+                        <form asp-controller="Account" asp-action="Logout" method="post">
+                            <button type="submit" class="sevent-drawer__btn">Logga ut</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="sevent-drawer__btn" asp-controller="Account" asp-action="Login">Logga in</a>
+                    }
+                </div>
+            </div>
+        </div>
     </header>
     <div class="container">
         <main role="main" class="pb-3">

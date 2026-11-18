@@ -1,13 +1,14 @@
 @*
-    Kalender för innevarande månad. Rutnätet räknas fram här, bokningsprickar
-    (class="has-booking" på en dag) läggs till när datan finns.
+    Liten kalender på Overview: innevarande månad med prick på dagar som har bokningar.
+    Samma data och rutnät som kalendersidan (/Calendar), bara i compact-läge.
 *@
+@using SeventWebApplication.Models.Admin
+@using SeventWebApplication.Models.Booking
+@using SeventWebApplication.Models.Users
+@inject BookingRepository Bookings
+@inject IUserRepository Users
 @{
-    var today = DateTime.Today;
-    var first = new DateTime(today.Year, today.Month, 1);
-    var daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
-    var offset = ((int)first.DayOfWeek + 6) % 7;   // måndag = 0
-    var monthName = first.ToString("MMMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("en-US"));
+    var cal = CalendarViewModel.Build(Bookings.GetAll(), Users, DateTime.Today);
 }
 
 <section class="adm-card adm-panel" aria-labelledby="adm-calendar-title">
@@ -16,29 +17,16 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>
             Calendar
         </h2>
-        <a class="adm-link" href="#">View calendar →</a>
+        <a class="adm-link" asp-controller="Calendar" asp-action="Index">View calendar →</a>
     </div>
 
     <div class="adm-cal">
         <div class="adm-cal__head">
-            <button class="adm-icon-btn adm-icon-btn--sm" type="button" aria-label="Previous month"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg></button>
-            <strong>@monthName</strong>
-            <button class="adm-icon-btn adm-icon-btn--sm" type="button" aria-label="Next month"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg></button>
+            <a class="adm-icon-btn adm-icon-btn--sm" aria-label="Previous month" asp-controller="Calendar" asp-action="Index" asp-route-view="month" asp-route-date="@cal.PreviousMonth.ToString("yyyy-MM-dd")"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg></a>
+            <strong>@cal.MonthName</strong>
+            <a class="adm-icon-btn adm-icon-btn--sm" aria-label="Next month" asp-controller="Calendar" asp-action="Index" asp-route-view="month" asp-route-date="@cal.NextMonth.ToString("yyyy-MM-dd")"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg></a>
         </div>
 
-        <div class="adm-cal__grid">
-            @foreach (var d in new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" })
-            {
-                <span class="adm-cal__dow">@d</span>
-            }
-            @for (var i = 0; i < offset; i++)
-            {
-                <span></span>
-            }
-            @for (var day = 1; day <= daysInMonth; day++)
-            {
-                <span class="adm-cal__day @(day == today.Day ? "is-today" : "")">@day</span>
-            }
-        </div>
+        <partial name="~/Views/FrontEnd_Admin/Frontend_Dashboard_Admin/Partials/_CalendarGrid.cshtml" model="cal" view-data="@(new ViewDataDictionary(ViewData) { { "Compact", true } })" />
     </div>
 </section>
