@@ -1,0 +1,38 @@
+@*
+    Gemensam layout för adminsidorna (Fleet, BookingManagement, Returns, Families/Manage).
+    Samma ram som dashboarden: sidebar, topbar och footer. Själva sidan hamnar i RenderBody().
+*@
+@{
+    Layout = null;
+    const string Root = "~/Views/FrontEnd_Admin/Frontend_Dashboard_Admin/";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] – Sevent Admin</title>
+    <link rel="stylesheet" href="~/css/Sevent-AdminDashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Sevent-AdminPages.css" asp-append-version="true" />
+</head>
+<body class="adm">
+    <div class="adm-shell">
+        @await Html.PartialAsync(Root + "_AdminSidebar.cshtml")
+        <div class="adm-main">
+            @await Html.PartialAsync(Root + "_AdminNavbar.cshtml")
+            <main class="adm-content">
+                @if (TempData["Success"] is string ok)
+                {
+                    <div class="adm-flash adm-flash--ok">@ok</div>
+                }
+                @if (TempData["Error"] is string err)
+                {
+                    <div class="adm-flash adm-flash--error">@err</div>
+                }
+                @RenderBody()
+            </main>
+            @await Html.PartialAsync(Root + "_AdminFooter.cshtml")
+        </div>
+    </div>
+</body>
+</html>

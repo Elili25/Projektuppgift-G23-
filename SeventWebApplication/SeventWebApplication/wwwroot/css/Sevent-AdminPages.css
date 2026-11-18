@@ -1,0 +1,74 @@
+/*
+  Sevent – Admin-sidor (Fleet, BookingManagement, Returns, Families/Manage)
+  Kompletterar Sevent-AdminDashboard.css. Används av Views/Shared/_AdminLayout.cshtml.
+*/
+
+.adm-pagehead {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.adm-flash {
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.adm-flash--ok { background: #e3f5e9; color: #22764a; }
+.adm-flash--error { background: #fde8e8; color: #b42323; }
+
+.adm-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: var(--adm-purple);
+    color: #fff;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 650;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.adm-btn:hover { filter: brightness(1.08); }
+.adm-btn--ghost { background: transparent; border-color: var(--adm-border); color: var(--adm-purple-text); }
+.adm-btn--danger { background: #b42323; }
+.adm-btn--ok { background: #22764a; }
+
+.adm-inline { display: inline-block; margin: 0 4px 0 0; }
+
+.adm-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 16px;
+}
+
+.adm-field { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; font-weight: 600; }
+.adm-field--wide { grid-column: 1 / -1; }
+
+.adm-field input,
+.adm-field select,
+.adm-field textarea {
+    padding: 9px 12px;
+    border: 1px solid var(--adm-border);
+    border-radius: 10px;
+    background: var(--adm-surface);
+    color: var(--adm-text);
+    font: inherit;
+    font-weight: 400;
+}
+
+.adm-field small { color: var(--adm-muted); font-weight: 400; }
+.adm-errors { color: #b42323; font-size: 0.85rem; margin: 0 0 12px; padding-left: 18px; }
+
+.adm-status--active { background: #e3f5e9; color: #22764a; }
+.adm-status--inservice { background: #fff1d6; color: #8a5a00; }
+.adm-status--inrepair { background: #fde8e8; color: #b42323; }
+.adm-status--outofservice { background: #e8e8ee; color: #55506a; }
+.adm-status--completed { background: #e8e8ee; color: #55506a; }

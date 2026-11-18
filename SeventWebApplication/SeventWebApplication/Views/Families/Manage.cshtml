@@ -1,0 +1,108 @@
+@using SeventWebApplication.Models.Admin
+@using SeventWebApplication.Models.VehicleNS
+@model FamilyPageViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Vehicle families";
+}
+
+<section class="adm-card adm-panel">
+    <div class="adm-panel__head"><h2>Existing families</h2></div>
+    <div class="adm-table-wrap">
+        <table class="adm-table">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Transmission</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Matching vehicles</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var f in Model.Families)
+                {
+                    <tr>
+                        <td>@f.Name</td>
+                        <td>@f.Kind</td>
+                        <td>@f.Transmission</td>
+                        <td>@f.Description</td>
+                        <td>@f.VehicleCount</td>
+                    </tr>
+                }
+                @if (Model.Families.Count == 0)
+                {
+                    <tr class="adm-table__empty"><td colspan="5">No families yet.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="adm-card adm-panel">
+    <div class="adm-panel__head"><h2>Create family</h2></div>
+    <form method="post" asp-action="Create">
+        @if (ViewData.ModelState.Values.Any(v => v.Errors.Count > 0))
+        {
+            <ul class="adm-errors">
+                @foreach (var e in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@e.ErrorMessage</li>
+                }
+            </ul>
+        }
+
+        <div class="adm-form">
+            <label class="adm-field">Type
+                <select asp-for="Form.Type" name="Type" asp-items="Html.GetEnumSelectList<VehicleType>()" id="family-type"></select>
+            </label>
+            <label class="adm-field">Name
+                <input name="Name" value="@Model.Form.Name" />
+            </label>
+            <label class="adm-field">Transmission
+                <select name="TransmissionType" asp-items="Html.GetEnumSelectList<TransmissionType>()"></select>
+            </label>
+            <label class="adm-field adm-field--wide">Description
+                <input name="Description" value="@Model.Form.Description" />
+            </label>
+
+            <label class="adm-field" data-for="Car">Comfort level
+                <select name="Comfort" asp-items="Html.GetEnumSelectList<VehicleComfortType>()"></select>
+            </label>
+            <label class="adm-field" data-for="Car">Car category
+                <select name="CarCategory" asp-items="Html.GetEnumSelectList<PassengerCarCategoryType>()"></select>
+            </label>
+
+            <label class="adm-field" data-for="Van">Van category
+                <select name="VanCategory" asp-items="Html.GetEnumSelectList<VanCategoryType>()"></select>
+            </label>
+            <label class="adm-field" data-for="Van">Min cargo volume (m³)
+                <input name="MinCargoVolumeM3" type="number" step="any" value="@Model.Form.MinCargoVolumeM3" />
+            </label>
+            <label class="adm-field" data-for="Van">Min payload (kg)
+                <input name="MinPayloadKg" type="number" step="any" value="@Model.Form.MinPayloadKg" />
+            </label>
+            <label class="adm-field" data-for="Van">Min passengers
+                <input name="MinPassengerCapacity" type="number" value="@Model.Form.MinPassengerCapacity" />
+            </label>
+        </div>
+
+        <p style="margin-top:18px">
+            <button class="adm-btn" type="submit">Create family</button>
+        </p>
+    </form>
+</section>
+
+<script>
+    (function () {
+        var select = document.getElementById("family-type");
+        function update() {
+            var current = select.options[select.selectedIndex].text;
+            document.querySelectorAll("[data-for]").forEach(function (el) {
+                el.style.display = el.getAttribute("data-for") === current ? "" : "none";
+            });
+        }
+        select.addEventListener("change", update);
+        update();
+    })();
+</script>
