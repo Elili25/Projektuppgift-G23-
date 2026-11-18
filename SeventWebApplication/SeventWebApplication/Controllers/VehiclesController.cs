@@ -35,11 +35,11 @@ namespace SeventWebApplication.Controllers
         [HttpGet]
         public IActionResult Vans(string? category) => View("Browse", Build(isVans: true, category));
 
-        // GET /Vehicles/Available?start=2026-12-01&end=2026-12-05&type=cars|vans (type är valfri)
+        // GET /Vehicles/Available?start=2026-12-01&end=2026-12-05&family=<id>  (family och type=cars|vans är valfria)
         // Startsidans sökruta anropar den med fetch och får tillbaka bara resultatdelen (partial).
         // Utan fetch visas samma resultat som en egen sida.
         [HttpGet]
-        public IActionResult Available(DateTime? start, DateTime? end, string? type)
+        public IActionResult Available(DateTime? start, DateTime? end, string? type, Guid? family)
         {
             AvailabilityResultViewModel model;
 
@@ -67,6 +67,10 @@ namespace SeventWebApplication.Controllers
                 var families = new List<FamilyCardViewModel>();
                 if (!vansOnly) families.AddRange(Build(isVans: false, null, from, to).Families);
                 if (!carsOnly) families.AddRange(Build(isVans: true, null, from, to).Families);
+
+                // Vald fordonsfamilj i sökrutan: visa bara den
+                if (family is Guid familyId)
+                    families = families.Where(f => f.FamilyId == familyId).ToList();
 
                 model = new AvailabilityResultViewModel { Start = start, End = end, Families = families };
             }

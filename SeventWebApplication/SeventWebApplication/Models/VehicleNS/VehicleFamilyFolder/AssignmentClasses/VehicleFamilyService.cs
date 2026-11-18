@@ -1,4 +1,4 @@
-﻿using SeventWebApplication.Models.Pricing.PricingCategories;
+using SeventWebApplication.Models.Pricing.PricingCategories;
 using SeventWebApplication.ViewModels;
 
 namespace SeventWebApplication.Models.VehicleNS
@@ -235,6 +235,7 @@ namespace SeventWebApplication.Models.VehicleNS
                     return new VehicleCategoryTileViewModel
                     {
                         IsVan = false,
+                        CategoryKey = category.ToString(),
                         Label = CarCategoryLabel(category),
                         Description = CarCategoryDescription(category),
                         ImagePath = cheapest == null ? null : ImageFor(cheapest.Family),
@@ -251,6 +252,7 @@ namespace SeventWebApplication.Models.VehicleNS
                 .Select(family => new VehicleCategoryTileViewModel
                 {
                     IsVan = true,
+                    CategoryKey = family.CategoryType.ToString(),
                     Label = family.CategoryType == VanCategoryType.PassengerVan ? "Passenger van" : "Cargo van",
                     Description = VanSpecs(family),
                     ImagePath = ImageFor(family),

@@ -8,9 +8,12 @@
 @* Sökresultatet från sökrutan hamnar här (fylls av scriptet längst ner) *@
 <div id="search-results" aria-live="polite"></div>
 
-@await Component.InvokeAsync("FeaturedVehicles")
-
+@* Fordonsfamiljerna direkt under hero *@
 @await Component.InvokeAsync("VehicleCategories")
+
+@await Html.PartialAsync("Partials/_HowItWorks")
+
+@await Component.InvokeAsync("FeaturedVehicles")
 
 @* @await Html.PartialAsync("Partials/_VehicleCategories") *@
 
@@ -29,6 +32,7 @@
             var end = document.getElementById("bs-end");
             var box = document.getElementById("search-results");
             var button = form.querySelector(".booking-search__submit");
+            var buttonHtml = button.innerHTML;   // ikon + text, återställs efter sökningen
 
             function iso(d) { return d.toISOString().slice(0, 10); }
             function addDays(value, n) { var d = new Date(value + "T00:00:00"); d.setDate(d.getDate() + n); return iso(d); }
@@ -62,7 +66,7 @@
                     })
                     .finally(function () {
                         button.disabled = false;
-                        button.textContent = "Search vehicles →";
+                        button.innerHTML = buttonHtml;
                     });
             });
         })();

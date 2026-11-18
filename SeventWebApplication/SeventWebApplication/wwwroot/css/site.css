@@ -17,7 +17,9 @@ body {
     margin-bottom: 60px;
     font-family: "Segoe UI", Arial, sans-serif;
     color: var(--text, #392C59);
-    background: var(--background, #F5F5F8);
+    /* Subtilt lila sidbakgrund (korten och sökrutan är fortsatt vita) */
+    background: linear-gradient(180deg, #f6f2fd 0%, #efe9fb 100%) fixed;
+    background-color: #f3eefb;
     line-height: 1.5;
 }
 

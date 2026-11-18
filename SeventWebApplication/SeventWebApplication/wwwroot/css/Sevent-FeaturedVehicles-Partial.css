@@ -9,7 +9,7 @@
 */
 
 .featured-vehicles {
-    --fv-bg: #faf8fe;
+    --fv-bg: rgba(228, 218, 252, 0.45);
     --fv-surface: #ffffff;
     --fv-surface-soft: #faf9fd;
     --fv-purple: #6c55b8;

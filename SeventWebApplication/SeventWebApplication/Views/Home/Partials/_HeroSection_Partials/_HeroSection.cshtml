@@ -1,19 +1,22 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+@*
+    Hero: bakgrundsfoto över hela sidans bredd, rubrik, stor bil och sökruta som överlappar nederkanten.
+    Styles: wwwroot/css/Sevent-Hero.css (klasserna börjar med .hx).
+    Delarna ligger i _HeroText, _HeroVehicle och _BookingSearch.
 *@
-@{
-<head>
-        <link rel="stylesheet" href="~/css/Sevent-HeroSection-Partial.css" asp-append-version="true" />
-</head>
-<section class="hero-section">
 
-    @await Html.PartialAsync("/Views/Home/Partials/_HeroSection_Partials/_HeroText.cshtml")
+<link rel="stylesheet" href="~/css/Sevent-Hero.css" asp-append-version="true" />
 
-    @await Html.PartialAsync(
-        "/Views/Home/Partials/_HeroSection_Partials/_HeroVehicle.cshtml")
+<section class="hx" aria-label="Book a vehicle">
+    <div class="hx__stage">
 
-    @await Html.PartialAsync(
-        "/Views/Home/Partials/_BookingSearch.cshtml")
+        @* Bakgrundsbild: lila skymning över sjö och väg (wwwroot/lib/Images), över hela sidans bredd *@
+        <div class="hx__bg" aria-hidden="true"></div>
+        <div class="hx__shade" aria-hidden="true"></div>
 
+        @await Html.PartialAsync("/Views/Home/Partials/_HeroSection_Partials/_HeroText.cshtml")
+
+        @await Html.PartialAsync("/Views/Home/Partials/_HeroSection_Partials/_HeroVehicle.cshtml")
+    </div>
+
+    @await Html.PartialAsync("/Views/Home/Partials/_BookingSearch.cshtml")
 </section>
-}

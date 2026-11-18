@@ -1,42 +1,12 @@
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-    <head>
-        <link rel="stylesheet" href="~/css/Sevent-HeroText-Partial.css" asp-append-version="true" />
-    </head>
-    <div class="hero-content">
+@* Hero: rubrik, ingress och knapp *@
 
-    <span class="hero-badge">
-        RENT A CAR WITH SEVENT
-    </span>
+<div class="hx__content">
+    <h1>Freedom to travel<br />on your terms</h1>
 
-    <h1>
-        Move freely<br />
-        with Sevent.
-    </h1>
+    <p>Modern and reliable cars and vans for every journey in Scandinavia.</p>
 
-    <p>
-        A modern car rental experience with a wide
-        selection of vehicles, great flexibility and
-        transparent pricing.
-    </p>
-
-    <div class="hero-actions">
-
-        <a asp-controller="Vehicles"
-           asp-action="Index"
-           class="btn-primary">
-            Explore vehicles
-        </a>
-
-        <a asp-controller="Home"
-           asp-action="HowItWorks"
-           class="btn-secondary">
-            How it works
-        </a>
-
-    </div>
-
+    <a class="hx__cta" asp-controller="Bookings" asp-action="Create">
+        Book Your Car
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+    </a>
 </div>
-}
