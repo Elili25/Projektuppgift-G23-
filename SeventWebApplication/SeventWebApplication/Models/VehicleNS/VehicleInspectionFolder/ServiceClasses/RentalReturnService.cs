@@ -97,7 +97,8 @@ namespace SeventWebApplication.Models.VehicleNS
             InspectionResult inspectionResult,
             IEnumerable<string>? damageDescriptions = null,
             string notes = "",
-            decimal damageFee = 0m)
+            decimal damageFee = 0m,
+            DateTime? returnedAt = null)
         {
             if (damageFee < 0)
                 throw new ArgumentException("Damage fee cannot be negative.");
@@ -121,7 +122,16 @@ namespace SeventWebApplication.Models.VehicleNS
             if (descriptions.Any(string.IsNullOrWhiteSpace))
                 throw new ArgumentException("Damage descriptions cannot be empty.");
 
-            var returnDate = DateTime.Now;
+            // Den faktiska returtiden kan anges av personalen, annars är det nu. Förseningsavgiften räknas
+            // från den, så en bil som lämnades i tid inte debiteras för att returen registreras sent.
+            var now = DateTime.Now;
+            var returnDate = returnedAt ?? now;
+
+            if (returnDate > now.AddMinutes(1))
+                throw new ArgumentException("The return time cannot be in the future.");
+
+            if (returnDate < record.ActualPickupDate)
+                throw new ArgumentException("The return time cannot be before the pickup.");
 
             // 1. Retur-inspektion
             var inspection = new VehicleInspection(

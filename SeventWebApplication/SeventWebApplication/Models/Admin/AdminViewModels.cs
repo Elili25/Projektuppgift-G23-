@@ -97,6 +97,7 @@ namespace SeventWebApplication.Models.Admin
         public string? Damages { get; set; }   // en skada per rad
         [Range(0, double.MaxValue, ErrorMessage = "Damage fee cannot be negative.")]
         public decimal DamageFee { get; set; }  // skadeavgift i kr, anges av personalen
+        public DateTime? ReturnedAt { get; set; } // när bilen faktiskt lämnades tillbaka (tom = nu)
         public string? Notes { get; set; }
     }
 

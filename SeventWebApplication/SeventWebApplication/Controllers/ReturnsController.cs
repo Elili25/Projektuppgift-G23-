@@ -59,7 +59,7 @@ namespace SeventWebApplication.Controllers
 
                 decimal lateFee = _management.CompleteRental(
                     staff, form.BookingId, form.Mileage, form.FuelLevel, form.BatteryLevel,
-                    form.InspectionResult, damages, form.Notes ?? "", form.DamageFee);
+                    form.InspectionResult, damages, form.Notes ?? "", form.DamageFee, form.ReturnedAt);
 
                 var fees = new List<string>();
                 if (lateFee > 0) fees.Add($"Late fee: {lateFee:0.##} kr");

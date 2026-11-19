@@ -36,6 +36,11 @@
                         }
                     </select>
                 </label>
+                <label class="adm-field">Returned at
+                    <input name="ReturnedAt" type="datetime-local" max="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"
+                           value="@Model.Form.ReturnedAt?.ToString("yyyy-MM-ddTHH:mm")" />
+                    <small>When the customer actually returned the vehicle. Leave empty for now. Late fees are counted from this time.</small>
+                </label>
                 <label class="adm-field">Mileage (km)
                     <input name="Mileage" type="number" value="@Model.Form.Mileage" />
                 </label>
