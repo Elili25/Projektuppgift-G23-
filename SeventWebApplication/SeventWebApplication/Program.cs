@@ -120,6 +120,7 @@ namespace SeventWebApplication
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();   // serverar bilder som personal laddar upp under wwwroot/uploads, före routing så filer slipper sessionen och auktoriseringen
             app.UseRouting();
 
             app.UseSession(); // måste komma efter UseRouting, annars funkar inte sessionen,
@@ -127,7 +128,6 @@ namespace SeventWebApplication
 
             app.UseAuthorization();
 
-            app.UseStaticFiles();   // serverar bilder som personal laddar upp under wwwroot/uploads
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
