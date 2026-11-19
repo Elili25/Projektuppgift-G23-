@@ -106,6 +106,26 @@
                 <dd class="col-sm-9"><strong>@b.GrandTotal.ToString("N0", sv) kr</strong></dd>
             }
 
+            <dt class="col-sm-3">Payment</dt>
+            <dd class="col-sm-9">
+                @if (b.PaymentMethod is null)
+                {
+                    <span class="text-muted">No payment method registered</span>
+                }
+                else if (b.RefundedAt is not null)
+                {
+                    <span>@b.PaymentMethod – @b.PaidAmount.ToString("N0", sv) kr refunded @b.RefundedAt.Value.ToString("d MMM yyyy", sv)</span>
+                }
+                else if (b.PaidAt is not null)
+                {
+                    <span>@b.PaymentMethod – @b.PaidAmount.ToString("N0", sv) kr paid @b.PaidAt.Value.ToString("d MMM yyyy", sv)</span>
+                }
+                else
+                {
+                    <span>@b.PaymentMethod – not paid</span>
+                }
+            </dd>
+
             @if (!string.IsNullOrWhiteSpace(Model.Notes))
             {
                 <dt class="col-sm-3">Notes</dt>

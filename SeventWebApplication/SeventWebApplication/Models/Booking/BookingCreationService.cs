@@ -1,6 +1,7 @@
 using SeventWebApplication.Models.Addon;
 using SeventWebApplication.Models.BookingValidation;
 using SeventWebApplication.Models.Observers;
+using SeventWebApplication.Models.Payment;
 using SeventWebApplication.Models.Pricing;
 using SeventWebApplication.Models.Users;
 using SeventWebApplication.Models.VehicleNS;
@@ -27,6 +28,7 @@ namespace SeventWebApplication.Models.Booking
         private readonly BookingNotifier _bookingNotifier;
         private readonly PricingServices _pricing;
         private readonly VehicleFamilyRepository _families;
+        private readonly PaymentServices _payments;
 
         public BookingCreationService(
             BookingValidator bookingValidator,
@@ -35,8 +37,10 @@ namespace SeventWebApplication.Models.Booking
             VehicleAssignmentService assignmentService,
             BookingNotifier bookingNotifier,
             PricingServices pricing,
-            VehicleFamilyRepository families)
+            VehicleFamilyRepository families,
+            PaymentServices payments)
         {
+            _payments = payments;
             _pricing = pricing;
             _families = families;
             _bookingValidator = bookingValidator;
@@ -72,6 +76,10 @@ namespace SeventWebApplication.Models.Booking
 
             // Kopia av förfrågan med rätt kund ifylld, så valideringsreglerna ser samma sak som bokningen får
             BookingRequest resolvedRequest = request with { TargetUserId = targetUserId };
+
+            // Betalsätt måste väljas (UC1)
+            if (request.PaymentMethod is not { } paymentMethod || !Enum.IsDefined(paymentMethod))
+                return Fail(nameof(request.PaymentMethod), "Choose a payment method.");
 
             // 3. Valideringsreglerna (datum, tillägg osv.)
             List<ValidationError> validationErrors = _bookingValidator.ValidateAll(resolvedRequest);
@@ -138,6 +146,15 @@ namespace SeventWebApplication.Models.Booking
             catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
             {
                 return Fail("Booking", ex.Message);
+            }
+
+            // Betalning med valt betalsätt (görs efter att bokningen sparats, så att ingen betalar för en bokning
+            // som inte gick att skapa). Misslyckas den avbokas bokningen igen så bilen blir ledig.
+            PaymentResult payment = _payments.PayForBooking(booking, paymentMethod);
+            if (!payment.success)
+            {
+                booking.Status = BookingStatus.Cancelled;
+                return Fail(nameof(request.PaymentMethod), payment.message);
             }
 
             _bookingNotifier.Notify( new BookingEvent( BookingEventType.Created, booking ) );

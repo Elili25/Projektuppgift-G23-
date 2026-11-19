@@ -37,6 +37,12 @@ namespace SeventWebApplication.Models.Booking
         public decimal LateFee { get; set; }
         public decimal DamageFee { get; set; }
 
+        // Betalning (sätts av PaymentServices). PaidAt null = inte betald än.
+        public SeventWebApplication.Models.Payment.PaymentMethod? PaymentMethod { get; set; }
+        public decimal PaidAmount { get; set; }
+        public DateTime? PaidAt { get; set; }
+        public DateTime? RefundedAt { get; set; }
+
         // Allt kunden ska betala: hyra + förseningsavgift + skadeavgift
         public decimal GrandTotal => (TotalPrice ?? 0m) + LateFee + DamageFee;
 

@@ -23,8 +23,12 @@ namespace SeventWebApplication.Models.Booking
         // Tilläggets nyckel (t.ex. "gps") -> antal. Binds från fält som heter Form.Addons[gps]
         public Dictionary<string, int> Addons { get; set; } = new();
 
+        public SeventWebApplication.Models.Payment.PaymentMethod? PaymentMethod { get; set; } =
+            SeventWebApplication.Models.Payment.PaymentMethod.Card;
+
         public BookingRequest ToRequest() => new()
         {
+            PaymentMethod = PaymentMethod,
             TargetUserId = string.IsNullOrWhiteSpace(TargetUserId) ? null : TargetUserId,
             VehicleFamilyId = VehicleChoice == "family" ? VehicleFamilyId : null,
             VehicleId = VehicleChoice == "vehicle" ? VehicleId : null,

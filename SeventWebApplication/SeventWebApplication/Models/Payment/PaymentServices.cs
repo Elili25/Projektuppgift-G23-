@@ -1,32 +1,52 @@
 ﻿using BookingEntity = SeventWebApplication.Models.Booking.Booking;
-using BookingStatus = SeventWebApplication.Models.Booking.BookingStatus;
 
 namespace SeventWebApplication.Models.Payment;
 
+// Betalning av hyrespriset (Booking.TotalPrice) med det betalsätt kunden valt (UC1).
+// Betalningen ändrar INTE bokningens status. Det är personalens godkännande (Approve) som gör en
+// bokning Confirmed, så att betalning inte kringgår godkännandet eller bilfördelningen.
+// Själva betalleverantörerna är simulerade (Card/Swish/Invoice skriver bara ut i konsolen).
 public class PaymentServices
 {
-    public PaymentResult PayForBooking(
-        BookingEntity booking,
-        PaymentMethod method)
+    // Sparar valt betalsätt på bokningen och drar hyrespriset. Förseningsavgift och skadeavgift
+    // tillkommer först vid retur och ingår därför inte här.
+    public PaymentResult PayForBooking(BookingEntity booking, PaymentMethod method)
     {
-        IPayment payment = PaymentFactory.CreatePayment(method);
+        ArgumentNullException.ThrowIfNull(booking);
 
-        PaymentResult result =
-            payment.ProcessPayment(100); //Ska fixa booking delen så att den integrerar med pris och betalning, här ska booking.TotalPrice vara
+        if (booking.PaidAt is not null)
+            return new PaymentResult { success = false, message = "The booking is already paid." };
+
+        // Bokningen får betalsättet även om inget belopp kunde räknas ut (fordon utan prissättning)
+        booking.PaymentMethod = method;
+
+        decimal amount = booking.TotalPrice ?? 0m;
+        if (amount <= 0)
+            return new PaymentResult { success = true, message = "Nothing to pay." };
+
+        IPayment payment = PaymentFactory.CreatePayment(method);
+        PaymentResult result = payment.ProcessPayment(amount);
 
         if (result.success)
         {
-            booking.Status = BookingStatus.Confirmed;
+            booking.PaidAmount = amount;
+            booking.PaidAt = DateTime.Now;
         }
 
         return result;
     }
 
-    public void RefundBooking(BookingEntity booking)
+    // Betalar tillbaka det som betalats när bokningen avbokas. Kan bara göras en gång.
+    // Statusen sätts av avbokningen (BookingManagementService), inte här.
+    public bool RefundBooking(BookingEntity booking)
     {
-        if(booking.Status == Booking.BookingStatus.Confirmed && DateTime.Now < (booking.StartDate - TimeSpan.FromHours(8))) //Vet inte hur långt i förväg man ska kunna avboka, nu är det 8 timmar innan starttiden
-        {
-            booking.Status = Booking.BookingStatus.Cancelled;
-        }
+        ArgumentNullException.ThrowIfNull(booking);
+
+        if (booking.PaidAmount <= 0 || booking.RefundedAt is not null)
+            return false;
+
+        Console.WriteLine($"Refund processed: {booking.PaidAmount} kr ({booking.PaymentMethod})");
+        booking.RefundedAt = DateTime.Now;
+        return true;
     }
 }

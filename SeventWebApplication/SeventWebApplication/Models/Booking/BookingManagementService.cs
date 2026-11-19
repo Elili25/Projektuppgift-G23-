@@ -1,4 +1,5 @@
 ﻿using SeventWebApplication.Models.Observers;
+using SeventWebApplication.Models.Payment;
 using SeventWebApplication.Models.Users;
 using SeventWebApplication.Models.VehicleNS;
 
@@ -13,13 +14,16 @@ namespace SeventWebApplication.Models.Booking
         private readonly VehicleAssignmentService _assignmentService;
         private readonly RentalReturnService _rentalReturnService;
         private readonly BookingNotifier _bookingNotifier;
+        private readonly PaymentServices _payments;
 
         public BookingManagementService(
             BookingRepository bookingRepository,
             VehicleAssignmentService assignmentService,
             RentalReturnService rentalReturnService,
-            BookingNotifier bookingNotifier)
+            BookingNotifier bookingNotifier,
+            PaymentServices payments)
         {
+            _payments = payments;
             _bookingRepository = bookingRepository;
             _assignmentService = assignmentService;
             _rentalReturnService = rentalReturnService;
@@ -93,6 +97,9 @@ namespace SeventWebApplication.Models.Booking
         private void MarkCancelled(Booking booking)
         {
             booking.Status = BookingStatus.Cancelled;
+
+            // Det som är betalt betalas tillbaka
+            _payments.RefundBooking(booking);
 
             _bookingNotifier.Notify( new BookingEvent( BookingEventType.Cancelled, booking ) );
         }

@@ -17,5 +17,8 @@ namespace SeventWebApplication.Models.Booking
         public DateTime End { get; init; }
         public string? Notes { get; init; }
         public List<AddonRequest> Addons { get; init; } = new();
+
+        // Betalsätt (krävs). Betalningen görs när bokningen skapas.
+        public SeventWebApplication.Models.Payment.PaymentMethod? PaymentMethod { get; init; }
     }
 }

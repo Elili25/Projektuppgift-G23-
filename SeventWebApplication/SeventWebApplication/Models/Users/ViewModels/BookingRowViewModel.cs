@@ -26,6 +26,10 @@ namespace SeventWebApplication.Models.Users
         public decimal? TotalPrice { get; init; }   // hyrespriset, sparat på bokningen
         public decimal LateFee { get; init; }
         public decimal DamageFee { get; init; }
+        public string? PaymentMethod { get; init; }
+        public decimal PaidAmount { get; init; }
+        public DateTime? PaidAt { get; init; }
+        public DateTime? RefundedAt { get; init; }
         public decimal GrandTotal => (TotalPrice ?? 0m) + LateFee + DamageFee;
 
         public BookingStatus Status { get; init; }
@@ -51,6 +55,10 @@ namespace SeventWebApplication.Models.Users
                 End = booking.EndDate,
                 Addons = GetAddonNames(booking.Addon),
                 TotalPrice = booking.TotalPrice,
+                PaymentMethod = booking.PaymentMethod?.ToString(),
+                PaidAmount = booking.PaidAmount,
+                PaidAt = booking.PaidAt,
+                RefundedAt = booking.RefundedAt,
                 LateFee = booking.LateFee,
                 DamageFee = booking.DamageFee,
                 Status = booking.Status,

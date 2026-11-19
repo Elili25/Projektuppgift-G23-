@@ -80,6 +80,7 @@ namespace SeventWebApplication
             builder.Services.AddSingleton<VanRateCatalog>();
             builder.Services.AddSingleton<BaseCosts>();
             builder.Services.AddSingleton<PricingServices>();
+            builder.Services.AddSingleton<SeventWebApplication.Models.Payment.PaymentServices>();
             builder.Services.AddScoped<VehicleDamageService>();
             builder.Services.AddScoped<RentalReturnService>();
 

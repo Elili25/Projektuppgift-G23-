@@ -171,6 +171,21 @@
                 </div>
             }
 
+            @* Betalsätt *@
+            <div class="bk-card">
+                <h2 class="bk-card__title">Payment method</h2>
+                <div class="bk-field@(Model.HasError("PaymentMethod") ? " is-invalid" : "")">
+                    <div class="bk-field__content">
+                        <label class="bk-field__label" for="Form_PaymentMethod">How would you like to pay?</label>
+                        <select asp-for="Form.PaymentMethod">
+                            <option value="Card">Card</option>
+                            <option value="Swish">Swish</option>
+                            <option value="Invoice">Invoice</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             @* Anteckning *@
             <div class="bk-card">
                 <div class="bk-field">
