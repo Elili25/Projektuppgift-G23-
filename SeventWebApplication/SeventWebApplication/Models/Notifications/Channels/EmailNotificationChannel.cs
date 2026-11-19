@@ -14,9 +14,6 @@ namespace SeventWebApplication.Models.Notifications
 
         public void Send( Notification notification )
         { 
-            if( notification == null )
-                throw new ArgumentNullException( nameof( notification ), "Failed to send an email because notification was null" );
-
             User? user = _userRepository.GetById( notification.UserId );
 
             if( user == null )

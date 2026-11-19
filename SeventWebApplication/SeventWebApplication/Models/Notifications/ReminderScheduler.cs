@@ -17,6 +17,8 @@ namespace SeventWebApplication.Models.Notifications
 
         public void Schedule( BookingEntity booking )
         {
+            ArgumentNullException.ThrowIfNull( booking );
+
             DateTime reminderTime = booking.StartDate.Subtract( TimeSpan.FromMinutes( ScheduleBeforeMinutes ) );
             Console.WriteLine( $"Scheduled: {reminderTime}" );
             Guid bookingId = Guid.Parse( booking.BookingId );

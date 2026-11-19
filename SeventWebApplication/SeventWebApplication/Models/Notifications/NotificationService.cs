@@ -15,7 +15,9 @@ namespace SeventWebApplication.Models.Notifications
 
         private BookingRepository _bookingRepository;
 
-        public NotificationService( BookingRepository bookingRepository, BookingNotifier bookingNotifier ) 
+        public NotificationService( 
+            BookingRepository bookingRepository, 
+            BookingNotifier bookingNotifier ) 
         {
             _scheduler = new ReminderScheduler( 30 );
             _bookingRepository = bookingRepository;
@@ -40,14 +42,29 @@ namespace SeventWebApplication.Models.Notifications
 
             foreach( var notification in notifications )
             {
-                Send( notification );
+                try
+                {
+                    Send( notification );
+                }
+                catch( Exception )
+                {
+                    notification.Status = NotificationStatus.Failed;
+                }
             }
 
             var scheduledReminder = _scheduler.GetPending();
 
             foreach( var reminder in scheduledReminder )
             {
-                SendReminder( reminder );
+                try
+                {
+                    SendReminder( reminder );
+                }
+                catch( Exception )
+                {
+                    reminder.Status = NotificationStatus.Failed;
+                }
+                
             }
         }
 
@@ -153,20 +170,23 @@ namespace SeventWebApplication.Models.Notifications
         // It's up to every channel to check whether what they need actually exists (like phone number) 
         private void Send( Notification notification )
         {
+            ArgumentNullException.ThrowIfNull( notification );
+
             if( _notificationChannels.Count <= 0 )
-                throw new Exception( "No notification channels found in NotificationService" );
+                throw new InvalidOperationException( "No notification channels found in NotificationService" );
 
             notification.Status = NotificationStatus.Processed;
 
             foreach( INotificationChannel channel in _notificationChannels.Values )
                 channel.Send( notification );
-
         }
 
         private void SendReminder( Reminder reminder )
         {
+            ArgumentNullException.ThrowIfNull( reminder );
+
             if( !_notificationChannels.TryGetValue( NotificationChannelType.InApp, out var inApp ) )
-                throw new Exception( "No InApp notification channel was found" );
+                throw new NullReferenceException( "No InApp notification channel was found" );
 
             BookingEntity? booking = _bookingRepository.GetById( reminder.BookingId.ToString() );
 
@@ -194,6 +214,16 @@ namespace SeventWebApplication.Models.Notifications
                 throw new InvalidOperationException( "A Notification async task is already running" );
 
             Console.WriteLine( "Started NotificationService Task" );
+
+            foreach( var channelType in Enum.GetValues<NotificationChannelType>() )
+            {
+                if( !_notificationChannels.ContainsKey( channelType ) )
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"WARNING: NotificationService does not have a channel for {channelType}, consider adding one in Program.cs");
+                    Console.ResetColor();
+                }
+            }
 
             _timer = new( TimeSpan.FromSeconds( 1 ) );
 

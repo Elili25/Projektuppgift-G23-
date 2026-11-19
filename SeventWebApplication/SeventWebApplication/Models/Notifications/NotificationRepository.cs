@@ -8,6 +8,8 @@ namespace SeventWebApplication.Models.Notifications
 
         public void Add( Notification notification )
         {
+            ArgumentNullException.ThrowIfNull( notification );
+
             if( _notifications.ContainsKey( notification.NotificationId ) )
                 throw new InvalidOperationException( "En Notification med samma id fanns redan i repot" );
 
