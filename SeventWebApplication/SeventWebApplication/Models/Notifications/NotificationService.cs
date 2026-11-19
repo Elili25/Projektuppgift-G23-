@@ -92,6 +92,22 @@ namespace SeventWebApplication.Models.Notifications
             _notificationRepository.Add( notification );
         }
 
+        public void AddPaymentCompleted( BookingEntity booking )
+        {
+            Guid userId = Guid.Parse( booking.UserId );
+
+            Notification notification = new( "Your booking has been successfully paid for", Guid.Parse( booking.BookingId ), userId, NotificationType.PaymentCompleted );
+            _notificationRepository.Add( notification );
+        }
+
+        public void AddPaymentFailed( BookingEntity booking )
+        {
+            Guid userId = Guid.Parse( booking.UserId );
+
+            Notification notification = new( "Unfortunately your payment has failed", Guid.Parse( booking.BookingId ), userId, NotificationType.PaymentFailed );
+            _notificationRepository.Add( notification );
+        }
+        
         public void AddPickupReminder( BookingEntity booking )
         {
             _scheduler.Schedule( booking );
@@ -121,6 +137,14 @@ namespace SeventWebApplication.Models.Notifications
 
                 case BookingEventType.LateReturn:
                     AddLateReturn(booking);
+                    break;
+
+                case BookingEventType.PaymentCompleted:
+                    AddPaymentCompleted(booking);
+                    break;
+
+                case BookingEventType.PaymentFailed: 
+                    AddPaymentFailed(booking);
                     break;
             }
         }

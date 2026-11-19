@@ -1,4 +1,5 @@
-﻿using BookingEntity = SeventWebApplication.Models.Booking.Booking;
+﻿using SeventWebApplication.Models.Observers;
+using BookingEntity = SeventWebApplication.Models.Booking.Booking;
 
 namespace SeventWebApplication.Models.Payment;
 
@@ -8,6 +9,14 @@ namespace SeventWebApplication.Models.Payment;
 // Själva betalleverantörerna är simulerade (Card/Swish/Invoice skriver bara ut i konsolen).
 public class PaymentServices
 {
+    BookingNotifier _bookingNotifier;
+
+    public PaymentServices( BookingNotifier bookingNotifier )
+    {
+        _bookingNotifier = bookingNotifier;
+    }
+
+
     // Sparar valt betalsätt på bokningen och drar hyrespriset. Förseningsavgift och skadeavgift
     // tillkommer först vid retur och ingår därför inte här.
     public PaymentResult PayForBooking(BookingEntity booking, PaymentMethod method)
@@ -31,7 +40,10 @@ public class PaymentServices
         {
             booking.PaidAmount = amount;
             booking.PaidAt = DateTime.Now;
+            _bookingNotifier.Notify( new BookingEvent( BookingEventType.PaymentCompleted, booking ) );
         }
+        else
+            _bookingNotifier.Notify( new BookingEvent( BookingEventType.PaymentFailed, booking ) );
 
         return result;
     }

@@ -10,7 +10,9 @@ namespace SeventWebApplication.Models.Observers
         Cancelled,
         RentalStarted,
         RentalReturned,
-        LateReturn
+        LateReturn,
+        PaymentCompleted,
+        PaymentFailed
     }
 
     // Meddelandet som skickas till alla observers.

@@ -7,6 +7,8 @@
         PickupReminder,
         BookingChanged,
         RentalReturn,
-        LateReturnInformation
+        LateReturnInformation,
+        PaymentCompleted,
+        PaymentFailed
     }
 }
