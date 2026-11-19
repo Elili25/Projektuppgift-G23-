@@ -26,8 +26,8 @@ namespace SeventWebApplication.Models.Users
             ArgumentException.ThrowIfNullOrWhiteSpace(mail);
             ArgumentException.ThrowIfNullOrWhiteSpace(password);
 
-            if (!mail.Contains('@'))
-                throw new ArgumentException("Invalid email address.", nameof(mail));
+            ContactValidator.EnsureMail(mail);
+            ContactValidator.EnsurePhone(phone);
 
             UserId = userId;
             Name = name.Trim();
@@ -49,6 +49,7 @@ namespace SeventWebApplication.Models.Users
         public void UpdateContactInfo(string name, string phone)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
+            ContactValidator.EnsurePhone(phone);
             Name = name.Trim();
             Phone = phone?.Trim() ?? string.Empty;
         }

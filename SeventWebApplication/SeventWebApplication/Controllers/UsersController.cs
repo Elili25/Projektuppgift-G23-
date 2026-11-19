@@ -141,6 +141,9 @@ namespace SeventWebApplication.Controllers
                 if (string.IsNullOrWhiteSpace(form.Name))
                     throw new ArgumentException("The name cannot be empty.");
 
+                // Samma för telefonnumret, så rollen inte hinner bytas när numret sedan nekas
+                ContactValidator.EnsurePhone(form.Phone);
+
                 // Rollen ska bara bytas om den faktiskt ändrats, annars säger AccountService nej,
                 // Rollbytet görs först eftersom det skapar ett nytt objekt, sen uppdateras namn/telefon på det.
                 if (form.Role != user.Role)

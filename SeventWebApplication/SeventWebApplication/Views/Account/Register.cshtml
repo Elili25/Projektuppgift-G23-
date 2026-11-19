@@ -1,3 +1,5 @@
+@using SeventWebApplication.Models.Users
+@model RegisterForm
 @{
     ViewData["Title"] = "Create account";
 }
@@ -15,23 +17,28 @@
             <div class="auth__error" role="alert">@ViewBag.Error</div>
         }
 
-        <form asp-action="Register" method="post">
+        <form asp-action="Register" method="post" novalidate>
             <div class="auth__field">
-                <label for="name">Name</label>
-                <input id="name" name="name" placeholder="First and last name" value="@ViewBag.Name" autocomplete="name" required />
+                <label for="Name">Name</label>
+                <input asp-for="Name" placeholder="First and last name" autocomplete="name" required maxlength="100" />
+                <span asp-validation-for="Name" class="auth__error" role="alert"></span>
             </div>
             <div class="auth__field">
-                <label for="mail">Email</label>
-                <input id="mail" type="email" name="mail" placeholder="name@example.com" value="@ViewBag.Mail" autocomplete="email" required />
+                <label for="Mail">Email</label>
+                <input asp-for="Mail" type="email" placeholder="name@example.com" autocomplete="email" required />
+                <span asp-validation-for="Mail" class="auth__error" role="alert"></span>
             </div>
             <div class="auth__field">
-                <label for="phone">Phone</label>
-                <input id="phone" name="phone" placeholder="070-000 00 00" value="@ViewBag.Phone" autocomplete="tel" />
+                <label for="Phone">Phone</label>
+                <input asp-for="Phone" type="tel" placeholder="070-000 00 00" autocomplete="tel" />
+                <div class="auth__hint">Optional. Digits, spaces and hyphens, e.g. 070-123 45 67 or +46 70 123 45 67.</div>
+                <span asp-validation-for="Phone" class="auth__error" role="alert"></span>
             </div>
             <div class="auth__field">
-                <label for="password">Password</label>
-                <input id="password" type="password" name="password" placeholder="At least 8 characters" autocomplete="new-password" required minlength="8" />
+                <label for="Password">Password</label>
+                <input asp-for="Password" type="password" placeholder="At least 8 characters" autocomplete="new-password" required minlength="8" />
                 <div class="auth__hint">At least 8 characters.</div>
+                <span asp-validation-for="Password" class="auth__error" role="alert"></span>
             </div>
 
             <button class="auth__submit" type="submit">Create account</button>

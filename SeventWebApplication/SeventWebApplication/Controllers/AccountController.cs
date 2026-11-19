@@ -52,28 +52,36 @@ namespace SeventWebApplication.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            return View();
+            return View(new RegisterForm());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Register(string name, string mail, string phone, string password)
+        public IActionResult Register(RegisterForm form)
         {
+            // Fel format på namn, e-post, telefon eller lösenord visas vid respektive fält
+            if (!ModelState.IsValid)
+                return RegisterAgain(form);
+
             try
             {
-                _auth.Register(name, mail, phone, password);
-                _session.Login(mail, password);   // loggar in direkt så man slipper skriva allt igen
+                _auth.Register(form.Name, form.Mail, form.Phone ?? "", form.Password);
+                _session.Login(form.Mail, form.Password);   // loggar in direkt så man slipper skriva allt igen
                 return RedirectToAction("Index", "Home");
             }
             catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
             {
-                // Visa felet på registreringssidan och behåll det som skrivits in (inte lösenordet)
+                // T.ex. att e-postadressen redan används
                 ViewBag.Error = ex.Message;
-                ViewBag.Name = name;
-                ViewBag.Mail = mail;
-                ViewBag.Phone = phone;
-                return View("Register");
+                return RegisterAgain(form);
             }
+        }
+
+        // Visar formuläret igen med det som skrivits in, men utan lösenordet
+        private IActionResult RegisterAgain(RegisterForm form)
+        {
+            form.Password = "";
+            return View("Register", form);
         }
 
         [HttpPost]
