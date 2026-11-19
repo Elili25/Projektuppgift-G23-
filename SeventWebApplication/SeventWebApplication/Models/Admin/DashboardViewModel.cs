@@ -53,18 +53,11 @@ namespace SeventWebApplication.Models.Admin
                 b.Status is BookingStatus.Confirmed or BookingStatus.Active or BookingStatus.Completed
                 && b.StartDate.Year == now.Year && b.StartDate.Month == now.Month))
             {
-                if (b.Vehicle is null) continue;
+                // Priset (inkl. eventuella avgifter) är sparat på bokningen. Saknas det hoppas bokningen över.
+                if (b.TotalPrice is null) continue;
 
-                try
-                {
-                    int days = Math.Max(1, (int)Math.Ceiling((b.EndDate - b.StartDate).TotalDays));
-                    revenue += pricing.CalculateTotalPrice(PriceStrategies.standard, b, b.Vehicle, days);
-                    revenueBookings++;
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    // Fordon utan prissättning hoppas över
-                }
+                revenue += b.GrandTotal;
+                revenueBookings++;
             }
 
             var upcoming = allBookings

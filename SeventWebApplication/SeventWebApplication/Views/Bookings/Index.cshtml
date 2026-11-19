@@ -194,7 +194,11 @@ else
                         </td>
 
                         <td class="text-end text-nowrap">
-                            @(b.TotalPrice is null ? "–" : b.TotalPrice.Value.ToString("N0", sv) + " kr")
+                            @(b.TotalPrice is null ? "–" : b.GrandTotal.ToString("N0", sv) + " kr")
+                            @if (b.LateFee > 0 || b.DamageFee > 0)
+                            {
+                                <div><small class="text-muted">incl. fees</small></div>
+                            }
                         </td>
 
                         <td><span class="badge @StatusBadge(b.Status)">@StatusText(b.Status)</span></td>

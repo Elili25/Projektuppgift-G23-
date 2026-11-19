@@ -52,6 +52,10 @@
                     <textarea name="Damages" rows="3">@Model.Form.Damages</textarea>
                     <small>One damage per line. Leave empty if there are none. A damaged vehicle is set to InRepair.</small>
                 </label>
+                <label class="adm-field">Damage fee (kr)
+                    <input name="DamageFee" type="number" step="any" min="0" value="@Model.Form.DamageFee" />
+                    <small>Charged to the customer. Leave 0 if there is no fee.</small>
+                </label>
                 <label class="adm-field adm-field--wide">Notes
                     <textarea name="Notes" rows="2">@Model.Form.Notes</textarea>
                 </label>

@@ -105,7 +105,10 @@ namespace SeventWebApplication
 
             // testmetod som skapar några exempelbokningar fördelade på kunderna i repot,
             // så man har nåt att kolla på under /Bookings
-            ExampleBookingSeeder.Seed(app.Services.GetRequiredService<IUserRepository>());
+            ExampleBookingSeeder.Seed(
+                app.Services.GetRequiredService<IUserRepository>(),
+                app.Services.GetRequiredService<PricingServices>(),
+                familyRepository);
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

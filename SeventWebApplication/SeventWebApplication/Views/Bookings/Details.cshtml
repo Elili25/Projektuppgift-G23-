@@ -85,8 +85,26 @@
                 }
             </dd>
 
-            <dt class="col-sm-3">Price</dt>
+            <dt class="col-sm-3">Rental price</dt>
             <dd class="col-sm-9">@(b.TotalPrice is null ? "–" : b.TotalPrice.Value.ToString("N0", sv) + " kr")</dd>
+
+            @if (b.LateFee > 0)
+            {
+                <dt class="col-sm-3">Late fee</dt>
+                <dd class="col-sm-9">@b.LateFee.ToString("N0", sv) kr</dd>
+            }
+
+            @if (b.DamageFee > 0)
+            {
+                <dt class="col-sm-3">Damage fee</dt>
+                <dd class="col-sm-9">@b.DamageFee.ToString("N0", sv) kr</dd>
+            }
+
+            @if (b.LateFee > 0 || b.DamageFee > 0)
+            {
+                <dt class="col-sm-3">Total</dt>
+                <dd class="col-sm-9"><strong>@b.GrandTotal.ToString("N0", sv) kr</strong></dd>
+            }
 
             @if (!string.IsNullOrWhiteSpace(Model.Notes))
             {

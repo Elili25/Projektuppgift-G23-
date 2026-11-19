@@ -95,6 +95,8 @@ namespace SeventWebApplication.Models.Admin
         public decimal? BatteryLevel { get; set; }
         public InspectionResult InspectionResult { get; set; } = InspectionResult.Approved;
         public string? Damages { get; set; }   // en skada per rad
+        [Range(0, double.MaxValue, ErrorMessage = "Damage fee cannot be negative.")]
+        public decimal DamageFee { get; set; }  // skadeavgift i kr, anges av personalen
         public string? Notes { get; set; }
     }
 

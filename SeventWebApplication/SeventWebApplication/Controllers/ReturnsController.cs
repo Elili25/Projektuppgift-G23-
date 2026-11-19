@@ -59,10 +59,14 @@ namespace SeventWebApplication.Controllers
 
                 decimal lateFee = _management.CompleteRental(
                     staff, form.BookingId, form.Mileage, form.FuelLevel, form.BatteryLevel,
-                    form.InspectionResult, damages, form.Notes ?? "");
+                    form.InspectionResult, damages, form.Notes ?? "", form.DamageFee);
 
-                TempData["Success"] = lateFee > 0
-                    ? $"Return registered. Late fee: {lateFee:0.##} kr."
+                var fees = new List<string>();
+                if (lateFee > 0) fees.Add($"Late fee: {lateFee:0.##} kr");
+                if (form.DamageFee > 0) fees.Add($"Damage fee: {form.DamageFee:0.##} kr");
+
+                TempData["Success"] = fees.Count > 0
+                    ? $"Return registered. {string.Join(". ", fees)}. The fees are saved on the booking."
                     : "Return registered.";
 
                 return RedirectToAction(nameof(Register));

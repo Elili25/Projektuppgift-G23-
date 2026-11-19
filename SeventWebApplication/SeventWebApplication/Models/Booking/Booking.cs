@@ -31,6 +31,15 @@ namespace SeventWebApplication.Models.Booking
         public BookingStatus Status { get; set; } = BookingStatus.Pending;
         //public IPricingStrategy PricingStrategy { get; set; }
 
+        // Pengar. TotalPrice är hyrespriset (dagar + bokningsavgift + tillägg) och sätts när bokningen skapas.
+        // LateFee och DamageFee fylls i när bilen lämnas tillbaka. Null/0 = inte beräknat/ingen avgift.
+        public decimal? TotalPrice { get; set; }
+        public decimal LateFee { get; set; }
+        public decimal DamageFee { get; set; }
+
+        // Allt kunden ska betala: hyra + förseningsavgift + skadeavgift
+        public decimal GrandTotal => (TotalPrice ?? 0m) + LateFee + DamageFee;
+
         // Valfri anteckning från kunden/personalen, t.ex. "hämtas kl 08"
         public string? Notes { get; set; }
 

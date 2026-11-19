@@ -96,8 +96,12 @@ namespace SeventWebApplication.Models.VehicleNS
             decimal? batteryLevel,
             InspectionResult inspectionResult,
             IEnumerable<string>? damageDescriptions = null,
-            string notes = "")
+            string notes = "",
+            decimal damageFee = 0m)
         {
+            if (damageFee < 0)
+                throw new ArgumentException("Damage fee cannot be negative.");
+
             var booking = GetBooking(bookingId);
             var record = GetRecord(bookingId);
             var vehicle = GetVehicle(booking);
@@ -151,6 +155,10 @@ namespace SeventWebApplication.Models.VehicleNS
             record.ReturnBatteryLevel = batteryLevel;
 
             _recordRepository.Update(record);
+
+            // Avgifterna sparas på bokningen så de finns kvar efter returen
+            booking.LateFee = CalculateLateFee(bookingId);
+            booking.DamageFee = damageFee;
 
             // 4. Bilen är inte uthyrd längre. Om skador hittades har RegisterDamage
             //    redan satt VehicleStatus = InRepair, så den kan ändå inte hyras ut.

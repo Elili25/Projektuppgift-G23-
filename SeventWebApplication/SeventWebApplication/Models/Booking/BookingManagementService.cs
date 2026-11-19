@@ -120,12 +120,13 @@ namespace SeventWebApplication.Models.Booking
             decimal? batteryLevel,
             InspectionResult inspectionResult,
             IEnumerable<string>? damageDescriptions = null,
-            string notes = "")
+            string notes = "",
+            decimal damageFee = 0m)
         {
             EnsureActive(actor);
             _rentalReturnService.RegisterReturn(
                 bookingId, mileage, fuelLevel, batteryLevel,
-                inspectionResult, damageDescriptions, notes);
+                inspectionResult, damageDescriptions, notes, damageFee);
 
             return _rentalReturnService.CalculateLateFee(bookingId);
         }

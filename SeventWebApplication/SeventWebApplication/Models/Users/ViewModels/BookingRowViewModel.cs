@@ -23,7 +23,10 @@ namespace SeventWebApplication.Models.Users
         public int Days => Math.Max(1, (int)Math.Ceiling((End - Start).TotalDays)); // så att en bokning som startar och slutar samma dag räknas som 1 dag
 
         public List<string> Addons { get; init; } = new();
-        public decimal? TotalPrice { get; init; }
+        public decimal? TotalPrice { get; init; }   // hyrespriset, sparat på bokningen
+        public decimal LateFee { get; init; }
+        public decimal DamageFee { get; init; }
+        public decimal GrandTotal => (TotalPrice ?? 0m) + LateFee + DamageFee;
 
         public BookingStatus Status { get; init; }
 
@@ -47,7 +50,9 @@ namespace SeventWebApplication.Models.Users
                 Start = booking.StartDate,
                 End = booking.EndDate,
                 Addons = GetAddonNames(booking.Addon),
-                TotalPrice = booking.Addon?.GetTotalAddonPrice(),
+                TotalPrice = booking.TotalPrice,
+                LateFee = booking.LateFee,
+                DamageFee = booking.DamageFee,
                 Status = booking.Status,
                 CanCancel = BookingManagementService.CanCustomerCancel(booking, now)
             };

@@ -1,4 +1,5 @@
 using SeventWebApplication.Models.Addon;
+using SeventWebApplication.Models.Pricing;
 using SeventWebApplication.Models.VehicleNS;
 using SeventWebApplication.Models.VehicleNS.Engine;
 using BookingEntity = SeventWebApplication.Models.Booking.Booking;
@@ -13,7 +14,7 @@ namespace SeventWebApplication.Models.Users
     // Måste därför köras EFTER att familjerna har seedats i Program.cs.
     public static class ExampleBookingSeeder
     {
-        public static void Seed(IUserRepository users)
+        public static void Seed(IUserRepository users, PricingServices pricing, VehicleFamilyRepository families)
         {
             var registry = SeventWebApplication.Models.Booking.BookingRegistry.Instance;
 
@@ -79,7 +80,7 @@ namespace SeventWebApplication.Models.Users
                 var start = DateTime.Today.AddDays(random.Next(1, 30));
                 var end = start.AddDays(random.Next(1, 7));
 
-                TryRegister(registry, new BookingEntity(
+                var booking = new BookingEntity(
                     Guid.NewGuid().ToString(),
                     user.UserId.ToString(),
                     vehicle,
@@ -88,7 +89,9 @@ namespace SeventWebApplication.Models.Users
                     RandomAddons(random))
                 {
                     Status = statuses[random.Next(statuses.Length)]
-                });
+                };
+                pricing.ApplyPrice(booking, vehicle);
+                TryRegister(registry, booking);
             }
 
             // Familjebokningar utan bil, så att Approve (som tilldelar en bil ur familjen) går att testa
@@ -104,13 +107,20 @@ namespace SeventWebApplication.Models.Users
                 var user = allUsers[random.Next(allUsers.Count)];
                 var start = DateTime.Today.AddDays(random.Next(30, 45));
 
-                TryRegister(registry, new BookingEntity(
+                var familyBooking = new BookingEntity(
                     Guid.NewGuid().ToString(),
                     user.UserId.ToString(),
                     familyId,
                     start,
                     start.AddDays(3),
-                    RandomAddons(random)));   // Status = Pending (standard)
+                    RandomAddons(random));   // Status = Pending (standard)
+
+                // Ingen bil än, så priset räknas med en bil ur familjen
+                if (families.GetById(familyId) is { } family
+                    && FleetManager.instance.GetAllVehicles().FirstOrDefault(v => family.Matches(v)) is { } familyVehicle)
+                    pricing.ApplyPrice(familyBooking, familyVehicle);
+
+                TryRegister(registry, familyBooking);
             }
         }
 

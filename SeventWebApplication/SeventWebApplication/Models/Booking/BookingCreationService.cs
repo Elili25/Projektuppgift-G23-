@@ -1,6 +1,7 @@
 using SeventWebApplication.Models.Addon;
 using SeventWebApplication.Models.BookingValidation;
 using SeventWebApplication.Models.Observers;
+using SeventWebApplication.Models.Pricing;
 using SeventWebApplication.Models.Users;
 using SeventWebApplication.Models.VehicleNS;
 
@@ -24,14 +25,20 @@ namespace SeventWebApplication.Models.Booking
         private readonly FleetManager _fleetManager;
         private readonly VehicleAssignmentService _assignmentService;
         private readonly BookingNotifier _bookingNotifier;
+        private readonly PricingServices _pricing;
+        private readonly VehicleFamilyRepository _families;
 
         public BookingCreationService(
             BookingValidator bookingValidator,
             IUserRepository users,
             FleetManager fleetManager,
             VehicleAssignmentService assignmentService,
-            BookingNotifier bookingNotifier)
+            BookingNotifier bookingNotifier,
+            PricingServices pricing,
+            VehicleFamilyRepository families)
         {
+            _pricing = pricing;
+            _families = families;
             _bookingValidator = bookingValidator;
             _users = users;
             _fleetManager = fleetManager;
@@ -113,6 +120,15 @@ namespace SeventWebApplication.Models.Booking
             {
                 return Fail("Booking", ex.Message);
             }
+
+            // Hyrespriset sparas på bokningen. En familjebokning har ingen bil än, då prissätts den
+            // med en bil ur familjen (alla bilar i en familj har samma dagspris).
+            Vehicle? pricedVehicle = booking.Vehicle
+                ?? (booking.VehicleFamilyId is Guid pricedFamilyId && _families.GetById(pricedFamilyId) is { } pricedFamily
+                    ? _fleetManager.GetAllVehicles().FirstOrDefault(v => pricedFamily.Matches(v))
+                    : null);
+            if (pricedVehicle is not null)
+                _pricing.ApplyPrice(booking, pricedVehicle);
 
             // 5. Spara. RegisterBooking kollar bl.a. att en vald bil inte redan är bokad.
             try
