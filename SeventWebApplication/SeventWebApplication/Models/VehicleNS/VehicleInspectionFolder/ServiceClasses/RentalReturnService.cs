@@ -182,6 +182,9 @@ namespace SeventWebApplication.Models.VehicleNS
             booking.Status = BookingStatus.Completed;
 
             _bookingNotifier.Notify( new BookingEvent( BookingEventType.RentalReturned, booking ) );
+
+            if( IsLateReturn( bookingId ) )
+                _bookingNotifier.Notify( new BookingEvent( BookingEventType.LateReturn, booking ) );
         }
 
         public decimal CalculateLateFee(string bookingId)
