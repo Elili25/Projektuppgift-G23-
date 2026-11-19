@@ -114,6 +114,38 @@ namespace SeventWebApplication.Controllers
             return View(model);
         }
 
+        // Detaljsida för en bokning (UC5). Vilka bokningar man får se avgörs av användarens Visibility,
+        // så en kund får 404 på någon annans bokning, samma som om den inte fanns.
+        [HttpGet]
+        public IActionResult Details(string id)
+        {
+            User? user = _session.CurrentUser;
+
+            if (user is null)
+                return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Details", "Bookings", new { id }) });
+
+            if (user is not IBookingViewer viewer)
+                return StatusCode(403);
+
+            var booking = _viewer.ViewBookings(viewer)
+                .FirstOrDefault(b => string.Equals(b.BookingId, id, StringComparison.OrdinalIgnoreCase));
+
+            if (booking is null)
+                return NotFound();
+
+            string? familyName = booking.VehicleFamilyId is Guid familyId
+                ? _families.GetById(familyId)?.Name
+                : null;
+
+            return View(new BookingDetailsViewModel
+            {
+                Booking = BookingRowViewModel.From(booking, _users, DateTime.Now),
+                IsStaff = user is IBookingManager,
+                FamilyName = familyName,
+                Notes = booking.Notes
+            });
+        }
+
         // Kunden avbokar sin egen bokning (UC5). Ägarskap, status och tidsgräns kollas i servicen.
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -159,7 +159,7 @@ else
                 @foreach (var b in Model.Bookings)
                 {
                     <tr>
-                        <td><code title="@b.BookingId">#@b.ShortId</code></td>
+                        <td><a asp-action="Details" asp-route-id="@b.BookingId"><code title="@b.BookingId">#@b.ShortId</code></a></td>
 
                         @if (Model.IsStaff)
                         {
