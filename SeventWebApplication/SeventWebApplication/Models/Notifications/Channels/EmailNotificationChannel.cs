@@ -26,10 +26,7 @@ namespace SeventWebApplication.Models.Notifications
             }
 
             if( string.IsNullOrWhiteSpace( user.Mail ) )
-            {
-                notification.Status = NotificationStatus.Failed;
-                throw new NullReferenceException( "Failed to send an email because the email address was empty" );
-            }
+                return;
 
             _emailService.SendEmail( user.Mail, notification.Message );
 

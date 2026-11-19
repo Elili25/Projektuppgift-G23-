@@ -26,7 +26,7 @@ namespace SeventWebApplication.Models.Notifications
             }
 
             if( string.IsNullOrWhiteSpace( user.Phone ) )
-                throw new ArgumentNullException( "Failed to send a sms because the phone number was empty" );
+                return;
 
             _smsService.SendSms( user.Phone, notification.Message );
             notification.Status = NotificationStatus.Sent;
