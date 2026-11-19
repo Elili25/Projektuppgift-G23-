@@ -52,6 +52,46 @@ namespace SeventWebApplication.Models.Booking
             if (booking.Status is not (BookingStatus.Pending or BookingStatus.Confirmed))
                 throw new InvalidOperationException("Only pending or confirmed bookings can be cancelled.");
 
+            MarkCancelled(booking);
+        }
+
+        // Kunden avbokar sin egen bokning (UC5). Måste vara ägaren, Pending/Confirmed
+        // och mer än CustomerCancelWindow kvar till start.
+        public void CancelOwn(IActor customer, string bookingId)
+        {
+            ArgumentNullException.ThrowIfNull(customer);
+
+            if (!customer.IsActive)
+                throw new UnauthorizedAccessException("Deactivated accounts cannot cancel bookings.");
+
+            var booking = GetBooking(bookingId);
+
+            if (!string.Equals(booking.UserId, customer.UserId.ToString(), StringComparison.OrdinalIgnoreCase))
+                throw new UnauthorizedAccessException("You can only cancel your own bookings.");
+
+            if (booking.Status is not (BookingStatus.Pending or BookingStatus.Confirmed))
+                throw new InvalidOperationException("Only pending or confirmed bookings can be cancelled.");
+
+            if (!IsWithinCancelWindow(booking, DateTime.Now))
+                throw new InvalidOperationException(
+                    $"Bookings can only be cancelled more than {CustomerCancelWindow.TotalHours:0} hours before the start.");
+
+            MarkCancelled(booking);
+        }
+
+        // Hur långt före start en kund senast får avboka
+        public static readonly TimeSpan CustomerCancelWindow = TimeSpan.FromHours(8);
+
+        // Samma regel används av vyn för att bestämma om avboka-knappen visas
+        public static bool CanCustomerCancel(Booking booking, DateTime now) =>
+            booking.Status is BookingStatus.Pending or BookingStatus.Confirmed
+            && IsWithinCancelWindow(booking, now);
+
+        private static bool IsWithinCancelWindow(Booking booking, DateTime now) =>
+            now < booking.StartDate - CustomerCancelWindow;
+
+        private void MarkCancelled(Booking booking)
+        {
             booking.Status = BookingStatus.Cancelled;
 
             _bookingNotifier.Notify( new BookingEvent( BookingEventType.Cancelled, booking ) );

@@ -26,6 +26,7 @@ namespace SeventWebApplication.Controllers
         private readonly VehicleFamilyRepository _families;
         private readonly PricingServices _pricing;
         private readonly BaseCosts _baseCosts;
+        private readonly BookingManagementService _management;
 
         public BookingsController(
             UserSession session,
@@ -35,8 +36,10 @@ namespace SeventWebApplication.Controllers
             FleetManager fleetManager,
             VehicleFamilyRepository families,
             PricingServices pricing,
-            BaseCosts baseCosts)
+            BaseCosts baseCosts,
+            BookingManagementService management)
         {
+            _management = management;
             _session = session;
             _viewer = viewer;
             _users = users;
@@ -109,6 +112,33 @@ namespace SeventWebApplication.Controllers
             };
 
             return View(model);
+        }
+
+        // Kunden avbokar sin egen bokning (UC5). Ägarskap, status och tidsgräns kollas i servicen.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Cancel(string id)
+        {
+            User? user = _session.CurrentUser;
+
+            if (user is null)
+                return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Index", "Bookings") });
+
+            // Personal avbokar via BookingManagement
+            if (user is not Customer customer)
+                return StatusCode(403);
+
+            try
+            {
+                _management.CancelOwn(customer, id);
+                TempData["Success"] = "Your booking has been cancelled.";
+            }
+            catch (Exception ex) when (ex is InvalidOperationException or ArgumentException or UnauthorizedAccessException)
+            {
+                TempData["Error"] = ex.Message;
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         // Här hanteras statusfiltren: gör om texten från URL:en ("pending", "confirmed" ...) till BookingStatus,

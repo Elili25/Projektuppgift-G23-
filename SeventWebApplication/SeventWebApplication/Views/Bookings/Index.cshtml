@@ -71,6 +71,15 @@
     </div>
 }
 
+@* Fel vid avbokning (layoutens flash är avstängd på den här sidan) *@
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @error
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 @* Flikar för att filtrera på status, siffrorna visar hur många som finns i varje *@
 <ul class="nav nav-pills mb-3">
     <li class="nav-item">
@@ -139,6 +148,10 @@ else
                     <th>Add-ons</th>
                     <th class="text-end">Price</th>
                     <th>Status</th>
+                    @if (!Model.IsStaff)
+                    {
+                        <th></th>
+                    }
                 </tr>
 
             </thead>
@@ -185,6 +198,19 @@ else
                         </td>
 
                         <td><span class="badge @StatusBadge(b.Status)">@StatusText(b.Status)</span></td>
+
+                        @if (!Model.IsStaff)
+                        {
+                            <td class="text-end">
+                                @if (b.CanCancel)
+                                {
+                                    <form method="post" asp-action="Cancel" asp-route-id="@b.BookingId"
+                                          onsubmit="return confirm('Cancel booking #@b.ShortId?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                    </form>
+                                }
+                            </td>
+                        }
                     </tr>
 
                 }

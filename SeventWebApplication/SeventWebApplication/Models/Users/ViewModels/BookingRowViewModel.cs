@@ -27,6 +27,9 @@ namespace SeventWebApplication.Models.Users
 
         public BookingStatus Status { get; init; }
 
+        // Får kunden avboka bokningen just nu? (styr avboka-knappen)
+        public bool CanCancel { get; init; }
+
         public static BookingRowViewModel From(BookingEntity booking, IUserRepository users, DateTime now)
         {
             // Booking.UserId är en string, så vi får parsa den för att hitta kunden
@@ -45,7 +48,8 @@ namespace SeventWebApplication.Models.Users
                 End = booking.EndDate,
                 Addons = GetAddonNames(booking.Addon),
                 TotalPrice = booking.Addon?.GetTotalAddonPrice(),
-                Status = booking.Status
+                Status = booking.Status,
+                CanCancel = BookingManagementService.CanCustomerCancel(booking, now)
             };
         }
 
