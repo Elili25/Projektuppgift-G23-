@@ -172,8 +172,21 @@ namespace SeventWebApplication.Models.Booking
                 ?? (booking.VehicleFamilyId is Guid pricedFamilyId && _families.GetById(pricedFamilyId) is { } pricedFamily
                     ? _fleetManager.GetAllVehicles().FirstOrDefault(v => pricedFamily.Matches(v))
                     : null);
-            if (pricedVehicle is not null)
+            
+            if (pricedVehicle is null)
+            {
+                return Fail("Booking", "The booking could not be priced because no vehicle was found");
+            }
+            //Om något går fel med prissättningen kastas en ArgumentOutOfRangeException i PricingService, om det inte finns ett pris att betala kastas bokningen 
+            try
+            {
                 _pricing.ApplyPrice(booking, pricedVehicle);
+            }
+            catch(ArgumentOutOfRangeException)
+            {
+                return Fail("Booking", "This vehicle has not been priced and cannot be booked");
+            }
+               
 
             // Ny kund/dummy: skapas nu när allt annat är godkänt, och bokningen flyttas över till den
             User? createdGuest = null;

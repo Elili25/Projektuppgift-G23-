@@ -29,9 +29,10 @@ public class PaymentServices
         // Bokningen får betalsättet även om inget belopp kunde räknas ut (fordon utan prissättning)
         booking.PaymentMethod = method;
 
-        decimal amount = booking.TotalPrice ?? 0m;
-        if (amount <= 0)
-            return new PaymentResult { success = true, message = "Nothing to pay." };
+        
+        if (booking.TotalPrice is null)
+            return new PaymentResult { success = false, message = "The booking has no price, so it cannot be paid." };
+        decimal amount = booking.TotalPrice.Value;
 
         IPayment payment = PaymentFactory.CreatePayment(method);
         PaymentResult result = payment.ProcessPayment(amount);
