@@ -1,5 +1,5 @@
-@using SeventWebApplication.Models.Users
-@model List<BookingRowViewModel>
+@using SeventWebApplication.Models.Admin
+@model List<AssignableBookingRow>
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Pending approval";
@@ -19,22 +19,41 @@
                     <th scope="col">Vehicle</th>
                     <th scope="col">Dates</th>
                     <th scope="col">Status</th>
+                    <th scope="col">Vehicle on approval</th>
                     <th scope="col"></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var b in Model)
+                @foreach (var row in Model)
                 {
+                    var b = row.Booking;
                     <tr>
                         <td>@b.ShortId</td>
                         <td>@b.CustomerName<br /><small>@b.CustomerMail</small></td>
                         <td>@b.Vehicle @b.RegNr</td>
-                        <td>@b.Start.ToString("yyyy-MM-dd") → @b.End.ToString("yyyy-MM-dd") (@b.Days d)</td>
+                        <td>@b.Start.ToString("yyyy-MM-dd HH:mm") → @b.End.ToString("yyyy-MM-dd HH:mm") (@b.Days d)</td>
                         <td><span class="adm-status adm-status--pending">Pending</span></td>
                         <td>
-                            <form class="adm-inline" method="post" asp-action="Approve" asp-route-id="@b.BookingId">
-                                <button class="adm-btn adm-btn--ok" type="submit">Approve</button>
+                            @* Vilken bil som gäller när bokningen godkänns: automatiskt val, senare, eller en specifik bil *@
+                            <form id="approve-@b.BookingId" method="post" asp-action="Approve" asp-route-id="@b.BookingId">
+                                <select name="vehicle" aria-label="Vehicle for booking @b.ShortId">
+                                    @if (row.CurrentVehicleId == "")
+                                    {
+                                        <option value="" selected>Assign automatically</option>
+                                    }
+                                    @if (row.CanAssignLater && row.CurrentVehicleId == "")
+                                    {
+                                        <option value="later">Assign later (2 h before start)</option>
+                                    }
+                                    @foreach (var v in row.Vehicles)
+                                    {
+                                        <option value="@v.Value" selected="@(v.Value == row.CurrentVehicleId)">@v.Text @v.Hint</option>
+                                    }
+                                </select>
                             </form>
+                        </td>
+                        <td>
+                            <button class="adm-btn adm-btn--ok" type="submit" form="approve-@b.BookingId">Approve</button>
                             <form class="adm-inline" method="post" asp-action="Cancel" asp-route-id="@b.BookingId">
                                 <button class="adm-btn adm-btn--danger" type="submit">Cancel</button>
                             </form>
@@ -43,7 +62,7 @@
                 }
                 @if (Model.Count == 0)
                 {
-                    <tr class="adm-table__empty"><td colspan="6">No pending bookings.</td></tr>
+                    <tr class="adm-table__empty"><td colspan="7">No pending bookings.</td></tr>
                 }
             </tbody>
         </table>

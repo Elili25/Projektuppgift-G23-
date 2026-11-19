@@ -109,6 +109,24 @@ namespace SeventWebApplication.Models.Admin
         public ReturnForm Form { get; init; } = new();
     }
 
+    // En bokning i Pending-/Awaiting pickup-listan tillsammans med de bilar personal kan välja för den
+    public class AssignableBookingRow
+    {
+        public BookingRowViewModel Booking { get; init; } = new();
+
+        // Lediga bilar (i drift, rätt klass, lediga under perioden) inklusive bokningens nuvarande
+        public List<SeventWebApplication.Models.Booking.BookingOption> Vehicles { get; init; } = new();
+
+        // Nuvarande bil ("" = ingen), så rätt val är förvalt
+        public string CurrentVehicleId { get; init; } = "";
+
+        // Får bokningen vara utan bil än? (familjebokning med mer än 2 timmar kvar)
+        public bool CanAssignLater { get; init; }
+
+        // Saknar bil fast det är dags att tilldela en
+        public bool NeedsVehicleNow { get; init; }
+    }
+
     // Formulär för upphämtning (Confirmed → Active)
     public class PickupForm
     {

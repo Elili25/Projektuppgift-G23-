@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;	
 using System.Linq;
 using SeventWebApplication.Models.VehicleNS;
@@ -84,6 +84,17 @@ namespace SeventWebApplication.Models.Booking
             VehicleId = vehicle.VehicleId;
         }
 
+
+        // Tar bort den tilldelade bilen igen, så en ny kan väljas senare. Bara för familjebokningar,
+        // en bokning på en specifik bil har ingen familj att välja ny bil ur.
+        public void ClearVehicle()
+        {
+            if (VehicleFamilyId is null)
+                throw new InvalidOperationException("Only a booking for a vehicle type can be left without a vehicle.");
+
+            Vehicle = null;
+            VehicleId = null;
+        }
 
         // Pending -> Confirmed. Används när personal skapar en bokning (AutoApprove).
         public void Confirm()

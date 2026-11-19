@@ -62,6 +62,7 @@ namespace SeventWebApplication
             builder.Services.AddSingleton<BookingRepository>(_ => BookingRegistry.Instance.Repository);
             builder.Services.AddSingleton(BookingRegistry.Instance.Repository);
             builder.Services.AddScoped<BookingManagementService>();
+            builder.Services.AddHostedService<VehicleAutoAssignWorker>();   // tilldelar bil 2 h före start om ingen valts
 
             // ---- Fordonsdelen ----
             builder.Services.AddSingleton<VehicleRentalRecordRepository>();

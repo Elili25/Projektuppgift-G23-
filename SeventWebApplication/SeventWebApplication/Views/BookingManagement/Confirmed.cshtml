@@ -1,5 +1,5 @@
-@using SeventWebApplication.Models.Users
-@model List<BookingRowViewModel>
+@using SeventWebApplication.Models.Admin
+@model List<AssignableBookingRow>
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Awaiting pickup";
@@ -19,26 +19,68 @@
                     <th scope="col">Vehicle</th>
                     <th scope="col">Dates</th>
                     <th scope="col">Status</th>
+                    <th scope="col">Change vehicle</th>
                     <th scope="col"></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var b in Model)
+                @foreach (var row in Model)
                 {
+                    var b = row.Booking;
+                    bool hasVehicle = row.CurrentVehicleId != "";
                     <tr>
                         <td>@b.ShortId</td>
                         <td>@b.CustomerName<br /><small>@b.CustomerMail</small></td>
-                        <td>@b.Vehicle @b.RegNr</td>
-                        <td>@b.Start.ToString("yyyy-MM-dd") → @b.End.ToString("yyyy-MM-dd") (@b.Days d)</td>
+                        <td>
+                            @if (hasVehicle)
+                            {
+                                <span>@b.Vehicle @b.RegNr</span>
+                            }
+                            else if (row.NeedsVehicleNow)
+                            {
+                                <strong>Needs a vehicle now</strong><br /><small>Starts within 2 hours</small>
+                            }
+                            else
+                            {
+                                <span>Not assigned yet</span><br /><small>Assigned automatically 2 hours before the start</small>
+                            }
+                        </td>
+                        <td>@b.Start.ToString("yyyy-MM-dd HH:mm") → @b.End.ToString("yyyy-MM-dd HH:mm") (@b.Days d)</td>
                         <td><span class="adm-status adm-status--confirmed">Confirmed</span></td>
                         <td>
-                            <a class="adm-btn adm-btn--ok" asp-action="Pickup" asp-route-id="@b.BookingId">Start rental</a>
+                            <form id="change-@b.BookingId" method="post" asp-action="ChangeVehicle" asp-route-id="@b.BookingId">
+                                <select name="vehicle" required aria-label="Vehicle for booking @b.ShortId">
+                                    @if (!hasVehicle && !row.CanAssignLater)
+                                    {
+                                        <option value="" selected disabled>Choose a vehicle...</option>
+                                    }
+                                    @if (row.CanAssignLater)
+                                    {
+                                        <option value="later" selected="@(!hasVehicle)">Not assigned yet (assign 2 h before start)</option>
+                                    }
+                                    @foreach (var v in row.Vehicles)
+                                    {
+                                        <option value="@v.Value" selected="@(v.Value == row.CurrentVehicleId)">@v.Text @v.Hint</option>
+                                    }
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <button class="adm-btn" type="submit" form="change-@b.BookingId">Save</button>
+                            @if (hasVehicle)
+                            {
+                                <a class="adm-btn adm-btn--ok" asp-action="Pickup" asp-route-id="@b.BookingId">Start rental</a>
+                            }
+                            else
+                            {
+                                <small>Assign a vehicle to start the rental</small>
+                            }
                         </td>
                     </tr>
                 }
                 @if (Model.Count == 0)
                 {
-                    <tr class="adm-table__empty"><td colspan="6">No bookings awaiting pickup.</td></tr>
+                    <tr class="adm-table__empty"><td colspan="7">No bookings awaiting pickup.</td></tr>
                 }
             </tbody>
         </table>

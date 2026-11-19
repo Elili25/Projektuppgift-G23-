@@ -85,12 +85,13 @@ namespace SeventWebApplication.Models.VehicleNS
         // Ledig om det finns fler lediga bilar än familjebokningar som väntar på bil under perioden.
         // Förenkling: alla överlappande bokningar räknas som samtidiga, så den kan svara nej i onödan
         // men aldrig ja när det faktiskt är fullt.
-        public bool IsFamilyAvailable(Guid familyId, DateTime start, DateTime end)
+        // excluding = en bokning som inte ska räknas som väntande, t.ex. den som just ska godkännas
+        public bool IsFamilyAvailable(Guid familyId, DateTime start, DateTime end, BookingEntity? excluding = null)
         {
             int freeVehicles = FindMatchingVehicles(familyId)
                 .Count(v => _fleetManager.IsAvailable(v, start, end));
 
-            return freeVehicles > CountWaitingFamilyBookings(familyId, start, end);
+            return freeVehicles > CountWaitingFamilyBookings(familyId, start, end, excluding);
         }
 
         // Väljer en ledig bil ur bokningens familj och sätter den på bokningen
@@ -112,13 +113,45 @@ namespace SeventWebApplication.Models.VehicleNS
             return true;
         }
 
+        // Bilar som personal kan välja mellan för en bokning: bilar ur bokningens familj, eller alla bilar om
+        // bokningen gjorts på en specifik bil. Bara bilar som är i drift och lediga under perioden, och den bil
+        // bokningen redan har (som annars skulle räknas som upptagen av just den här bokningen).
+        public IEnumerable<Vehicle> GetAssignableVehicles(BookingEntity booking)
+        {
+            ArgumentNullException.ThrowIfNull(booking);
+
+            IEnumerable<Vehicle> pool = booking.VehicleFamilyId is Guid familyId
+                ? FindMatchingVehicles(familyId)
+                : _fleetManager.GetAllVehicles();
+
+            return pool.Where(v => CanBeAssigned(booking, v)).ToList();
+        }
+
+        public bool CanBeAssigned(BookingEntity booking, Vehicle vehicle)
+        {
+            ArgumentNullException.ThrowIfNull(booking);
+            ArgumentNullException.ThrowIfNull(vehicle);
+
+            if (!vehicle.IsOperational)
+                return false;
+
+            if (booking.VehicleFamilyId is Guid familyId
+                && _assignmentRepository.GetFamilyId(vehicle.VehicleId) != familyId)
+                return false;
+
+            // Bokningens egen bil är redan reserverad av just den här bokningen
+            return vehicle.VehicleId == booking.VehicleId
+                || _fleetManager.IsAvailable(vehicle, booking.StartDate, booking.EndDate);
+        }
+
         // --- Hjälpmetoder ---
 
         // Familjebokningar som ännu inte fått en bil och som överlappar perioden
-        private int CountWaitingFamilyBookings(Guid familyId, DateTime start, DateTime end)
+        private int CountWaitingFamilyBookings(Guid familyId, DateTime start, DateTime end, BookingEntity? excluding = null)
         {
             return _bookingRepository.GetAll().Count(b =>
-                b.VehicleFamilyId == familyId
+                b != excluding
+                && b.VehicleFamilyId == familyId
                 && b.Vehicle == null
                 && b.Status != BookingStatus.Cancelled
                 && b.StartDate < end
