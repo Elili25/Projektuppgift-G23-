@@ -11,7 +11,7 @@
     string Sub(string c, string a) => Is(c, a) ? "adm-nav__sublink is-active" : "adm-nav__sublink";
 
     bool inFleet = Is("Fleet", "Index") || Is("Fleet", "Create") || Is("Families", "Manage") || Is("Fleet", "Service");
-    bool inBookings = Is("Bookings", "Index") || Is("Bookings", "Create") || Is("BookingManagement", "Pending") || Is("BookingManagement", "Active");
+    bool inBookings = Is("Bookings", "Index") || Is("Bookings", "Create") || Is("BookingManagement", "Pending") || Is("BookingManagement", "Confirmed") || Is("BookingManagement", "Pickup") || Is("BookingManagement", "Active");
     bool inReturns = Is("Returns", "Register") || Is("Returns", "Damages");
 }
 
@@ -47,6 +47,7 @@
             </summary>
             <a class="@Sub("Bookings", "Index")" asp-controller="Bookings" asp-action="Index">All bookings</a>
             <a class="@Sub("BookingManagement", "Pending")" asp-controller="BookingManagement" asp-action="Pending">Pending approval</a>
+            <a class="@Sub("BookingManagement", "Confirmed")" asp-controller="BookingManagement" asp-action="Confirmed">Awaiting pickup</a>
             <a class="@Sub("BookingManagement", "Active")" asp-controller="BookingManagement" asp-action="Active">Active rentals</a>
             <a class="@Sub("Bookings", "Create")" asp-controller="Bookings" asp-action="Create">Create booking</a>
         </details>

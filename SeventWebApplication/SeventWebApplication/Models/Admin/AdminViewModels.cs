@@ -104,6 +104,25 @@ namespace SeventWebApplication.Models.Admin
         public ReturnForm Form { get; init; } = new();
     }
 
+    // Formulär för upphämtning (Confirmed → Active)
+    public class PickupForm
+    {
+        [Required] public string BookingId { get; set; } = "";
+        [Range(0, int.MaxValue, ErrorMessage = "Mileage cannot be negative.")]
+        public int Mileage { get; set; }
+        [Range(0, double.MaxValue, ErrorMessage = "Fuel level cannot be negative.")]
+        public decimal FuelLevel { get; set; }
+        [Range(0, double.MaxValue, ErrorMessage = "Battery level cannot be negative.")]
+        public decimal BatteryLevel { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    public class PickupPageViewModel
+    {
+        public BookingRowViewModel Booking { get; init; } = new();
+        public PickupForm Form { get; init; } = new();
+    }
+
     public class DamageRowViewModel
     {
         public Guid DamageId { get; init; }

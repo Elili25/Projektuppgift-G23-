@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SeventWebApplication.Models.Admin;
 using SeventWebApplication.Models.Booking;
 using SeventWebApplication.Models.Users;
 
@@ -43,6 +44,49 @@ namespace SeventWebApplication.Controllers
             return View(Rows(BookingStatus.Active));
         }
 
+        // GET /BookingManagement/Confirmed – bekräftade bokningar som väntar på upphämtning
+        [HttpGet]
+        public IActionResult Confirmed()
+        {
+            if (GetStaff(out _) is IActionResult denied)
+                return denied;
+
+            return View(Rows(BookingStatus.Confirmed));
+        }
+
+        // GET /BookingManagement/Pickup?id=... – formulär för upphämtning (Confirmed → Active)
+        [HttpGet]
+        public IActionResult Pickup(string id)
+        {
+            if (GetStaff(out _) is IActionResult denied)
+                return denied;
+
+            return PickupView(new PickupForm { BookingId = id ?? "" });
+        }
+
+        // POST /BookingManagement/Pickup – registrerar upphämtningen via StartRental
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult Pickup(PickupForm form)
+        {
+            if (GetStaff(out IBookingManager staff) is IActionResult denied)
+                return denied;
+
+            if (!ModelState.IsValid)
+                return PickupView(form);
+
+            try
+            {
+                _management.StartRental(staff, form.BookingId, form.Mileage, form.FuelLevel, form.BatteryLevel, form.Notes ?? "");
+                TempData["Success"] = "Pickup registered. The rental is now active.";
+                return RedirectToAction(nameof(Active));
+            }
+            catch (Exception ex) when (ex is InvalidOperationException or ArgumentException or UnauthorizedAccessException)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return PickupView(form);
+            }
+        }
+
         // POST /BookingManagement/Approve – Pending → Confirmed
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Approve(string id)
@@ -55,6 +99,19 @@ namespace SeventWebApplication.Controllers
         public IActionResult Cancel(string id)
         {
             return RunAndRedirect(staff => _management.Cancel(staff, id), "Booking cancelled.", nameof(Pending));
+        }
+
+        private IActionResult PickupView(PickupForm form)
+        {
+            var booking = _bookings.GetById(form.BookingId);
+            if (booking is null)
+                return NotFound();
+
+            return View("Pickup", new PickupPageViewModel
+            {
+                Booking = BookingRowViewModel.From(booking, _users, DateTime.Now),
+                Form = form
+            });
         }
 
         private List<BookingRowViewModel> Rows(BookingStatus status)
