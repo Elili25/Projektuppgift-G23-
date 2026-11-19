@@ -31,7 +31,8 @@ namespace SeventWebApplication.Controllers
                 .GroupBy(b => b.UserId ?? "")
                 .ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
 
-            List<User> users = _accounts.GetAllUsers(admin).ToList();
+            // Dummy-konton (testbokningar) syns inte i listan
+            List<User> users = _accounts.GetAllUsers(admin).Where(u => !u.IsDummy).ToList();
 
             // Sök på namn, mail eller telefon
             string? trimmed = search?.Trim();

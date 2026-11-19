@@ -24,8 +24,13 @@ namespace SeventWebApplication.Models.Users
         // det gamla objektet 
         public static User ChangeRole(User existing, Role newRole)
         {
-            return Create(newRole, existing.UserId, existing.Name, existing.Phone,
-                          existing.Mail, existing.Password, existing.IsActive);
+            User changed = Create(newRole, existing.UserId, existing.Name, existing.Phone,
+                                  existing.Mail, existing.Password, existing.IsActive);
+
+            if (!existing.CanLogin)
+                changed.MarkNoLogin(existing.IsDummy);
+
+            return changed;
         }
     }
 }

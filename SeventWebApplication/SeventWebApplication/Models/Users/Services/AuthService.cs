@@ -18,7 +18,7 @@ namespace SeventWebApplication.Models.Users
         {
             User? user = _users.GetByMail(mail);
 
-            if (user is null || !user.CheckPassword(password))
+            if (user is null || !user.CanLogin || !user.CheckPassword(password))
                 throw new InvalidOperationException("Wrong email address or password.");
 
             if (!user.IsActive)

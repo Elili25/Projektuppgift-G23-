@@ -38,6 +38,7 @@ namespace SeventWebApplication
                 return repo;
             });
             builder.Services.AddSingleton<AuthService>();
+            builder.Services.AddSingleton<StaffCustomerService>();
             builder.Services.AddSingleton<AccountService>();
             builder.Services.AddSingleton<BookingViewerService>();
             builder.Services.AddScoped<BookingValidator>();

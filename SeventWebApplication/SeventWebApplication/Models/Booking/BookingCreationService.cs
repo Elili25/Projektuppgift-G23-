@@ -29,6 +29,7 @@ namespace SeventWebApplication.Models.Booking
         private readonly PricingServices _pricing;
         private readonly VehicleFamilyRepository _families;
         private readonly PaymentServices _payments;
+        private readonly StaffCustomerService _staffCustomers;
 
         public BookingCreationService(
             BookingValidator bookingValidator,
@@ -38,8 +39,10 @@ namespace SeventWebApplication.Models.Booking
             BookingNotifier bookingNotifier,
             PricingServices pricing,
             VehicleFamilyRepository families,
-            PaymentServices payments)
+            PaymentServices payments,
+            StaffCustomerService staffCustomers)
         {
+            _staffCustomers = staffCustomers;
             _payments = payments;
             _pricing = pricing;
             _families = families;
@@ -61,18 +64,52 @@ namespace SeventWebApplication.Models.Booking
 
             // 2. Strategin bestämmer vem bokningen gäller
             IBookingCreationStrategy strategy = actor.CreationStrategy;
+
+            // Personal väljer vem bokningen gäller: personal, befintlig/ny kund eller dummy.
+            // En ny kund/dummy skapas först när allt annat godkänts (se steg 5), så inget konto blir kvar om bokningen misslyckas.
+            bool createGuest = false;
+            if (request.BookingFor is { } bookingFor)
+            {
+                if (actor is not IBookingManager)
+                    return Fail(nameof(request.BookingFor), "Only staff can choose who the booking is for.");
+
+                createGuest = bookingFor == BookingFor.Dummy
+                    || (bookingFor == BookingFor.Customer && string.IsNullOrWhiteSpace(request.TargetUserId));
+
+                if (createGuest)
+                {
+                    try
+                    {
+                        _staffCustomers.Validate(request.Guest?.Name, request.Guest?.Mail, request.Guest?.Phone,
+                            isDummy: bookingFor == BookingFor.Dummy);
+                    }
+                    catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+                    {
+                        return Fail(nameof(request.Guest), ex.Message);
+                    }
+                }
+            }
+
+            // Medan gästen inte finns än används personalens id, så att resten av kontrollerna kan köras
             string targetUserId;
             try
             {
-                targetUserId = strategy.ResolveTarget(actor.UserId.ToString(), request.TargetUserId);
+                targetUserId = strategy.ResolveTarget(actor.UserId.ToString(), createGuest ? null : request.TargetUserId);
             }
             catch (Exception ex) when (ex is UnauthorizedAccessException or ArgumentException)
             {
                 return Fail(nameof(request.TargetUserId), ex.Message);
             }
 
-            if (!Guid.TryParse(targetUserId, out Guid targetGuid) || _users.GetById(targetGuid) is not { IsActive: true })
+            if (!Guid.TryParse(targetUserId, out Guid targetGuid) || _users.GetById(targetGuid) is not { IsActive: true } targetUser)
                 return Fail(nameof(request.TargetUserId), "The user does not exist or is deactivated.");
+
+            // Rätt sorts mottagare för valet i formuläret
+            if (!createGuest && request.BookingFor == BookingFor.Management && targetUser is not IBookingManager)
+                return Fail(nameof(request.TargetUserId), "Choose a staff member, or pick Customer to book for a customer.");
+
+            if (!createGuest && request.BookingFor == BookingFor.Customer && (targetUser.Role != Role.Customer || targetUser.IsDummy))
+                return Fail(nameof(request.TargetUserId), "Choose a customer from the search.");
 
             // Kopia av förfrågan med rätt kund ifylld, så valideringsreglerna ser samma sak som bokningen får
             BookingRequest resolvedRequest = request with { TargetUserId = targetUserId };
@@ -138,6 +175,24 @@ namespace SeventWebApplication.Models.Booking
             if (pricedVehicle is not null)
                 _pricing.ApplyPrice(booking, pricedVehicle);
 
+            // Ny kund/dummy: skapas nu när allt annat är godkänt, och bokningen flyttas över till den
+            User? createdGuest = null;
+            if (createGuest)
+            {
+                try
+                {
+                    createdGuest = _staffCustomers.CreateWithoutLogin(
+                        (IBookingManager)actor, request.Guest?.Name, request.Guest?.Mail, request.Guest?.Phone,
+                        isDummy: request.BookingFor == BookingFor.Dummy);
+                }
+                catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or UnauthorizedAccessException)
+                {
+                    return Fail(nameof(request.Guest), ex.Message);
+                }
+
+                booking.UserId = createdGuest.UserId.ToString();
+            }
+
             // 5. Spara. RegisterBooking kollar bl.a. att en vald bil inte redan är bokad.
             try
             {
@@ -145,6 +200,9 @@ namespace SeventWebApplication.Models.Booking
             }
             catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
             {
+                if (createdGuest is not null)
+                    _users.Remove(createdGuest.UserId);   // inget konto kvar för en bokning som inte blev av
+
                 return Fail("Booking", ex.Message);
             }
 

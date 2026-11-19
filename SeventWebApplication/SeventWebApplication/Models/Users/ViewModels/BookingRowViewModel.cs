@@ -45,8 +45,9 @@ namespace SeventWebApplication.Models.Users
             return new BookingRowViewModel
             {
                 BookingId = booking.BookingId,
-                CustomerName = customer?.Name ?? "Unknown customer",
-                CustomerMail = customer?.Mail ?? "",
+                CustomerName = customer is null ? "Unknown customer" : customer.IsDummy ? customer.Name + " (dummy)" : customer.Name,
+                // Dummy utan e-post har en påhittad adress som inte ska visas
+                CustomerMail = customer is null || customer.IsDummy && customer.Mail.EndsWith(".invalid") ? "" : customer.Mail,
                 Vehicle = booking.Vehicle is null
                     ? "–"
                     : $"{booking.Vehicle.Model.Brand.BrandName} {booking.Vehicle.Model.ModelName}",

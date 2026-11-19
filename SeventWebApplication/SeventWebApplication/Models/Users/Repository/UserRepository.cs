@@ -39,6 +39,12 @@ namespace SeventWebApplication.Models.Users
             _usersByMail[user.Mail] = user;
         }
 
+        public void Remove(Guid id)
+        {
+            if (_usersById.Remove(id, out User? removed))
+                _usersByMail.Remove(removed.Mail);
+        }
+
         // Byter ut den sparade användaren mot den nya med samma id.
         // Behövs när man byter roll, då är det ju ett helt nytt objekt.
         // Undviker problemet att om den nya e-postadressen redan finns på en annan användare

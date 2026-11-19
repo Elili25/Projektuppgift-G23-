@@ -39,13 +39,13 @@ namespace SeventWebApplication.Models.Users
         public static void EnsureMail(string? mail)
         {
             if (!IsValidMail(mail))
-                throw new ArgumentException(InvalidMailMessage, nameof(mail));
+                throw new ArgumentException(InvalidMailMessage);
         }
 
         public static void EnsurePhone(string? phone)
         {
             if (!IsValidPhone(phone))
-                throw new ArgumentException(InvalidPhoneMessage, nameof(phone));
+                throw new ArgumentException(InvalidPhoneMessage);
         }
     }
 }

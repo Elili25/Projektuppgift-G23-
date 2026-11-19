@@ -9,6 +9,7 @@ namespace SeventWebApplication.Models.Users
         User? GetByMail(string mail);
         IEnumerable<User> GetAll();
         void Add(User user);
+        void Remove(Guid id); // Bara för att ångra ett konto som skapades av en bokning som sedan misslyckades
         void Update(User user); // Ett edge case som kan uppstå är när vi uppdaterar en
                                 // användare med samma UserId men ny roll så
                                 // måste vi ersätta den gamla versionen i repot.

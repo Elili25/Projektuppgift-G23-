@@ -27,6 +27,7 @@ namespace SeventWebApplication.Controllers
         private readonly PricingServices _pricing;
         private readonly BaseCosts _baseCosts;
         private readonly BookingManagementService _management;
+        private readonly StaffCustomerService _staffCustomers;
 
         public BookingsController(
             UserSession session,
@@ -37,9 +38,11 @@ namespace SeventWebApplication.Controllers
             VehicleFamilyRepository families,
             PricingServices pricing,
             BaseCosts baseCosts,
-            BookingManagementService management)
+            BookingManagementService management,
+            StaffCustomerService staffCustomers)
         {
             _management = management;
+            _staffCustomers = staffCustomers;
             _session = session;
             _viewer = viewer;
             _users = users;
@@ -253,6 +256,23 @@ namespace SeventWebApplication.Controllers
             return result.Success ? Ok(response) : BadRequest(response);
         }
 
+        // Sökning bland befintliga kunder när personal skapar en bokning (GET /Bookings/SearchCustomers?q=...).
+        // Skickar bara tillbaka de första träffarna, så sidan inte behöver ladda alla kunder.
+        [HttpGet]
+        public IActionResult SearchCustomers(string? q)
+        {
+            if (_session.CurrentUser is null)
+                return Unauthorized();
+
+            if (_session.CurrentUser is not IBookingManager staff)
+                return StatusCode(403);
+
+            var matches = _staffCustomers.SearchCustomers(staff, q)
+                .Select(u => new { id = u.UserId, name = u.Name, mail = u.Mail, phone = u.Phone });
+
+            return Json(matches);
+        }
+
         // Preliminärt pris för det som är ifyllt i formuläret (GET /Bookings/Estimate?Form.Start=...).
         // Formuläret frågar den medan man fyller i, så man ser priset innan man skapar bokningen.
         // Priset räknas av PricingServices (CalculateBaseRate/CalculateTotalPrice), här byggs bara indatan.
@@ -371,18 +391,17 @@ namespace SeventWebApplication.Controllers
                 IsStaff = isStaff,
                 Errors = errors,
 
-                // Personal får boka åt alla aktiva användare: kunder, annan personal och sig själv.
-                // Den inloggade hamnar först så att "boka åt mig själv" är närmast till hands.
-                Customers = isStaff
+                // "Management": personalen själv eller en kollega. Listan är kort (bara personal), till skillnad
+                // från kunderna som söks via SearchCustomers. Den inloggade hamnar först.
+                StaffMembers = isStaff
                     ? _users.GetAll()
-                        .Where(u => u.IsActive)
+                        .Where(u => u.IsActive && u is IBookingManager)
                         .OrderBy(u => u.UserId != currentUser!.UserId)
-                        .ThenBy(u => u.Role != Role.Customer)
                         .ThenBy(u => u.Name)
                         .Select(u => new BookingOption(
                             u.UserId.ToString(),
                             u.UserId == currentUser!.UserId ? $"{u.Name} (you)" : u.Name,
-                            u.Role == Role.Customer ? u.Mail : $"{u.Mail}, {UsersController.RoleText(u.Role)}"))
+                            UsersController.RoleText(u.Role)))
                         .ToList()
                     : new List<BookingOption>(),
 

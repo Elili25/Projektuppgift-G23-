@@ -6,8 +6,15 @@ namespace SeventWebApplication.Models.Booking
     // Gör om sig själv till en BookingRequest, så controllern inte behöver veta hur fälten hänger ihop.
     public class CreateBookingForm
     {
-        // Bara personal fyller i den (kunder bokar alltid åt sig själva)
+        // Bara personal fyller i dessa (kunder bokar alltid åt sig själva).
+        // Recipient: "management" / "customer" / "dummy". TargetUserId = vald kollega eller vald befintlig kund.
+        public string? Recipient { get; set; }
         public string? TargetUserId { get; set; }
+
+        // Uppgifter för en ny kund eller dummy
+        public string? GuestName { get; set; }
+        public string? GuestMail { get; set; }
+        public string? GuestPhone { get; set; }
 
         // "family" = välj en fordonsfamilj, "vehicle" = välj en specifik bil
         public string VehicleChoice { get; set; } = "family";
@@ -26,10 +33,21 @@ namespace SeventWebApplication.Models.Booking
         public SeventWebApplication.Models.Payment.PaymentMethod? PaymentMethod { get; set; } =
             SeventWebApplication.Models.Payment.PaymentMethod.Card;
 
+        private BookingFor? ParseRecipient() => Recipient?.ToLowerInvariant() switch
+        {
+            "management" => SeventWebApplication.Models.Booking.BookingFor.Management,
+            "customer" => SeventWebApplication.Models.Booking.BookingFor.Customer,
+            "dummy" => SeventWebApplication.Models.Booking.BookingFor.Dummy,
+            _ => null
+        };
+
         public BookingRequest ToRequest() => new()
         {
             PaymentMethod = PaymentMethod,
-            TargetUserId = string.IsNullOrWhiteSpace(TargetUserId) ? null : TargetUserId,
+            BookingFor = ParseRecipient(),
+            // Dummy har ingen riktig kund, så ett kvarglömt id från ett annat val ska inte följa med
+            TargetUserId = string.IsNullOrWhiteSpace(TargetUserId) || Recipient == "dummy" ? null : TargetUserId,
+            Guest = new GuestDetails(GuestName, GuestMail, GuestPhone),
             VehicleFamilyId = VehicleChoice == "family" ? VehicleFamilyId : null,
             VehicleId = VehicleChoice == "vehicle" ? VehicleId : null,
             Start = Start,
@@ -56,7 +74,8 @@ namespace SeventWebApplication.Models.Booking
         // Personal får välja kund, kunder ser inte det fältet alls
         public bool IsStaff { get; init; }
 
-        public List<BookingOption> Customers { get; init; } = new();
+        // Personal att välja bland vid "Management". Kunder söks i stället via /Bookings/SearchCustomers.
+        public List<BookingOption> StaffMembers { get; init; } = new();
         public List<BookingOption> Families { get; init; } = new();
         public List<BookingOption> Vehicles { get; init; } = new();
         public List<AddonOption> Addons { get; init; } = new();

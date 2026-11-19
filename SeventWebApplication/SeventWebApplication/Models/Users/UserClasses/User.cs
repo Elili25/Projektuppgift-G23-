@@ -17,6 +17,11 @@ namespace SeventWebApplication.Models.Users
         // Går bara att ändra via Deactivate/Reactivate längre ner
         public bool IsActive { get; private set; }
 
+        // Konton som personal skapar när de bokar åt någon utan konto kan inte logga in (CanLogin = false).
+        // IsDummy = testbokning utan riktig kund, dessa syns varken i kundsökningen eller i användarlistan.
+        public bool CanLogin { get; private set; } = true;
+        public bool IsDummy { get; private set; }
+
         // Varje subklass säger själv vilken roll den är
         public abstract Role Role { get; }
 
@@ -41,6 +46,11 @@ namespace SeventWebApplication.Models.Users
         // vilket i detta fall är accountservice som endast admins kan anropa. (ISP, DIP)
         internal void Deactivate() => IsActive = false;
         internal void Reactivate() => IsActive = true;
+        internal void MarkNoLogin(bool isDummy)
+        {
+            CanLogin = false;
+            IsDummy = isDummy;
+        }
 
 
         // Stämmer lösenordet?
