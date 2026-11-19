@@ -55,8 +55,9 @@ namespace SeventWebApplication.Controllers
 
         // status = "pending" / "confirmed" / "active" / "completed" / "cancelled" (eller inget = alla)
         // search = fritext, bara för personal
+        // sort = "customer" / "vehicle" / "period" / "price" / "status", dir = "asc" / "desc" (inget sort = status, sedan startdatum)
         [HttpGet]
-        public IActionResult Index(string? status, string? search)
+        public IActionResult Index(string? status, string? search, string? sort, string? dir)
         {
             User? user = _session.CurrentUser;
 
@@ -96,22 +97,26 @@ namespace SeventWebApplication.Controllers
             // Räkna per status INNAN vi filtrerar på status, så flikarna visar rätt siffror
             BookingStatus? selected = ParseStatus(status);
 
+            // Bara kända kolumner går att sortera på. Kundkolumnen finns bara för personal.
+            string? sortKey = sort?.Trim().ToLowerInvariant();
+            if (sortKey is not ("vehicle" or "period" or "price" or "status") && !(isStaff && sortKey == "customer"))
+                sortKey = null;
+            bool descending = string.Equals(dir, "desc", StringComparison.OrdinalIgnoreCase);
+
             var model = new BookingListViewModel
             {
                 IsStaff = isStaff,
                 Search = trimmedSearch,
                 SelectedStatus = selected,
+                SortKey = sortKey,
+                SortDescending = descending,
                 CountAll = rows.Count,
                 CountPending = rows.Count(r => r.Status == BookingStatus.Pending),
                 CountConfirmed = rows.Count(r => r.Status == BookingStatus.Confirmed),
                 CountActive = rows.Count(r => r.Status == BookingStatus.Active),
                 CountCompleted = rows.Count(r => r.Status == BookingStatus.Completed),
                 CountCancelled = rows.Count(r => r.Status == BookingStatus.Cancelled),
-                Bookings = rows
-                    .Where(r => selected is null || r.Status == selected)
-                    .OrderBy(r => (int)r.Status)
-                    .ThenBy(r => r.Start)
-                    .ToList()
+                Bookings = SortRows(rows.Where(r => selected is null || r.Status == selected), sortKey, descending)
             };
 
             return View(model);
@@ -175,6 +180,38 @@ namespace SeventWebApplication.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        // Sorterar raderna efter vald kolumn. Namn sorteras i bokstavsordning (utan hänsyn till versaler),
+        // period på startdatum, pris på totalsumma och status i livscykelns ordning. Lika värden faller tillbaka
+        // på startdatum så ordningen blir stabil. Rader utan pris/bil hamnar alltid sist, oavsett riktning.
+        private static List<BookingRowViewModel> SortRows(IEnumerable<BookingRowViewModel> rows, string? key, bool descending)
+        {
+            if (key is null)
+            {
+                return rows.OrderBy(r => (int)r.Status).ThenBy(r => r.Start).ToList();
+            }
+
+            IOrderedEnumerable<BookingRowViewModel> sorted = key switch
+            {
+                "customer" => Order(rows, r => r.CustomerName, descending, StringComparer.CurrentCultureIgnoreCase),
+                // Familjebokningar utan tilldelad bil (RegNr tomt) hamnar sist, oavsett riktning
+                "vehicle" => descending
+                    ? rows.OrderBy(r => r.RegNr == "").ThenByDescending(r => r.Vehicle, StringComparer.CurrentCultureIgnoreCase)
+                    : rows.OrderBy(r => r.RegNr == "").ThenBy(r => r.Vehicle, StringComparer.CurrentCultureIgnoreCase),
+                "period" => Order(rows, r => r.Start, descending),
+                "price" => descending
+                    ? rows.OrderBy(r => r.TotalPrice is null).ThenByDescending(r => r.GrandTotal)
+                    : rows.OrderBy(r => r.TotalPrice is null).ThenBy(r => r.GrandTotal),
+                _ => Order(rows, r => (int)r.Status, descending)
+            };
+
+            return sorted.ThenBy(r => r.Start).ThenBy(r => r.BookingId).ToList();
+        }
+
+        private static IOrderedEnumerable<BookingRowViewModel> Order<TKey>(
+            IEnumerable<BookingRowViewModel> rows, Func<BookingRowViewModel, TKey> selector, bool descending,
+            IComparer<TKey>? comparer = null) =>
+            descending ? rows.OrderByDescending(selector, comparer) : rows.OrderBy(selector, comparer);
 
         // Här hanteras statusfiltren: gör om texten från URL:en ("pending", "confirmed" ...) till BookingStatus,
         // eller null för inget filter aka visa alla. IsDefined stoppar siffror som "7" som inte är en riktig status.

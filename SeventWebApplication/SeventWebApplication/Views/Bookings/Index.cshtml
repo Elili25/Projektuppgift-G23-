@@ -8,6 +8,25 @@
     var sv = System.Globalization.CultureInfo.GetCultureInfo("en-GB");
 
     // Hjälpmetoder för flikarna och statusbadgen, så HTML:en nedanför blir lättare att läsa
+    // Sorterbara kolumnrubriker: klick sorterar stigande, nytt klick på samma kolumn vänder ordningen.
+    // Valt filter och sökning följer med i länken.
+    void SortHeader(string key, string label, string cssClass = "")
+    {
+        bool active = Model.SortKey == key;
+        string nextDir = active && !Model.SortDescending ? "desc" : "asc";
+        string url = Url.Action("Index", new
+        {
+            status = Model.SelectedStatus?.ToString().ToLower(),
+            search = Model.Search,
+            sort = key,
+            dir = nextDir
+        })!;
+        string ariaSort = active ? (Model.SortDescending ? "descending" : "ascending") : "none";
+        <th class="@cssClass" aria-sort="@ariaSort">
+            <a href="@url" class="text-decoration-none text-reset" title="Sort by @label.ToLower()">@label@(active ? (Model.SortDescending ? " ▼" : " ▲") : "")</a>
+        </th>
+    }
+
     string TabClass(BookingStatus? s) => Model.SelectedStatus == s ? "nav-link active" : "nav-link";
     string StatusText(BookingStatus s) => s switch
     {
@@ -48,13 +67,19 @@
             {
                 <input type="hidden" name="status" value="@(Model.SelectedStatus.Value.ToString().ToLower())" />
             }
+            @if (Model.SortKey != null)
+            {
+                <input type="hidden" name="sort" value="@Model.SortKey" />
+                <input type="hidden" name="dir" value="@(Model.SortDescending ? "desc" : "asc")" />
+            }
             <input class="form-control" type="search" name="search" value="@Model.Search"
                    placeholder="Search customer, reg. no., vehicle..." aria-label="Search bookings" />
             <button class="btn btn-primary" type="submit">Search</button>
             @if (!string.IsNullOrEmpty(Model.Search))
             {
                 <a class="btn btn-outline-secondary" asp-action="Index"
-                   asp-route-status="@(Model.SelectedStatus?.ToString().ToLower())">Clear</a>
+                   asp-route-status="@(Model.SelectedStatus?.ToString().ToLower())"
+                   asp-route-sort="@Model.SortKey" asp-route-dir="@(Model.SortKey == null ? null : (Model.SortDescending ? "desc" : "asc"))">Clear</a>
             }
         </form>
     }
@@ -83,32 +108,32 @@
 @* Flikar för att filtrera på status, siffrorna visar hur många som finns i varje *@
 <ul class="nav nav-pills mb-3">
     <li class="nav-item">
-        <a class="@TabClass(null)" asp-action="Index" asp-route-search="@Model.Search">
+        <a class="@TabClass(null)" asp-action="Index" asp-route-search="@Model.Search" asp-route-sort="@Model.SortKey" asp-route-dir="@(Model.SortKey == null ? null : (Model.SortDescending ? "desc" : "asc"))">
             All <span class="badge bg-light text-dark">@Model.CountAll</span>
         </a>
     </li>
     <li class="nav-item">
-        <a class="@TabClass(BookingStatus.Pending)" asp-action="Index" asp-route-status="pending" asp-route-search="@Model.Search">
+        <a class="@TabClass(BookingStatus.Pending)" asp-action="Index" asp-route-status="pending" asp-route-search="@Model.Search" asp-route-sort="@Model.SortKey" asp-route-dir="@(Model.SortKey == null ? null : (Model.SortDescending ? "desc" : "asc"))">
             Pending <span class="badge bg-light text-dark">@Model.CountPending</span>
         </a>
     </li>
     <li class="nav-item">
-        <a class="@TabClass(BookingStatus.Confirmed)" asp-action="Index" asp-route-status="confirmed" asp-route-search="@Model.Search">
+        <a class="@TabClass(BookingStatus.Confirmed)" asp-action="Index" asp-route-status="confirmed" asp-route-search="@Model.Search" asp-route-sort="@Model.SortKey" asp-route-dir="@(Model.SortKey == null ? null : (Model.SortDescending ? "desc" : "asc"))">
             Confirmed <span class="badge bg-light text-dark">@Model.CountConfirmed</span>
         </a>
     </li>
     <li class="nav-item">
-        <a class="@TabClass(BookingStatus.Active)" asp-action="Index" asp-route-status="active" asp-route-search="@Model.Search">
+        <a class="@TabClass(BookingStatus.Active)" asp-action="Index" asp-route-status="active" asp-route-search="@Model.Search" asp-route-sort="@Model.SortKey" asp-route-dir="@(Model.SortKey == null ? null : (Model.SortDescending ? "desc" : "asc"))">
             Active <span class="badge bg-light text-dark">@Model.CountActive</span>
         </a>
     </li>
     <li class="nav-item">
-        <a class="@TabClass(BookingStatus.Completed)" asp-action="Index" asp-route-status="completed" asp-route-search="@Model.Search">
+        <a class="@TabClass(BookingStatus.Completed)" asp-action="Index" asp-route-status="completed" asp-route-search="@Model.Search" asp-route-sort="@Model.SortKey" asp-route-dir="@(Model.SortKey == null ? null : (Model.SortDescending ? "desc" : "asc"))">
             Completed <span class="badge bg-light text-dark">@Model.CountCompleted</span>
         </a>
     </li>
     <li class="nav-item">
-        <a class="@TabClass(BookingStatus.Cancelled)" asp-action="Index" asp-route-status="cancelled" asp-route-search="@Model.Search">
+        <a class="@TabClass(BookingStatus.Cancelled)" asp-action="Index" asp-route-status="cancelled" asp-route-search="@Model.Search" asp-route-sort="@Model.SortKey" asp-route-dir="@(Model.SortKey == null ? null : (Model.SortDescending ? "desc" : "asc"))">
             Cancelled <span class="badge bg-light text-dark">@Model.CountCancelled</span>
         </a>
     </li>
@@ -141,13 +166,13 @@ else
                     <th>Booking</th>
                     @if (Model.IsStaff)
                     {
-                        <th>Customer</th>
+                        SortHeader("customer", "Customer");
                     }
-                    <th>Vehicle</th>
-                    <th>Period</th>
+                    @{ SortHeader("vehicle", "Vehicle"); }
+                    @{ SortHeader("period", "Period"); }
                     <th>Add-ons</th>
-                    <th class="text-end">Price</th>
-                    <th>Status</th>
+                    @{ SortHeader("price", "Price", "text-end"); }
+                    @{ SortHeader("status", "Status"); }
                     @if (!Model.IsStaff)
                     {
                         <th></th>

@@ -13,6 +13,11 @@ namespace SeventWebApplication.Models.Users
         public BookingStatus? SelectedStatus { get; init; }
         public string? Search { get; init; }
 
+        // Sortering: kolumnen ("customer", "vehicle", "period", "price", "status") och riktningen.
+        // Null = standardordningen (status, sedan startdatum).
+        public string? SortKey { get; init; }
+        public bool SortDescending { get; init; }
+
         // Antal per status, visas i flikarna (räknas innan statusfiltret, annars blir siffrorna fel)
         public int CountAll { get; init; }
         public int CountPending { get; init; }
