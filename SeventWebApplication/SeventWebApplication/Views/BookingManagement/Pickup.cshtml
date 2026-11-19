@@ -29,11 +29,11 @@
             <label class="adm-field">Mileage (km)
                 <input name="Mileage" type="number" min="0" value="@Model.Form.Mileage" />
             </label>
-            <label class="adm-field">Fuel level
-                <input name="FuelLevel" type="number" step="any" min="0" value="@Model.Form.FuelLevel" />
+            <label class="adm-field">Fuel level (%)
+                <input name="FuelLevel" type="number" step="any" min="0" max="100" value="@Model.Form.FuelLevel" />
             </label>
-            <label class="adm-field">Battery level
-                <input name="BatteryLevel" type="number" step="any" min="0" value="@Model.Form.BatteryLevel" />
+            <label class="adm-field">Battery level (%)
+                <input name="BatteryLevel" type="number" step="any" min="0" max="100" value="@Model.Form.BatteryLevel" />
             </label>
             <label class="adm-field adm-field--wide">Notes
                 <textarea name="Notes" rows="2">@Model.Form.Notes</textarea>

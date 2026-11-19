@@ -91,7 +91,9 @@ namespace SeventWebApplication.Models.Admin
     {
         [Required] public string BookingId { get; set; } = "";
         public int Mileage { get; set; }
+        [Range(0, 100, ErrorMessage = "Fuel level must be between 0 and 100 %.")]
         public decimal? FuelLevel { get; set; }
+        [Range(0, 100, ErrorMessage = "Battery level must be between 0 and 100 %.")]
         public decimal? BatteryLevel { get; set; }
         public InspectionResult InspectionResult { get; set; } = InspectionResult.Approved;
         public string? Damages { get; set; }   // en skada per rad
@@ -113,9 +115,9 @@ namespace SeventWebApplication.Models.Admin
         [Required] public string BookingId { get; set; } = "";
         [Range(0, int.MaxValue, ErrorMessage = "Mileage cannot be negative.")]
         public int Mileage { get; set; }
-        [Range(0, double.MaxValue, ErrorMessage = "Fuel level cannot be negative.")]
+        [Range(0, 100, ErrorMessage = "Fuel level must be between 0 and 100 %.")]
         public decimal FuelLevel { get; set; }
-        [Range(0, double.MaxValue, ErrorMessage = "Battery level cannot be negative.")]
+        [Range(0, 100, ErrorMessage = "Battery level must be between 0 and 100 %.")]
         public decimal BatteryLevel { get; set; }
         public string? Notes { get; set; }
     }

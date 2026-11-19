@@ -38,6 +38,9 @@ namespace SeventWebApplication.Models.VehicleNS
             decimal batteryLevel,
             string notes = "")
         {
+            EnsurePercentage(fuelLevel, "Fuel level");
+            EnsurePercentage(batteryLevel, "Battery level");
+
             var booking = GetBooking(bookingId);
             var vehicle = GetVehicle(booking);
             var vehicleId = vehicle.VehicleId;
@@ -102,6 +105,9 @@ namespace SeventWebApplication.Models.VehicleNS
         {
             if (damageFee < 0)
                 throw new ArgumentException("Damage fee cannot be negative.");
+
+            EnsurePercentage(fuelLevel, "Fuel level");
+            EnsurePercentage(batteryLevel, "Battery level");
 
             var booking = GetBooking(bookingId);
             var record = GetRecord(bookingId);
@@ -190,6 +196,13 @@ namespace SeventWebApplication.Models.VehicleNS
         public bool IsLateReturn(string bookingId)
         {
             return GetDelay(bookingId) > TimeSpan.Zero;
+        }
+
+        // Bränsle- och batterinivå anges i procent. Null = inte angivet (tillåtet vid retur).
+        private static void EnsurePercentage(decimal? level, string name)
+        {
+            if (level is < 0 or > 100)
+                throw new ArgumentException($"{name} must be between 0 and 100 %.");
         }
 
         private BookingEntity GetBooking(string bookingId)
