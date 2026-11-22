@@ -1,34 +1,60 @@
-namespace SeventWebApplication.Models.VehicleNs
+using SeventWebApplication.Models.VehicleNS.Engine;
+
+namespace SeventWebApplication.Models.VehicleNS
 {
-    public class Van : Vehicle, IPassengerVehicle, IVehicleWithEngine, IVehicleTransmissionType, ICargoVehicle
+    // En skåpbil. Kategori (CargoVan/PassengerVan), lastvolym och maxlast avgör
+    // vilken fordonsfamilj bilen hamnar i (VanFamily.Matches) och dagspriset (VanRateCatalog).
+    public class Van : Vehicle,
+        IPassengerVehicle,
+        IVehicleTransmissionType,
+        ICargoVehicle
     {
-        public int PassengerCapacity { get; set; }
-        public FuelType FuelType { get; set; }
-        public TransmissionType TransmissionType { get; set; }
-        public double CargoCapacityM3 { get; set; }
-        public double MaxPayloadKg { get; set; }
-        public Van
-            (
-            string regNr,
-            string brand,
-            string model,
+        // private set: om lastvärdena ändras i efterhand stämmer bilens familjekoppling inte längre
+        public double CargoCapacityM3 { get; private set; }
+        public double MaxPayloadKg { get; private set; }
+
+        public VanCategoryType VanCategoryType { get; private set; }
+
+        public Van(
+            RegistrationPlate registrationPlate,
+            VehicleModel model,
+            VehicleCategoryType vehicleCategoryType,
+            VanCategoryType vanCategoryType,
             int year,
-            int horsePower,
             int passengerCapacity,
-            FuelType fuelType,
+            decimal luggageCapacity,
+            IEngine engine,
             TransmissionType transmissionType,
             double cargoCapacityM3,
-            double maxPayloadKg
-            )
-            : base(regNr, brand, model, year, horsePower)
+            double maxPayloadKg)
+            : base(
+                registrationPlate,
+                model,
+                vehicleCategoryType,
+                year,
+                passengerCapacity,
+                luggageCapacity,
+                engine,
+                transmissionType)
         {
-            PassengerCapacity = passengerCapacity;
-            FuelType = fuelType;
-            TransmissionType = transmissionType;
+            if (vehicleCategoryType != VehicleCategoryType.Van)
+                throw new ArgumentException("A van must have category Van.", nameof(vehicleCategoryType));
+
+            if (passengerCapacity <= 0)
+                throw new ArgumentOutOfRangeException(nameof(passengerCapacity), "Passenger capacity must be greater than 0.");
+
+            if (luggageCapacity < 0)
+                throw new ArgumentOutOfRangeException(nameof(luggageCapacity), "Luggage capacity cannot be negative.");
+
+            if (cargoCapacityM3 <= 0)
+                throw new ArgumentOutOfRangeException(nameof(cargoCapacityM3), "Cargo capacity must be greater than 0.");
+
+            if (maxPayloadKg <= 0)
+                throw new ArgumentOutOfRangeException(nameof(maxPayloadKg), "Max payload must be greater than 0.");
+
+            VanCategoryType = vanCategoryType;
             CargoCapacityM3 = cargoCapacityM3;
             MaxPayloadKg = maxPayloadKg;
         }
-
-
     }
 }

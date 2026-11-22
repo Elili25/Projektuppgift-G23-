@@ -1,0 +1,59 @@
+@using SeventWebApplication.Models.Admin
+@model MaintenanceListViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Maintenance";
+}
+
+<div class="adm-pagehead">
+    <h2>Maintenance (@Model.OngoingCount ongoing, @Model.ScheduledCount scheduled)</h2>
+    <a class="adm-btn" asp-action="Create">New maintenance</a>
+</div>
+
+<section class="adm-card adm-panel">
+    <div class="adm-table-wrap">
+        <table class="adm-table">
+            <thead>
+                <tr>
+                    <th scope="col">Vehicle</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Start</th>
+                    <th scope="col">End</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Cost</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in Model.Rows)
+                {
+                    <tr>
+                        <td><a asp-controller="Fleet" asp-action="Details" asp-route-id="@m.VehicleId">@m.RegNr</a><br /><small>@m.Vehicle</small></td>
+                        <td>@m.Type</td>
+                        <td>@m.Description@if (!string.IsNullOrWhiteSpace(m.Notes)) { <br /><small>@m.Notes</small> }</td>
+                        <td>@m.StartDate.ToString("yyyy-MM-dd")</td>
+                        <td>@(m.EndDate?.ToString("yyyy-MM-dd") ?? "Open-ended")</td>
+                        <td>
+                            <span class="adm-status @(m.Status switch { "Completed" => "adm-status--completed", "Scheduled" => "adm-status--confirmed", _ => "adm-status--inservice" })">@m.Status</span>
+                        </td>
+                        <td>@(m.Cost?.ToString("0.##") ?? "–")</td>
+                        <td>
+                            @if (!m.IsCompleted)
+                            {
+                                <form class="adm-inline" method="post" asp-action="Complete" asp-route-id="@m.MaintenanceId"
+                                      data-confirm="Mark this maintenance as completed?">
+                                    <button class="adm-btn adm-btn--ok" type="submit">Complete</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (Model.Rows.Count == 0)
+                {
+                    <tr class="adm-table__empty"><td colspan="8">No maintenance registered.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

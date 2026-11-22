@@ -1,11 +1,10 @@
-namespace SeventWebApplication.Models.VehicleNs
+namespace SeventWebApplication.Models.VehicleNS
 {
     public enum FuelType
     {
         Petrol,
         Diesel,
         Electric,
-        Hybrid,
-        Gas
+        Hybrid
     }
 }

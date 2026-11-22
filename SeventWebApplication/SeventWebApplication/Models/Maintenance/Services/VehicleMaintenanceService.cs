@@ -3,6 +3,9 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using SeventWebApplication.Models.Maintenance;
+using SeventWebApplication.Models.VehicleNS;
+using SeventWebApplication.Models.Maintenance.Repsitories;
+
 
 
 namespace SeventWebApplication.Models.Maintenance.Services
@@ -40,7 +43,7 @@ namespace SeventWebApplication.Models.Maintenance.Services
             Cost = cost,
             Notes = notes
         };
-        _maintenanceRepository.Add(maintenanceRecord);
+        _maintenanceRepository.AddMaintenanceRecord(maintenanceRecord); // Fixad: hette Add, repot har AddMaintenanceRecord
         return maintenanceRecord;
         }
 
@@ -48,7 +51,7 @@ namespace SeventWebApplication.Models.Maintenance.Services
         public MaintenanceRecord ScheduleMaintenance(Guid vehicleId, MaintenanceType type, string description, DateTime startDate, DateTime endDate, int? mileage = null, decimal? cost = null, string? notes = null)
         {
             var vehicle = EnsureVehicleExists (vehicleId);
-            if (plannedEndDate < startDate)
+            if (endDate < startDate)
             {
                 throw new ArgumentException("End date cannot be earlier than start date.");
             }
@@ -64,7 +67,7 @@ namespace SeventWebApplication.Models.Maintenance.Services
                 Cost = cost,
                 Notes = notes
             };
-            _maintenanceRepository.Add(maintenanceRecord);
+            _maintenanceRepository.AddMaintenanceRecord(maintenanceRecord); // Fixad: hette Add, repot har AddMaintenanceRecord
             _fleetManager.AddMaintenancePeriod(new MaintenancePeriod             
             {
                 MaintenanceId = maintenanceRecord.MaintenanceId,
@@ -123,7 +126,7 @@ namespace SeventWebApplication.Models.Maintenance.Services
             };
 
 
-            _maintenanceRepository.Add(maintenanceRecord);
+            _maintenanceRepository.AddMaintenanceRecord(maintenanceRecord); // Fixad: hette Add, repot har AddMaintenanceRecord
             _fleetManager.AddMaintenancePeriod(new MaintenancePeriod
             {
                 MaintenanceId = maintenanceRecord.MaintenanceId,
@@ -161,7 +164,7 @@ namespace SeventWebApplication.Models.Maintenance.Services
         }
 
         public IEnumerable<MaintenanceRecord> GetMaintenanceHistory(Guid vehicleId)
-            => _maintenanceRepository.GetByVehicleId(vehicleId);
+            => _maintenanceRepository.GetByVehicle(vehicleId);
 
             public IEnumerable<MaintenanceRecord> GetUpcomingMaintenance(DateTime? from = null)
             => _maintenanceRepository.GetUpcomingServices(from ?? DateTime.Now);
@@ -170,7 +173,7 @@ namespace SeventWebApplication.Models.Maintenance.Services
 
         public Vehicle EnsureVehicleExists(Guid vehicleId)
         {
-            return _fleetManager.GetVehicleById(vehicleId) ?? throw new ArgumentException($"Vehicle {vehicleId} not found.");
+            return _fleetManager.GetVehicle(vehicleId) ?? throw new ArgumentException($"Vehicle {vehicleId} not found.");
 
             // oklart om vår fleetmanager 
 

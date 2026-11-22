@@ -1,16 +1,122 @@
+using SeventWebApplication.Models.Booking;
+using SeventWebApplication.Models.Maintenance.Repsitories;
+using SeventWebApplication.Models.Maintenance.Services;
+using SeventWebApplication.Models.BookingValidation;
+using SeventWebApplication.Models.Notifications;
+using SeventWebApplication.Models.Observers;
+using SeventWebApplication.Models.Pricing;
+using SeventWebApplication.Models.Pricing.PricingCategories;
+using SeventWebApplication.Models.Users;
+using SeventWebApplication.Models.VehicleNS;
+
+
 namespace SeventWebApplication
 {
     public class Program
     {
         public static void Main(string[] args)
-        {
+       {
 
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            // ---- Observers ----
+            builder.Services.AddSingleton<BookingNotifier>();
+
+            // ---- Notifications ----
+            // Singletons först så den initieras i Build() annars finns den inte första gången vi kör igenom programmet 
+            builder.Services.AddSingleton<NotificationService>();
+            // HostedService så den ger NotificationService en entrypoint för sin egna loop
+            builder.Services.AddHostedService(_ => _.GetRequiredService<NotificationService>());
+
+            // ---- Användardelen ----
+            // Singleton = samma objekt i hela appen, så alla delar samma användarlista.
+            builder.Services.AddSingleton<IUserRepository>(_ =>
+            {
+                var repo = new UserRepository();
+                repo.Seed(); // kladd metod som seedar några exempel account
+                return repo;
+            });
+            builder.Services.AddSingleton<AuthService>();
+            builder.Services.AddSingleton<StaffCustomerService>();
+            builder.Services.AddSingleton<AccountService>();
+            builder.Services.AddSingleton<BookingViewerService>();
+            builder.Services.AddScoped<BookingValidator>();
+            builder.Services.AddScoped<IValidationStrategy, DateValidationStrategy>();
+            builder.Services.AddScoped<IValidationStrategy, AddonValidationStrategy>();
+            builder.Services.AddScoped<BookingCreationService>();
+
+            // Session = så att inloggningen hänger kvar mellan sidladdningar (via en cookie boom)
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.Cookie.HttpOnly = true;                 // JavaScript kommer inte åt cookien
+                options.Cookie.IsEssential = true;
+            });
+            builder.Services.AddHttpContextAccessor();
+            // Scoped = nytt UserSession-objekt för varje sidladdning
+            builder.Services.AddScoped<UserSession>();
+
+            // ---- Bokningsdelen ----
+            // Samma BookingRepository som BookingRegistry använder, så det bara finns en lista med bokningar
+            builder.Services.AddSingleton<BookingRepository>(_ => BookingRegistry.Instance.Repository);
+            builder.Services.AddSingleton(BookingRegistry.Instance.Repository);
+            builder.Services.AddScoped<BookingManagementService>();
+            builder.Services.AddHostedService<VehicleAutoAssignWorker>();   // tilldelar bil 2 h före start om ingen valts
+
+            // ---- Fordonsdelen ----
+            builder.Services.AddSingleton<VehicleRentalRecordRepository>();
+            builder.Services.AddSingleton<VehicleInspectionRepository>();
+            builder.Services.AddSingleton<VehicleDamageRepository>();
+            // FleetManager har privat konstruktor, så Dependency Injection får använda den befintliga instansen
+            builder.Services.AddSingleton<FleetManager>(_ => FleetManager.instance);
+            // ---- Underhåll ----
+            builder.Services.AddSingleton<MaintenanceRepository>();
+            builder.Services.AddSingleton<VehicleMaintenanceService>();
+            builder.Services.AddSingleton<VehicleFamilyFactory>();
+            builder.Services.AddSingleton<VehicleFamilyValidator>();
+            builder.Services.AddSingleton<VehicleFamilyService>();
+            builder.Services.AddSingleton<SeventWebApplication.Models.Admin.ImageUploadService>();
+            builder.Services.AddSingleton<VehicleFamilyRepository>();
+            builder.Services.AddSingleton<VehicleFamilyAssignmentRepository>();
+            builder.Services.AddSingleton<VehicleAssignmentService>();
+            // ---- Prissättning ----
+            builder.Services.AddSingleton<CarRateCatalog>();
+            builder.Services.AddSingleton<VanRateCatalog>();
+            builder.Services.AddSingleton<BaseCosts>();
+            builder.Services.AddSingleton<PricingServices>();
+            builder.Services.AddSingleton<SeventWebApplication.Models.Payment.PaymentServices>();
+            builder.Services.AddScoped<VehicleDamageService>();
+            builder.Services.AddScoped<RentalReturnService>();
+
             var app = builder.Build();
+
+            var notificationService = app.Services.GetRequiredService<NotificationService>();
+            var userRepository = (UserRepository)app.Services.GetRequiredService<IUserRepository>();
+
+            notificationService.AddChannel( new EmailNotificationChannel( userRepository ) );
+            notificationService.AddChannel( new SmsNotificationChannel( userRepository ) );
+            notificationService.AddChannel( new InAppNotificationChannel( userRepository ) );
+
+            // Skapar tjänsten direkt vid start så att den börjar lyssna på FleetManager.VehicleAdded
+            // (annars skapas den först när något ber om den, och bilar som läggs till innan dess missas)
+            var assignmentService = app.Services.GetRequiredService<VehicleAssignmentService>();
+
+            // Fyller familje-repot med de färdiga familjerna (annars är det tomt och inget matchar),
+            // och kopplar sedan eventuella bilar som redan finns i flottan
+            var familyRepository = app.Services.GetRequiredService<VehicleFamilyRepository>();
+            foreach (var family in VehicleFamilySeeder.GetSeededFamilies())
+                familyRepository.Add(family);
+            assignmentService.AutoAssignAllVehicles();
+
+            // testmetod som skapar några exempelbokningar fördelade på kunderna i repot,
+            // så man har nåt att kolla på under /Bookings
+            ExampleBookingSeeder.Seed(
+                app.Services.GetRequiredService<IUserRepository>(),
+                app.Services.GetRequiredService<PricingServices>(),
+                familyRepository);
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -21,7 +127,11 @@ namespace SeventWebApplication
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();   // serverar bilder som personal laddar upp under wwwroot/uploads, före routing så filer slipper sessionen och auktoriseringen
             app.UseRouting();
+
+            app.UseSession(); // måste komma efter UseRouting, annars funkar inte sessionen,
+                              // behöver köra i den delen av pipelinen där requesten redan är “routad” och där appen vet vilken endpoint som kommer att köras.
 
             app.UseAuthorization();
 

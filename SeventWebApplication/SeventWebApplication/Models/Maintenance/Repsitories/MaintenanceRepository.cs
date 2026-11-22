@@ -19,10 +19,15 @@ namespace SeventWebApplication.Models.Maintenance.Repsitories
             _records.Add(record);
         }
 
-        public MaintenanceRecord GetById(Guid maintenanceId) => _records.Find(r => r.MaintenanceId == maintenanceId);
+        public MaintenanceRecord? GetById(Guid maintenanceId) => _records.Find(r => r.MaintenanceId == maintenanceId);
 
         public IEnumerable<MaintenanceRecord> GetByVehicle(Guid vehicleId) => _records.Where(r => r.VehicleId == vehicleId)
             .OrderByDescending(r => r.StartDate)
+            .ToList();
+
+        // Fixad: saknades. Pågående (ej avslutat) underhåll för en bil, används av MarkVehicleActive.
+        public IEnumerable<MaintenanceRecord> GetActiveMaintenanceByVehicleId(Guid vehicleId) => _records
+            .Where(r => r.VehicleId == vehicleId && !r.IsCompleted)
             .ToList();
 
         public IEnumerable<MaintenanceRecord> GetUpcomingServices(DateTime from) => _records.Where(r => !r.IsCompleted && r.StartDate >= from)

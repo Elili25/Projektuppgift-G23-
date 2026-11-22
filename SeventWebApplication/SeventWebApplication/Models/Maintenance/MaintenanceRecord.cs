@@ -10,11 +10,13 @@ public record MaintenanceRecord
 	// enum 
 	public required string Description { get; init; }
 	public required DateTime StartDate { get; init; }	
-	public required DateTime EndDate { get; init; }
+	public required DateTime? EndDate { get; init; }
 	public int? Mileage { get; init; }
 	public decimal? Cost { get; init; }
 	public string ? Notes { get; init; }
 	public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+	// Fixad: IsCompleted saknades. Klart när slutdatum finns och har passerat (planerat slutdatum i framtiden räknas inte som klart).
+	public bool IsCompleted => EndDate != null && EndDate <= DateTime.UtcNow;
 }
 
 

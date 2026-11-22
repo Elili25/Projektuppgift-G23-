@@ -10,7 +10,7 @@
         string.Equals(action, a, StringComparison.OrdinalIgnoreCase);
     string Sub(string c, string a) => Is(c, a) ? "adm-nav__sublink is-active" : "adm-nav__sublink";
 
-    bool inFleet = Is("Fleet", "Index") || Is("Fleet", "Create") || Is("Families", "Manage") || Is("Fleet", "Service");
+    bool inFleet = Is("Fleet", "Index") || Is("Fleet", "Create") || Is("Families", "Manage") || Is("Fleet", "Service") || Is("Maintenance", "Index") || Is("Maintenance", "Create");
     bool inBookings = Is("Bookings", "Index") || Is("Bookings", "Create") || Is("BookingManagement", "Pending") || Is("BookingManagement", "Confirmed") || Is("BookingManagement", "Pickup") || Is("BookingManagement", "Active");
     bool inReturns = Is("Returns", "Register") || Is("Returns", "Damages");
 }
@@ -37,6 +37,7 @@
             <a class="@Sub("Fleet", "Create")" asp-controller="Fleet" asp-action="Create">Add vehicle</a>
             <a class="@Sub("Families", "Manage")" asp-controller="Families" asp-action="Manage">Vehicle families</a>
             <a class="@Sub("Fleet", "Service")" asp-controller="Fleet" asp-action="Service">Service &amp; repairs</a>
+            <a class="@Sub("Maintenance", "Index")" asp-controller="Maintenance" asp-action="Index">Maintenance</a>
         </details>
 
         <details class="adm-nav__group" open="@(inBookings || controller == "Admin")">

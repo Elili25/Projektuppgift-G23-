@@ -1,0 +1,79 @@
+@using SeventWebApplication.Models.Admin
+@using SeventWebApplication.Models.Maintenance
+@using Microsoft.AspNetCore.Mvc.Rendering
+@model MaintenanceForm
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "New maintenance";
+    var vehicles = ViewData["Vehicles"] as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+}
+
+<section class="adm-card adm-panel adm-formcard">
+    <form method="post" asp-action="Create">
+        @if (ViewData.ModelState.Values.Any(v => v.Errors.Count > 0))
+        {
+            <ul class="adm-errors">
+                @foreach (var e in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@e.ErrorMessage</li>
+                }
+            </ul>
+        }
+
+        <div class="adm-form">
+            <label class="adm-field adm-field--wide">What do you want to do?
+                <select asp-for="Mode" id="maint-mode">
+                    <option value="@MaintenanceMode.Schedule">Schedule maintenance (start and end date)</option>
+                    <option value="@MaintenanceMode.OutOfService">Take vehicle out of service now (open-ended)</option>
+                </select>
+            </label>
+            <label class="adm-field adm-field--wide">Vehicle
+                <select asp-for="VehicleId" asp-items="vehicles">
+                    <option value="">Select a vehicle…</option>
+                </select>
+            </label>
+            <label class="adm-field">Type
+                <select asp-for="Type" asp-items="Html.GetEnumSelectList<MaintenanceType>()"></select>
+            </label>
+            <label class="adm-field adm-field--wide">Description / reason
+                <input asp-for="Description" />
+            </label>
+            <label class="adm-field" data-for="Schedule">Start date
+                <input asp-for="StartDate" type="date" />
+            </label>
+            <label class="adm-field" data-for="Schedule">End date
+                <input asp-for="EndDate" type="date" />
+            </label>
+            <label class="adm-field" data-for="Schedule">Mileage (km)
+                <input asp-for="Mileage" type="number" min="0" />
+                <small>Optional.</small>
+            </label>
+            <label class="adm-field" data-for="Schedule">Cost
+                <input asp-for="Cost" type="number" min="0" step="any" />
+                <small>Optional.</small>
+            </label>
+            <label class="adm-field adm-field--wide" data-for="Schedule">Notes
+                <textarea asp-for="Notes" rows="3"></textarea>
+            </label>
+        </div>
+
+        <p style="margin-top:18px">
+            <button class="adm-btn" type="submit">Save</button>
+            <a class="adm-btn adm-btn--ghost" asp-action="Index">Cancel</a>
+        </p>
+    </form>
+</section>
+
+@* Visar bara schemaläggningsfälten när "Schedule" är valt *@
+<script>
+    (function () {
+        var mode = document.getElementById("maint-mode");
+        function update() {
+            document.querySelectorAll("[data-for='Schedule']").forEach(function (el) {
+                el.style.display = mode.value === "Schedule" ? "" : "none";
+            });
+        }
+        mode.addEventListener("change", update);
+        update();
+    })();
+</script>

@@ -1,4 +1,5 @@
-﻿@using SeventWebApplication
+@inject SeventWebApplication.Models.Users.UserSession UserSession
+@using SeventWebApplication
 @using SeventWebApplication.Models
 
 <!DOCTYPE html>
@@ -22,30 +23,143 @@
     <link rel="stylesheet"
           href="~/css/site.css"
           asp-append-version="true" />
+
+
 </head>
 <body>
+    @{
+        var currentUser = UserSession.CurrentUser;
+        bool isStaff = currentUser is SeventWebApplication.Models.Users.IBookingManager;
+
+        // Markerar länken för sidan man är på
+        string routeController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+        string routeAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+        // Små linjeikoner (24x24) till menyn
+        Microsoft.AspNetCore.Html.IHtmlContent Icon(string name)
+        {
+            string path = name switch
+            {
+                "home" => "<path d=\"M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z\"/>",
+                "car" => "<path d=\"M5 12l1.6-4.2A2 2 0 0 1 8.5 6.5h7a2 2 0 0 1 1.9 1.3L19 12M4 17v-3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3h-2M4 17h2M10 17h4\"/><circle cx=\"8\" cy=\"17\" r=\"2\"/><circle cx=\"16\" cy=\"17\" r=\"2\"/>",
+                "steps" => "<path d=\"M4 6h4v4H4zM10 14h4v4h-4zM16 6h4v4h-4zM8 8h2a2 2 0 0 1 2 2v4M14 8h2\"/>",
+                "info" => "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 11v5M12 8h.01\"/>",
+                "mail" => "<rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M3 7l9 6 9-6\"/>",
+                "dashboard" => "<rect x=\"3\" y=\"3\" width=\"7\" height=\"9\" rx=\"1.5\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"5\" rx=\"1.5\"/><rect x=\"14\" y=\"12\" width=\"7\" height=\"9\" rx=\"1.5\"/><rect x=\"3\" y=\"16\" width=\"7\" height=\"5\" rx=\"1.5\"/>",
+                "bookings" => "<rect x=\"3\" y=\"5\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M3 10h18M8 3v4M16 3v4\"/>",
+                "plus" => "<rect x=\"3\" y=\"5\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M12 11v6M9 14h6\"/>",
+                "chevron" => "<path d=\"M6 9l6 6 6-6\"/>",
+                _ => ""
+            };
+            return Html.Raw($"<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\">{path}</svg>");
+        }
+
+        string Active(string controller, string action) =>
+            string.Equals(routeController, controller, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(routeAction, action, StringComparison.OrdinalIgnoreCase)
+                ? "nav-link active" : "nav-link";
+    }
+
+    @* Smal topbar: bara hamburgaren och logotypen. Menyn ligger i panelen som glider in från vänster. *@
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm sevent-navbar border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <div style="display: inline-flex;"> <img src="/lib/S_Icon.png" alt="Sevent Logo" style="height: 30px; width: auto;" /> <h4 style="color:white;">Sevent</h4></div> 
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+        <nav class="sevent-navbar sevent-navbar--slim border-bottom mb-3" aria-label="Main">
+            <div class="container-fluid sevent-navbar__inner">
+                <button class="sevent-burger" type="button" data-bs-toggle="offcanvas" data-bs-target="#seventMenu"
+                        aria-controls="seventMenu" aria-label="Open menu">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
+
+                <a class="navbar-brand sevent-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="/lib/S_Icon.png" alt="Sevent Logo" />
+                    <span>Sevent</span>
+                </a>
             </div>
         </nav>
+
+        <div class="offcanvas offcanvas-start sevent-drawer" tabindex="-1" id="seventMenu" aria-labelledby="seventMenuLabel">
+            <div class="offcanvas-header">
+                <a class="navbar-brand sevent-brand" id="seventMenuLabel" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="/lib/S_Icon.png" alt="Sevent Logo" />
+                    <span>Sevent</span>
+                </a>
+                <button type="button" class="sevent-drawer__close" data-bs-dismiss="offcanvas" aria-label="Close menu">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                </button>
+            </div>
+
+            <div class="offcanvas-body sevent-drawer__body">
+                <ul class="navbar-nav sevent-drawer__links">
+                    <li class="nav-item"><a class="@Active("Home", "Index")" asp-area="" asp-controller="Home" asp-action="Index">@Icon("home")Home</a></li>
+
+                    @if (currentUser == null)
+                    {
+                        @* Gäst: utforska utan konto *@
+                        bool inBrowse = routeController.Equals("Vehicles", StringComparison.OrdinalIgnoreCase);
+                        <li class="nav-item">
+                            <button class="nav-link sevent-drawer__toggle @(inBrowse ? "active" : "")" type="button" data-bs-toggle="collapse" data-bs-target="#browseMenu"
+                                    aria-expanded="@(inBrowse ? "true" : "false")" aria-controls="browseMenu">
+                                @Icon("car")Browse Vehicles<span class="sevent-drawer__chevron">@Icon("chevron")</span>
+                            </button>
+                            <div class="collapse @(inBrowse ? "show" : "")" id="browseMenu">
+                                <div class="sevent-drawer__sub">
+                                    <span class="sevent-drawer__group">Passenger cars</span>
+                                    <a asp-controller="Vehicles" asp-action="Cars">All passenger cars</a>
+                                    <a asp-controller="Vehicles" asp-action="Cars" asp-route-category="Sedan">Sedan</a>
+                                    <a asp-controller="Vehicles" asp-action="Cars" asp-route-category="SUV">SUV</a>
+                                    <a asp-controller="Vehicles" asp-action="Cars" asp-route-category="Hatchback">Hatchback</a>
+                                    <a asp-controller="Vehicles" asp-action="Cars" asp-route-category="StationWagon">Station wagon</a>
+
+                                    <span class="sevent-drawer__group">Vans</span>
+                                    <a asp-controller="Vehicles" asp-action="Vans">All vans</a>
+                                    <a asp-controller="Vehicles" asp-action="Vans" asp-route-category="CargoVan">Cargo van</a>
+                                    <a asp-controller="Vehicles" asp-action="Vans" asp-route-category="PassengerVan">Passenger van</a>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="nav-item"><a class="@Active("Home", "HowItWorks")" asp-area="" asp-controller="Home" asp-action="HowItWorks">@Icon("steps")How It Works</a></li>
+                        <li class="nav-item"><a class="@Active("Home", "About")" asp-area="" asp-controller="Home" asp-action="About">@Icon("info")About Sevent</a></li>
+                        <li class="nav-item"><a class="@Active("Home", "Contact")" asp-area="" asp-controller="Home" asp-action="Contact">@Icon("mail")Contact</a></li>
+                    }
+                    else if (isStaff)
+                    {
+                        @* Personal hittar allt (bokningar, flotta, användare ...) i dashboarden, så den är det enda valet *@
+                        <li class="nav-item"><a class="@Active("Admin", "Index")" asp-area="" asp-controller="Admin" asp-action="Index">@Icon("dashboard")Admin dashboard</a></li>
+                    }
+                    else
+                    {
+                        @* Kunder: egna bokningar och boka bil *@
+                        @if (currentUser is SeventWebApplication.Models.Users.IBookingViewer)
+                        {
+                            <li class="nav-item"><a class="@Active("Bookings", "Index")" asp-area="" asp-controller="Bookings" asp-action="Index">@Icon("bookings")My bookings</a></li>
+                        }
+                        @if (currentUser is SeventWebApplication.Models.Users.IBookingCreator)
+                        {
+                            <li class="nav-item"><a class="@Active("Bookings", "Create")" asp-area="" asp-controller="Bookings" asp-action="Create">@Icon("plus")Book a vehicle</a></li>
+                        }
+                    }
+                </ul>
+
+                @* Ligger alltid längst ner i panelen: inloggad = namn + logga ut, annars logga in *@
+                <div class="sevent-drawer__footer">
+                    @if (currentUser != null)
+                    {
+                        <div class="sevent-drawer__user">
+                            <span class="sevent-drawer__avatar" aria-hidden="true">@currentUser.Name.Substring(0, 1).ToUpper()</span>
+                            <span>
+                                <strong>@currentUser.Name</strong>
+                                <small>@currentUser.Role</small>
+                            </span>
+                        </div>
+                        <form asp-controller="Account" asp-action="Logout" method="post">
+                            <button type="submit" class="sevent-drawer__btn">Log out</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="sevent-drawer__btn" asp-controller="Account" asp-action="Login">Log in</a>
+                    }
+                </div>
+            </div>
+        </div>
     </header>
     <div class="container">
         <main role="main" class="pb-3">
