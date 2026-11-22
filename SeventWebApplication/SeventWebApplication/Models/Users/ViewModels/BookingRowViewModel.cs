@@ -66,6 +66,7 @@ namespace SeventWebApplication.Models.Users
                 RefundedAt = booking.RefundedAt,
                 LateFee = booking.LateFee,
                 DamageFee = booking.DamageFee,
+                FeesPaid = booking.FeesPaid,
                 FeesOutstanding = booking.FeesOutstanding,
                 Status = booking.Status,
                 CanCancel = BookingManagementService.CanCustomerCancel(booking, now)

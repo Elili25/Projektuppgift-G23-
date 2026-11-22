@@ -70,6 +70,8 @@ public class PaymentServices
 
         if (result.success)
         {
+            
+            booking.FeesPaid += due;
             _bookingNotifier.Notify( new BookingEvent( BookingEventType.FeesPaymentCompleted, booking ) );
         }
         else
