@@ -1,5 +1,6 @@
 using SeventWebApplication.Models.Booking;
 using SeventWebApplication.Models.Maintenance.Repsitories;
+using SeventWebApplication.Models.Maintenance.Seed;
 using SeventWebApplication.Models.Maintenance.Services;
 using SeventWebApplication.Models.BookingValidation;
 using SeventWebApplication.Models.Notifications;
@@ -117,6 +118,15 @@ namespace SeventWebApplication
                 app.Services.GetRequiredService<IUserRepository>(),
                 app.Services.GetRequiredService<PricingServices>(),
                 familyRepository);
+
+            // Två demobilar utan bokningar: en med skador och en med vanligt underhåll.
+            // VehicleDamageService är scoped, så den hämtas via ett eget scope.
+            using (var seedScope = app.Services.CreateScope())
+            {
+                ExampleMaintenanceSeeder.Seed(
+                    seedScope.ServiceProvider.GetRequiredService<VehicleDamageService>(),
+                    app.Services.GetRequiredService<VehicleMaintenanceService>());
+            }
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

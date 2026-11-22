@@ -159,7 +159,7 @@ namespace SeventWebApplication.Models.Users
             return package;
         }
 
-        private static Car MakeCar(
+        internal static Car MakeCar(
             string brandName,
             string modelName,
             string regNr,
