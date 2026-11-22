@@ -32,6 +32,10 @@ namespace SeventWebApplication.Models.Users
         public DateTime? RefundedAt { get; init; }
         public decimal GrandTotal => (TotalPrice ?? 0m) + LateFee + DamageFee;
 
+        // Avgifter (försening + skada): hur mycket som är betalt och hur mycket kunden fortfarande ska betala
+        public decimal FeesPaid { get; init; }
+        public decimal FeesOutstanding { get; init; }
+
         public BookingStatus Status { get; init; }
 
         // Får kunden avboka bokningen just nu? (styr avboka-knappen)
@@ -62,6 +66,8 @@ namespace SeventWebApplication.Models.Users
                 RefundedAt = booking.RefundedAt,
                 LateFee = booking.LateFee,
                 DamageFee = booking.DamageFee,
+                FeesPaid = booking.FeesPaid,
+                FeesOutstanding = booking.FeesOutstanding,
                 Status = booking.Status,
                 CanCancel = BookingManagementService.CanCustomerCancel(booking, now)
             };

@@ -75,7 +75,7 @@
 
 @section Scripts {
     <script>
-        // Varnar vid tidig återlämning (före bokningens planerade slut)
+        // Warns on early return (before the booking's planned end)
         (function () {
             var form = document.getElementById("return-form");
             if (!form) return;
@@ -89,10 +89,10 @@
                 var returned = at ? new Date(at) : new Date();
                 if (returned >= end) return;
                 var sameDay = end.toDateString() === new Date().toDateString();
-                var time = end.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
-                var when = sameDay ? "kl. " + time
-                    : "den " + end.toLocaleDateString("sv-SE", { day: "numeric", month: "short" }) + " kl. " + time;
-                if (!confirm("Din bokning slutar " + when + ". Vill du lämna tillbaka bilen ändå?"))
+                var time = end.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+                var when = sameDay ? "at " + time
+                    : "on " + end.toLocaleDateString("en-GB", { day: "numeric", month: "short" }) + " at " + time;
+                if (!confirm("The booking ends " + when + ". Register the return anyway?"))
                     e.preventDefault();
             });
         })();

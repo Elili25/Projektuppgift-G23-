@@ -96,12 +96,72 @@
     </div>
 }
 
-@* Fel vid avbokning (layoutens flash är avstängd på den här sidan) *@
+@* Fel vid avbokning eller betalning (layoutens flash är avstängd på den här sidan) *@
 @if (TempData["Error"] is string error)
 {
     <div class="alert alert-danger alert-dismissible fade show">
         @error
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@* Avgifter kunden ska betala (försening + skada). Samma kolumner som bokningstabellen nedanför.
+   Raden försvinner av sig själv när avgiften är betald, eftersom FeesOutstanding då är 0. *@
+@if (Model.OutstandingFees.Count > 0)
+{
+    <h3 class="h5 mt-4">Outstanding fees</h3>
+    <div class="table-responsive mb-4">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Booking</th>
+                    <th>Vehicle</th>
+                    <th>Period</th>
+                    <th class="text-end">Late fee</th>
+                    <th class="text-end">Damage fee</th>
+                    <th class="text-end">Outstanding</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var f in Model.OutstandingFees)
+                {
+                    string due = f.FeesOutstanding.ToString("N0", sv);
+
+                    <tr>
+                        <td><a asp-action="Details" asp-route-id="@f.BookingId"><code title="@f.BookingId">#@f.ShortId</code></a></td>
+
+                        <td>
+                            <div>@f.Vehicle</div>
+                            <small class="text-muted">@f.RegNr</small>
+                        </td>
+
+                        <td>
+                            <div>@f.Start.ToString("d MMM HH:mm", sv) – @f.End.ToString("d MMM HH:mm", sv)</div>
+                            <small class="text-muted">@f.Days @(f.Days == 1 ? "day" : "days")</small>
+                        </td>
+
+                        <td class="text-end text-nowrap">@(f.LateFee > 0 ? f.LateFee.ToString("N0", sv) + " kr" : "–")</td>
+                        <td class="text-end text-nowrap">@(f.DamageFee > 0 ? f.DamageFee.ToString("N0", sv) + " kr" : "–")</td>
+                        <td class="text-end text-nowrap"><strong>@due kr</strong></td>
+
+                        <td>
+                            @* Betalsätt + Pay i samma formulär. Bara id och betalsätt skickas, beloppet räknas ut på servern. *@
+                            <form method="post" asp-action="PayFees" asp-route-id="@f.BookingId"
+                                  class="d-flex gap-2 justify-content-end"
+                                  data-confirm="Pay @due kr?">
+                                <select name="method" class="form-select form-select-sm w-auto" aria-label="Payment method for booking @f.ShortId">
+                                    <option value="Card" selected="@(f.PaymentMethod == "Card")">Card</option>
+                                    <option value="Swish" selected="@(f.PaymentMethod == "Swish")">Swish</option>
+                                    <option value="Invoice" selected="@(f.PaymentMethod == "Invoice")">Invoice</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-primary">Pay</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 }
 
@@ -223,6 +283,10 @@ else
                             @if (b.LateFee > 0 || b.DamageFee > 0)
                             {
                                 <div><small class="text-muted">incl. fees</small></div>
+                            }
+                            @if (b.FeesOutstanding > 0)
+                            {
+                                <div><small class="text-danger">@b.FeesOutstanding.ToString("N0", sv) kr unpaid</small></div>
                             }
                         </td>
 
