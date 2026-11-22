@@ -85,20 +85,6 @@
 }
 
 /* Fordonsfamiljer */
-.guest__tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
-
-.guest__tag {
-    padding: 3px 10px;
-    border-radius: 999px;
-    background: #ece5ff;
-    color: #6044b4;
-    font-size: 0.74rem;
-    font-weight: 650;
-}
-
-.guest__list { margin: 12px 0 0; padding: 12px 0 0; border-top: 1px solid var(--g-border); list-style: none; color: var(--g-muted); font-size: 0.85rem; }
-.guest__list li { padding: 2px 0; }
-
 .guest__filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
 
 .guest__filter {
@@ -114,8 +100,6 @@
 
 .guest__filter:hover { color: var(--g-purple); }
 .guest__filter.is-active { border-color: var(--g-purple); background: var(--g-purple); color: #fff; }
-
-.guest__empty { padding: 32px; color: var(--g-muted); text-align: center; }
 
 .guest__cta {
     display: inline-block;

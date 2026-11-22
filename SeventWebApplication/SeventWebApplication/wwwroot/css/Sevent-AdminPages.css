@@ -83,8 +83,6 @@
    KALENDER (stor variant på /Calendar)
 ======================================== */
 
-.adm-cal__head--full { margin-bottom: 14px; font-size: 1.05rem; }
-.adm-cal__head--full > span { display: inline-flex; align-items: center; gap: 8px; }
 
 .adm-cal__grid--full { gap: 6px; }
 
