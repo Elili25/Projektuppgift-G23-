@@ -90,7 +90,8 @@ namespace SeventWebApplication.Models.Users
                 {
                     Status = statuses[random.Next(statuses.Length)]
                 };
-                pricing.ApplyPrice(booking, vehicle);
+                if (!TryApplyPrice(pricing, booking, vehicle))
+                    continue;   // en bil utan pris går inte att boka, samma regel som BookingCreationService
                 TryRegister(registry, booking);
             }
 
@@ -117,10 +118,26 @@ namespace SeventWebApplication.Models.Users
 
                 // Ingen bil än, så priset räknas med en bil ur familjen
                 if (families.GetById(familyId) is { } family
-                    && FleetManager.instance.GetAllVehicles().FirstOrDefault(v => family.Matches(v)) is { } familyVehicle)
-                    pricing.ApplyPrice(familyBooking, familyVehicle);
+                    && FleetManager.instance.GetAllVehicles().FirstOrDefault(v => family.Matches(v)) is { } familyVehicle
+                    && !TryApplyPrice(pricing, familyBooking, familyVehicle))
+                    continue;
 
                 TryRegister(registry, familyBooking);
+            }
+        }
+
+        // ApplyPrice kastar ArgumentOutOfRangeException för en bil som saknar pris.
+        // Seedern hoppar då över bokningen i stället för att krascha appen vid start.
+        private static bool TryApplyPrice(PricingServices pricing, BookingEntity booking, Vehicle vehicle)
+        {
+            try
+            {
+                pricing.ApplyPrice(booking, vehicle);
+                return true;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return false;
             }
         }
 
