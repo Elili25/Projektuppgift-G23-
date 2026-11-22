@@ -25,7 +25,7 @@
 
         @if (!Model.CanPickupNow)
         {
-            <p class="adm-errors">Pickup opens @Model.EarliestPickup.ToString("yyyy-MM-dd HH:mm").</p>
+            <p class="adm-errors" id="pickup-closed-note">Pickup opens @Model.EarliestPickup.ToString("yyyy-MM-dd HH:mm").</p>
         }
 
         <input type="hidden" name="BookingId" value="@Model.Form.BookingId" />
@@ -46,7 +46,7 @@
         </div>
 
         <p style="margin-top:18px">
-            <button class="adm-btn adm-btn--ok" type="submit" disabled="@(!Model.CanPickupNow)">Register pickup</button>
+            <button class="adm-btn adm-btn--ok" type="submit" id="pickup-submit" disabled="@(!Model.CanPickupNow)">Register pickup</button>
             <a class="adm-btn" asp-action="Confirmed">Back</a>
         </p>
     </form>
@@ -60,6 +60,20 @@
             var start = new Date(form.getAttribute("data-planned-start"));
             // The earliest allowed pickup comes from RentalReturnService (the server)
             var earliest = new Date(form.getAttribute("data-earliest-pickup"));
+
+            // Enable the button when pickup opens, so the page does not need a reload.
+            // Polling (instead of one long setTimeout) also copes with throttled or sleeping tabs.
+            var button = document.getElementById("pickup-submit");
+            if (button.disabled) {
+                var timer = setInterval(function () {
+                    if (new Date() < earliest) return;
+                    clearInterval(timer);
+                    button.disabled = false;
+                    var note = document.getElementById("pickup-closed-note");
+                    if (note) note.remove();
+                }, 5000);
+            }
+
             form.addEventListener("submit", function (e) {
                 if (new Date() < earliest) {
                     alert("Pickup opens " + earliest.toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" }) + ".");

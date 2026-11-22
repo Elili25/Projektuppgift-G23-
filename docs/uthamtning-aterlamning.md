@@ -32,7 +32,7 @@ Sen återlämning flaggas genom att förseningsavgiften sparas på bokningen (`b
 
 Tidig återlämning blockeras inte, av dessa skäl:
 
-1. **Den är redan betald.** Kunden har betalat för hela bokningsperioden. Att lämna tillbaka tidigare skadar inte hyresgivaren.
+1. **Kunden debiteras för hela den bokade perioden.** `PaymentServices.PayForBooking` drar hela hyrespriset när bokningen skapas, oavsett betalsätt, och sätter `PaidAmount` och `PaidAt`. Att lämna tillbaka tidigare skadar därför inte hyresgivaren. För fakturabetalning (`InvoicePayment`) betyder det att fakturan avser hela perioden, inte att pengarna redan har kommit in. Betalningsleverantörerna är simulerade i projektet.
 2. **Bilen blir ledig.** `RegisterReturn` sätter `vehicle.IsAvailable = true`. Att tvinga kvar bilen till `EndDate` skulle låsa en bil som står oanvänd.
 3. **Det är en verklig situation.** Personal ska kunna registrera att bilen står på plats, annars finns risk att bilen står kvar som uthyrd i systemet.
 4. **Det skiljer sig från tidig uthämtning.** Tidig uthämtning kan krocka med föregående bokning av samma bil. Tidig återlämning kan inte det.
@@ -41,5 +41,5 @@ Eftersom det är ovanligt får personalen en varning (`Views/Returns/Register.cs
 
 ### Konsekvenser
 
-- Ingen avgift och ingen återbetalning för outnyttjad tid. Det skulle kräva ett nytt beslut.
+- Ingen ändring av debiterat belopp och ingen återbetalning för outnyttjad tid. Det skulle kräva ett nytt beslut.
 - Varningen finns bara i frontend. Servern avvisar inte tidig återlämning, vilket är avsikten.
