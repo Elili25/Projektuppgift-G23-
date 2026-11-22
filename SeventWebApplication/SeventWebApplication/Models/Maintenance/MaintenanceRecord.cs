@@ -10,7 +10,7 @@ public record MaintenanceRecord
 	// enum 
 	public required string Description { get; init; }
 	public required DateTime StartDate { get; init; }	
-	public required DateTime EndDate { get; init;
+	public required DateTime EndDate { get; init; }
 	public int? Mileage { get; init; }
 	public decimal? Cost { get; init; }
 	public string ? Notes { get; init; }

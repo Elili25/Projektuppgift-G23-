@@ -11,3 +11,4 @@ namespace SeventWebApplication.Models.Booking.Enums
     Completed
 
 }
+}

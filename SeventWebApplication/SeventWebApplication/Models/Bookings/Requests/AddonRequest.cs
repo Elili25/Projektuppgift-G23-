@@ -13,3 +13,4 @@ namespace SeventWebApplication.Models.Booking.Request
         // Göra addontype required samt range check på quantity, t.ex. 1-5, beroende på addon type??? 
 
     }
+}

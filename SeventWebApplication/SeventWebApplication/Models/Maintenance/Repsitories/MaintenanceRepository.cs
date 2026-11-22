@@ -9,7 +9,7 @@ namespace SeventWebApplication.Models.Maintenance.Repsitories
     public class MaintenanceRepository
 
     {
-        private readonly List<MaintenanceRecord> _records = new;
+        private readonly List<MaintenanceRecord> _records = new();
         
         public void AddMaintenanceRecord(MaintenanceRecord record)
         {
@@ -22,7 +22,7 @@ namespace SeventWebApplication.Models.Maintenance.Repsitories
         public MaintenanceRecord GetById(Guid maintenanceId) => _records.Find(r => r.MaintenanceId == maintenanceId);
 
         public IEnumerable<MaintenanceRecord> GetByVehicle(Guid vehicleId) => _records.Where(r => r.VehicleId == vehicleId)
-            .OrderByDescending(r => r.StartDate);
+            .OrderByDescending(r => r.StartDate)
             .ToList();
 
         public IEnumerable<MaintenanceRecord> GetUpcomingServices(DateTime from) => _records.Where(r => !r.IsCompleted && r.StartDate >= from)
@@ -44,6 +44,7 @@ namespace SeventWebApplication.Models.Maintenance.Repsitories
 
         public IEnumerable<MaintenanceRecord> GetAll() => _records.ToList();
     }
+}
 
 
 //MaintenanceRepository	

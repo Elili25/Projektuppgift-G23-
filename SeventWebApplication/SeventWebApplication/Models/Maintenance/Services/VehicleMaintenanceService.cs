@@ -107,7 +107,7 @@ namespace SeventWebApplication.Models.Maintenance.Services
             return updatedRecord;
         }
         
-        pubic MarkVehicleOutOfService(Guid vehicleId, string reason, MaintenanceType type = MaintenanceType.Repair)
+        public void MarkVehicleOutOfService(Guid vehicleId, string reason, MaintenanceType type = MaintenanceType.Repair)
         {
             EnsureVehicleExists(vehicleId);
             var now = DateTime.UtcNow;
@@ -140,13 +140,12 @@ namespace SeventWebApplication.Models.Maintenance.Services
             EnsureVehicleExists(vehicleId);
             var now = DateTime.UtcNow;
 
-            var ongoing maintenance = _maintenanceRepository.GetActiveMaintenanceByVehicleId(vehicleId);
-
+            var ongoingMaintenance = _maintenanceRepository.GetActiveMaintenanceByVehicleId(vehicleId)
             .Where(m => !m.IsCompleted && m.StartDate <= now)
             .ToList();
 
 
-            for each (var maintenance in ongoingMaintenance)
+            foreach (var maintenance in ongoingMaintenance)
             {
                 CompleteMaintenance(maintenance.MaintenanceId, now);
             }
@@ -159,19 +158,19 @@ namespace SeventWebApplication.Models.Maintenance.Services
             //    throw new ArgumentException("No active maintenance record found for this vehicle.");
             //}
             //CompleteMaintenance(maintenanceRecord.MaintenanceId, completedAt, mileage, cost, notes);
+        }
 
-            public IEnumerable<MaintenanceRecord> GetMaintenanceHistory(Guid vehicleId)
-            => _maintenanceRepository.GetByVehicleId(vehicleId)
+        public IEnumerable<MaintenanceRecord> GetMaintenanceHistory(Guid vehicleId)
+            => _maintenanceRepository.GetByVehicleId(vehicleId);
 
-            public IEnumerable<MaintenanceRecord> GetUpcomingMaintenance(DateTime ? = null)
-            => _maintenanceRepository.GetUpcomnigServices(DateTime ?? DateTime.Now);
+            public IEnumerable<MaintenanceRecord> GetUpcomingMaintenance(DateTime? from = null)
+            => _maintenanceRepository.GetUpcomingServices(from ?? DateTime.Now);
         /// Unsure of this one.
         /// 
 
         public Vehicle EnsureVehicleExists(Guid vehicleId)
         {
-            var vehicle = _fleetManager.GetVehicleById(vehicleId);
-            => _fleetManager.GetVehicleById(vehicleId) ?? throw new ArgumentException($"Vehicle {vehicleId} not found.");
+            return _fleetManager.GetVehicleById(vehicleId) ?? throw new ArgumentException($"Vehicle {vehicleId} not found.");
 
             // oklart om vår fleetmanager 
 
@@ -179,8 +178,9 @@ namespace SeventWebApplication.Models.Maintenance.Services
             //{
             //    throw new ArgumentException("Vehicle not found.");
             //}
-          
+        }
     }
+}
 
 
 //VehicleMaintenanceService	
