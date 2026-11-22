@@ -90,51 +90,46 @@
                 <ul class="navbar-nav sevent-drawer__links">
                     <li class="nav-item"><a class="@Active("Home", "Index")" asp-area="" asp-controller="Home" asp-action="Index">@Icon("home")Home</a></li>
 
-                    @if (currentUser == null)
-                    {
-                        @* Gäst: utforska utan konto *@
-                        bool inBrowse = routeController.Equals("Vehicles", StringComparison.OrdinalIgnoreCase);
-                        <li class="nav-item">
-                            <button class="nav-link sevent-drawer__toggle @(inBrowse ? "active" : "")" type="button" data-bs-toggle="collapse" data-bs-target="#browseMenu"
-                                    aria-expanded="@(inBrowse ? "true" : "false")" aria-controls="browseMenu">
-                                @Icon("car")Browse Vehicles<span class="sevent-drawer__chevron">@Icon("chevron")</span>
-                            </button>
-                            <div class="collapse @(inBrowse ? "show" : "")" id="browseMenu">
-                                <div class="sevent-drawer__sub">
-                                    <span class="sevent-drawer__group">Passenger cars</span>
-                                    <a asp-controller="Vehicles" asp-action="Cars">All passenger cars</a>
-                                    <a asp-controller="Vehicles" asp-action="Cars" asp-route-category="Sedan">Sedan</a>
-                                    <a asp-controller="Vehicles" asp-action="Cars" asp-route-category="SUV">SUV</a>
-                                    <a asp-controller="Vehicles" asp-action="Cars" asp-route-category="Hatchback">Hatchback</a>
-                                    <a asp-controller="Vehicles" asp-action="Cars" asp-route-category="StationWagon">Station wagon</a>
+                    @* Gemensamt för alla: utforska fordon och information *@
+                    @{ bool inBrowse = routeController.Equals("Vehicles", StringComparison.OrdinalIgnoreCase); }
+                    <li class="nav-item">
+                        <button class="nav-link sevent-drawer__toggle @(inBrowse ? "active" : "")" type="button" data-bs-toggle="collapse" data-bs-target="#browseMenu"
+                                aria-expanded="@(inBrowse ? "true" : "false")" aria-controls="browseMenu">
+                            @Icon("car")Browse Vehicles<span class="sevent-drawer__chevron">@Icon("chevron")</span>
+                        </button>
+                        <div class="collapse @(inBrowse ? "show" : "")" id="browseMenu">
+                            <div class="sevent-drawer__sub">
+                                <span class="sevent-drawer__group">Passenger cars</span>
+                                <a asp-controller="Vehicles" asp-action="Cars">All passenger cars</a>
+                                <a asp-controller="Vehicles" asp-action="Cars" asp-route-category="Sedan">Sedan</a>
+                                <a asp-controller="Vehicles" asp-action="Cars" asp-route-category="SUV">SUV</a>
+                                <a asp-controller="Vehicles" asp-action="Cars" asp-route-category="Hatchback">Hatchback</a>
+                                <a asp-controller="Vehicles" asp-action="Cars" asp-route-category="StationWagon">Station wagon</a>
 
-                                    <span class="sevent-drawer__group">Vans</span>
-                                    <a asp-controller="Vehicles" asp-action="Vans">All vans</a>
-                                    <a asp-controller="Vehicles" asp-action="Vans" asp-route-category="CargoVan">Cargo van</a>
-                                    <a asp-controller="Vehicles" asp-action="Vans" asp-route-category="PassengerVan">Passenger van</a>
-                                </div>
+                                <span class="sevent-drawer__group">Vans</span>
+                                <a asp-controller="Vehicles" asp-action="Vans">All vans</a>
+                                <a asp-controller="Vehicles" asp-action="Vans" asp-route-category="CargoVan">Cargo van</a>
+                                <a asp-controller="Vehicles" asp-action="Vans" asp-route-category="PassengerVan">Passenger van</a>
                             </div>
-                        </li>
-                        <li class="nav-item"><a class="@Active("Home", "HowItWorks")" asp-area="" asp-controller="Home" asp-action="HowItWorks">@Icon("steps")How It Works</a></li>
-                        <li class="nav-item"><a class="@Active("Home", "About")" asp-area="" asp-controller="Home" asp-action="About">@Icon("info")About Sevent</a></li>
-                        <li class="nav-item"><a class="@Active("Home", "Contact")" asp-area="" asp-controller="Home" asp-action="Contact">@Icon("mail")Contact</a></li>
-                    }
-                    else if (isStaff)
+                        </div>
+                    </li>
+                    <li class="nav-item"><a class="@Active("Home", "HowItWorks")" asp-area="" asp-controller="Home" asp-action="HowItWorks">@Icon("steps")How It Works</a></li>
+                    <li class="nav-item"><a class="@Active("Home", "About")" asp-area="" asp-controller="Home" asp-action="About">@Icon("info")About Sevent</a></li>
+                    <li class="nav-item"><a class="@Active("Home", "Contact")" asp-area="" asp-controller="Home" asp-action="Contact">@Icon("mail")Contact</a></li>
+
+                    @if (isStaff)
                     {
-                        @* Personal hittar allt (bokningar, flotta, användare ...) i dashboarden, så den är det enda valet *@
+                        @* Dashboarden syns bara för employee och admin *@
                         <li class="nav-item"><a class="@Active("Admin", "Index")" asp-area="" asp-controller="Admin" asp-action="Index">@Icon("dashboard")Admin dashboard</a></li>
                     }
-                    else
+
+                    @if (currentUser is SeventWebApplication.Models.Users.IBookingViewer)
                     {
-                        @* Kunder: egna bokningar och boka bil *@
-                        @if (currentUser is SeventWebApplication.Models.Users.IBookingViewer)
-                        {
-                            <li class="nav-item"><a class="@Active("Bookings", "Index")" asp-area="" asp-controller="Bookings" asp-action="Index">@Icon("bookings")My bookings</a></li>
-                        }
-                        @if (currentUser is SeventWebApplication.Models.Users.IBookingCreator)
-                        {
-                            <li class="nav-item"><a class="@Active("Bookings", "Create")" asp-area="" asp-controller="Bookings" asp-action="Create">@Icon("plus")Book a vehicle</a></li>
-                        }
+                        <li class="nav-item"><a class="@Active("Bookings", "Index")" asp-area="" asp-controller="Bookings" asp-action="Index">@Icon("bookings")My bookings</a></li>
+                    }
+                    @if (currentUser is SeventWebApplication.Models.Users.IBookingCreator)
+                    {
+                        <li class="nav-item"><a class="@Active("Bookings", "Create")" asp-area="" asp-controller="Bookings" asp-action="Create">@Icon("plus")Book a vehicle</a></li>
                     }
                 </ul>
 
