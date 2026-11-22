@@ -27,10 +27,11 @@
                 <select asp-for="Type" asp-items="Html.GetEnumSelectList<VehicleType>()" id="vehicle-type"></select>
             </label>
             <label class="adm-field">Registration number
-                <input asp-for="RegNr" />
+                <input asp-for="RegNr" id="regnr-input" placeholder="@RegNrFormatHints.For(Model.CountryCode)" autocomplete="off" />
+                <small id="regnr-hint">Format: @RegNrFormatHints.For(Model.CountryCode)</small>
             </label>
             <label class="adm-field">Country
-                <select asp-for="CountryCode" asp-items="Html.GetEnumSelectList<CountryCode>()"></select>
+                <select asp-for="CountryCode" asp-items="Html.GetEnumSelectList<CountryCode>()" id="country-select"></select>
             </label>
             <label class="adm-field">Brand
                 <input asp-for="Brand" />
@@ -95,6 +96,23 @@
 </section>
 
 @* Visar bara fälten som hör till vald typ (bil eller skåpbil) *@
+<script>
+    // Formatexempel per land som placeholder och hjälptext för regnumret
+    (function () {
+        var hints = { SE: "@RegNrFormatHints.Sweden", DE: "@RegNrFormatHints.Germany", UK: "@RegNrFormatHints.UK",
+                      NO: "@RegNrFormatHints.Norway", DK: "@RegNrFormatHints.Denmark", FI: "@RegNrFormatHints.Finland" };
+        var country = document.getElementById("country-select");
+        var input = document.getElementById("regnr-input");
+        var hint = document.getElementById("regnr-hint");
+        function update() {
+            var h = hints[country.options[country.selectedIndex].text] || "";
+            input.placeholder = h;
+            hint.textContent = "Format: " + h;
+        }
+        country.addEventListener("change", update);
+        update();
+    })();
+</script>
 <script>
     (function () {
         var select = document.getElementById("vehicle-type");

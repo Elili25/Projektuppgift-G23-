@@ -29,6 +29,14 @@
             MinPassengerCapacity = minPassengerCapacity;
         }
 
+        // Minimikraven styr matchningen, så anroparen måste räkna om bilkopplingen efteråt
+        public void UpdateMinimums(double? minCargoVolumeM3, double? minPayloadKg, int? minPassengerCapacity)
+        {
+            MinCargoVolumeM3 = minCargoVolumeM3;
+            MinPayloadKg = minPayloadKg;
+            MinPassengerCapacity = minPassengerCapacity;
+        }
+
         public override bool Matches(Vehicle vehicle)
         {
             // Check if the vehicle is a Van

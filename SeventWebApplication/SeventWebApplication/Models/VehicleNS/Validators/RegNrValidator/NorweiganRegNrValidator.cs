@@ -8,8 +8,8 @@ namespace SeventWebApplication.Models.VehicleNS
     {
         public void ValidateRegNr(string regNr)
         {
-            if (regNr is null || !Regex.IsMatch(regNr.Trim(), @"^[A-Z]{2}\s?\d{4,5}$"))
-                throw new ArgumentException($"Invalid Norwegian registration number: {regNr}");
+            if (regNr is null || !Regex.IsMatch(regNr.Trim(), @"^[A-Z]{2}\s?\d{4,5}$", RegexOptions.IgnoreCase))
+                throw new ArgumentException(RegNrFormatHints.Message(RegNrFormatHints.Norway));
         }
     }
 

@@ -63,6 +63,17 @@ namespace SeventWebApplication.Models.VehicleNS
             LuggageCapacity = luggageCapacity;
             TransmissionType = transmissionType;
         }
+        // Redigering av beskrivande fält (regnummer, märke/modell, år, platser, bagage).
+        // Valideringen görs av anroparen (factories/validators), motor och växellåda ändras inte.
+        public void UpdateDetails(RegistrationPlate plate, VehicleModel model, int year, int passengerCapacity, decimal luggageCapacity)
+        {
+            RegistrationPlate = plate ?? throw new ArgumentNullException(nameof(plate));
+            Model = model ?? throw new ArgumentNullException(nameof(model));
+            Year = year;
+            PassengerCapacity = passengerCapacity;
+            LuggageCapacity = luggageCapacity;
+        }
+
         public void ChangeStatus(VehicleStatus newStatus)
         {
             if (newStatus == VehicleStatus)

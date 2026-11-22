@@ -1,0 +1,58 @@
+@using SeventWebApplication.Models.Admin
+@model FamilyEditForm
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Edit family";
+}
+
+<section class="adm-card adm-panel">
+    <form method="post" asp-action="Edit" enctype="multipart/form-data">
+        @if (ViewData.ModelState.Values.Any(v => v.Errors.Count > 0))
+        {
+            <ul class="adm-errors">
+                @foreach (var e in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@e.ErrorMessage</li>
+                }
+            </ul>
+        }
+
+        <input type="hidden" asp-for="FamilyId" />
+
+        <div class="adm-form">
+            <label class="adm-field adm-field--wide">Image
+                @if (!string.IsNullOrEmpty(Model.CurrentImagePath))
+                {
+                    <img class="adm-thumb" src="@Model.CurrentImagePath" alt="" />
+                }
+                <input type="file" name="Image" accept="image/png,image/jpeg,image/webp" />
+                <small>Optional. Leave empty to keep the current image.</small>
+            </label>
+            <label class="adm-field">Name
+                <input asp-for="Name" />
+            </label>
+            <label class="adm-field adm-field--wide">Description
+                <input asp-for="Description" />
+            </label>
+
+            @if (Model.Kind == "Van")
+            {
+                <label class="adm-field">Min cargo volume (m³)
+                    <input asp-for="MinCargoVolumeM3" type="number" step="any" />
+                </label>
+                <label class="adm-field">Min payload (kg)
+                    <input asp-for="MinPayloadKg" type="number" step="any" />
+                </label>
+                <label class="adm-field">Min passengers
+                    <input asp-for="MinPassengerCapacity" type="number" />
+                </label>
+            }
+        </div>
+        <p><small>Type, transmission and category decide which vehicles belong to the family and cannot be changed.</small></p>
+
+        <p style="margin-top:18px">
+            <button class="adm-btn" type="submit">Save changes</button>
+            <a class="adm-btn adm-btn--ghost" asp-action="Details" asp-route-id="@Model.FamilyId">Cancel</a>
+        </p>
+    </form>
+</section>

@@ -20,6 +20,9 @@ public class FleetManager
     // FleetManager behöver därmed inte känna till fordonsfamiljer, och vi undviker ett cirkulärt beroende.
     public event Action<Vehicle>? VehicleAdded;
 
+    // Skickas när en bil tagits bort, så att t.ex. familjekopplingen kan städas
+    public event Action<Vehicle>? VehicleRemoved;
+
     // Private constructor so only one instance can be created (using the instance getter)
     private FleetManager() { }
 
@@ -38,6 +41,39 @@ public class FleetManager
 
         // Sker efter att bilen är sparad, så lyssnarna ser den i flottan
         VehicleAdded?.Invoke(vehicle);
+    }
+
+    // Uppdaterar en bils beskrivande fält. Dictionaryn är nycklad på regnummer, så vid nytt regnummer byts nyckeln.
+    public void UpdateVehicle(Guid id, RegistrationPlate plate, VehicleModel model, int year, int passengerCapacity, decimal luggageCapacity)
+    {
+        var vehicle = GetVehicle(id) ?? throw new InvalidOperationException("Vehicle not found.");
+        var oldKey = vehicle.RegistrationPlate.RegNr;
+
+        if (!string.Equals(oldKey, plate.RegNr, StringComparison.OrdinalIgnoreCase) && _vehicles.ContainsKey(plate.RegNr))
+            throw new InvalidOperationException($"A vehicle with registration number {plate.RegNr} already exists.");
+
+        vehicle.UpdateDetails(plate, model, year, passengerCapacity, luggageCapacity);
+
+        _vehicles.Remove(oldKey);
+        _vehicles[plate.RegNr] = vehicle;
+    }
+
+    // Tar bort en bil. Blockeras om bilen är uthyrd eller har pågående/kommande bokningar.
+    public void RemoveVehicle(Guid id)
+    {
+        var vehicle = GetVehicle(id) ?? throw new InvalidOperationException("Vehicle not found.");
+
+        if (!vehicle.IsAvailable)
+            throw new InvalidOperationException("The vehicle is rented out right now and cannot be deleted.");
+
+        int openBookings = BookingRegistry.Instance.GetBookingsByVehicleId(id)
+            .Count(b => b.Status is BookingStatus.Pending or BookingStatus.Confirmed or BookingStatus.Active);
+
+        if (openBookings > 0)
+            throw new InvalidOperationException($"The vehicle has {openBookings} pending, confirmed or active booking(s) and cannot be deleted. Cancel or complete them first.");
+
+        _vehicles.Remove(vehicle.RegistrationPlate.RegNr);
+        VehicleRemoved?.Invoke(vehicle);
     }
 
     public IEnumerable<Vehicle> GetAvailableVehicles(DateTime startTime, DateTime endTime)

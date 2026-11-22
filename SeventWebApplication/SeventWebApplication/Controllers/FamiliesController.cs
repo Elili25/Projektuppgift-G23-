@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SeventWebApplication.Models.Admin;
+using SeventWebApplication.Models.Booking;
 using SeventWebApplication.Models.Users;
 using SeventWebApplication.Models.VehicleNS;
 
@@ -14,14 +15,20 @@ namespace SeventWebApplication.Controllers
         private readonly VehicleFamilyService _familyService;
         private readonly UserSession _session;
         private readonly ImageUploadService _images;
+        private readonly BookingRepository _bookings;
+        private readonly VehicleDamageService _damages;
 
         public FamiliesController(
             VehicleFamilyRepository familyRepository,
             VehicleAssignmentService assignmentService,
             VehicleFamilyService familyService,
             UserSession session,
-            ImageUploadService images)
+            ImageUploadService images,
+            BookingRepository bookings,
+            VehicleDamageService damages)
         {
+            _bookings = bookings;
+            _damages = damages;
             _familyRepository = familyRepository;
             _assignmentService = assignmentService;
             _familyService = familyService;
@@ -64,6 +71,13 @@ namespace SeventWebApplication.Controllers
             if (!ModelState.IsValid)
                 return View("Manage", BuildPage(form));
 
+            // Varna om en familj med samma typ, transmission och kategori redan finns (kan bekräftas med "Skapa ändå")
+            if (!form.ConfirmDuplicate && FindDuplicate(form) is VehicleFamily duplicate)
+            {
+                return View("Manage", BuildPage(form,
+                    $"En familj med samma typ, transmission och kategori finns redan: \"{duplicate.Name}\" ({FamilyLabels.For(duplicate)}). Vill du skapa en till ändå?"));
+            }
+
             try
             {
                 // Kolla bilden först, så familjen inte skapas om den är ogiltig
@@ -94,11 +108,178 @@ namespace SeventWebApplication.Controllers
             }
         }
 
-        private FamilyPageViewModel BuildPage(FamilyForm form) => new()
+        // Befintlig familj av samma typ med samma transmission och kategori (för bil även komfortnivå)
+        private VehicleFamily? FindDuplicate(FamilyForm form)
+        {
+            return _familyRepository.GetAll().FirstOrDefault(f => f switch
+            {
+                PassengerCarFamily c => form.Type == VehicleType.Car
+                    && c.TransmissionType == form.TransmissionType
+                    && c.CategoryType == form.CarCategory
+                    && c.ComfortType == form.Comfort,
+                VanFamily v => form.Type == VehicleType.Van
+                    && v.TransmissionType == form.TransmissionType
+                    && v.CategoryType == form.VanCategory,
+                _ => false
+            });
+        }
+
+        // ---- Detaljvy ----
+
+        // GET /Families/Details/{id} – egenskaper och bilarna som ingår
+        [HttpGet]
+        public IActionResult Details(Guid id)
+        {
+            if (GetStaff(out _) is IActionResult denied)
+                return denied;
+
+            VehicleFamily? f = _familyRepository.GetById(id);
+            if (f is null)
+                return NotFound();
+
+            var car = f as PassengerCarFamily;
+            var van = f as VanFamily;
+
+            return View(new FamilyDetailsViewModel
+            {
+                FamilyId = f.FamilyId,
+                Name = f.Name,
+                Description = f.Description,
+                ImagePath = f.ImagePath,
+                Kind = f is VanFamily ? "Van" : "Car",
+                Transmission = f.TransmissionType.ToString(),
+                Category = car?.CategoryType.ToString() ?? van!.CategoryType.ToString(),
+                Comfort = car?.ComfortType.ToString(),
+                MinCargoVolumeM3 = van?.MinCargoVolumeM3,
+                MinPayloadKg = van?.MinPayloadKg,
+                MinPassengerCapacity = van?.MinPassengerCapacity,
+                Vehicles = _assignmentService.FindMatchingVehicles(id)
+                    .OrderBy(v => v.RegistrationPlate.RegNr)
+                    .Select(v => new VehicleRowViewModel
+                    {
+                        VehicleId = v.VehicleId,
+                        RegNr = v.RegistrationPlate.RegNr,
+                        Name = $"{v.Model.Brand.BrandName} {v.Model.ModelName}",
+                        ImagePath = v.ImagePath,
+                        Type = v is Van ? "Van" : "Car",
+                        Year = v.Year,
+                        Status = v.VehicleStatus,
+                        IsRented = _damages.IsCurrentlyRented(v.VehicleId),
+                        OpenDamages = _damages.GetDamagesByVehicle(v.VehicleId).Count(d => !d.IsResolved)
+                    }).ToList()
+            });
+        }
+
+        // ---- Redigera / radera ----
+
+        // GET /Families/Edit/{id}
+        [HttpGet]
+        public IActionResult Edit(Guid id)
+        {
+            if (GetStaff(out _) is IActionResult denied)
+                return denied;
+
+            VehicleFamily? f = _familyRepository.GetById(id);
+            if (f is null)
+                return NotFound();
+
+            var van = f as VanFamily;
+            return View(new FamilyEditForm
+            {
+                FamilyId = id,
+                Kind = f is VanFamily ? "Van" : "Car",
+                Name = f.Name,
+                Description = f.Description,
+                MinCargoVolumeM3 = van?.MinCargoVolumeM3,
+                MinPayloadKg = van?.MinPayloadKg,
+                MinPassengerCapacity = van?.MinPassengerCapacity,
+                CurrentImagePath = f.ImagePath
+            });
+        }
+
+        // POST /Families/Edit – typ, transmission och kategori styr matchningen och kan inte ändras
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(FamilyEditForm form)
+        {
+            if (GetStaff(out _) is IActionResult denied)
+                return denied;
+
+            VehicleFamily? f = _familyRepository.GetById(form.FamilyId);
+            if (f is null)
+                return NotFound();
+
+            form.Kind = f is VanFamily ? "Van" : "Car";
+            form.CurrentImagePath = f.ImagePath;
+
+            if (!ModelState.IsValid)
+                return View(form);
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(form.Name))
+                    throw new ArgumentException("Name is required.");
+
+                if (form.Image is { Length: > 0 })
+                    _images.Validate(form.Image);
+
+                f.UpdateDescriptive(form.Name.Trim(), form.Description ?? "");
+
+                if (f is VanFamily van)
+                {
+                    van.UpdateMinimums(form.MinCargoVolumeM3, form.MinPayloadKg, form.MinPassengerCapacity);
+                    _assignmentService.ReassignAllVehicles();   // minimikraven styr matchningen
+                }
+
+                if (form.Image is { Length: > 0 })
+                    f.ImagePath = await _images.SaveAsync(form.Image, "families");
+
+                TempData["Success"] = $"Family \"{f.Name}\" was updated.";
+                return RedirectToAction(nameof(Details), new { id = f.FamilyId });
+            }
+            catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(form);
+            }
+        }
+
+        // POST /Families/Delete – blockeras om familjen har bilar eller bokningar
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult Delete(Guid id)
+        {
+            if (GetStaff(out _) is IActionResult denied)
+                return denied;
+
+            VehicleFamily? f = _familyRepository.GetById(id);
+            if (f is null)
+            {
+                TempData["Error"] = "Family not found.";
+                return RedirectToAction(nameof(Manage));
+            }
+
+            int vehicles = _assignmentService.FindMatchingVehicles(id).Count();
+            int bookings = _bookings.GetAll().Count(b => b.VehicleFamilyId == id);
+
+            if (vehicles > 0)
+                TempData["Error"] = $"Family \"{f.Name}\" has {vehicles} vehicle(s) and cannot be deleted. Remove or move the vehicles first.";
+            else if (bookings > 0)
+                TempData["Error"] = $"Family \"{f.Name}\" has {bookings} booking(s) and cannot be deleted.";
+            else
+            {
+                _familyRepository.Remove(id);
+                TempData["Success"] = $"Family \"{f.Name}\" was deleted.";
+            }
+
+            return RedirectToAction(nameof(Manage));
+        }
+
+        private FamilyPageViewModel BuildPage(FamilyForm form, string? duplicateWarning = null) => new()
         {
             Form = form,
+            DuplicateWarning = duplicateWarning,
             Families = _familyRepository.GetAll().Select(f => new FamilyRowViewModel
             {
+                FamilyId = f.FamilyId,
                 Name = f.Name,
                 Description = f.Description,
                 ImagePath = f.ImagePath,

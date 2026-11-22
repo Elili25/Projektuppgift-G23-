@@ -50,6 +50,82 @@ namespace SeventWebApplication.Models.Admin
         public double MaxPayloadKg { get; set; } = 1000;
     }
 
+    // Formuläret för "Edit vehicle": bara beskrivande fält (motor, växellåda och klass ändras inte)
+    public class VehicleEditForm
+    {
+        public Guid VehicleId { get; set; }
+        public string TypeName { get; set; } = "";   // "Car" eller "Van", bara för visning
+        public IFormFile? Image { get; set; }        // valfri ny bild
+
+        [Required] public string RegNr { get; set; } = "";
+        public CountryCode CountryCode { get; set; } = CountryCode.SE;
+        [Required] public string Brand { get; set; } = "";
+        [Required] public string ModelName { get; set; } = "";
+        public int Year { get; set; }
+        public int PassengerCapacity { get; set; }
+        public decimal LuggageCapacity { get; set; }
+        public string? CurrentImagePath { get; set; }
+    }
+
+    // Detaljvyn för en bil
+    public class VehicleDetailsViewModel
+    {
+        public Guid VehicleId { get; init; }
+        public string RegNr { get; init; } = "";
+        public string Name { get; init; } = "";
+        public string Type { get; init; } = "";
+        public int Year { get; init; }
+        public string? ImagePath { get; init; }
+        public VehicleStatus Status { get; init; }
+        public bool IsRented { get; init; }
+        public string Transmission { get; init; } = "";
+        public string FuelType { get; init; } = "";
+        public int PassengerCapacity { get; init; }
+        public decimal LuggageCapacity { get; init; }
+        public Guid? FamilyId { get; init; }
+        public string? FamilyLabel { get; init; }
+        public List<BookingRowViewModel> Bookings { get; init; } = new();
+        public List<DamageRowViewModel> Damages { get; init; } = new();
+    }
+
+    // Detaljvyn för en familj
+    public class FamilyDetailsViewModel
+    {
+        public Guid FamilyId { get; init; }
+        public string Name { get; init; } = "";
+        public string Description { get; init; } = "";
+        public string? ImagePath { get; init; }
+        public string Kind { get; init; } = "";
+        public string Transmission { get; init; } = "";
+        public string Category { get; init; } = "";
+        public string? Comfort { get; init; }
+        public double? MinCargoVolumeM3 { get; init; }
+        public double? MinPayloadKg { get; init; }
+        public int? MinPassengerCapacity { get; init; }
+        public List<VehicleRowViewModel> Vehicles { get; init; } = new();
+    }
+
+    // Visningsnamn för en familj: "SUV – Automat – Premium"
+    public static class FamilyLabels
+    {
+        public static string For(VehicleFamily f)
+        {
+            string transmission = f.TransmissionType switch
+            {
+                TransmissionType.Automatic => "Automat",
+                TransmissionType.Manual => "Manuell",
+                _ => "Halvautomat"
+            };
+
+            return f switch
+            {
+                PassengerCarFamily c => $"{c.CategoryType} – {transmission} – {c.ComfortType}",
+                VanFamily v => $"{v.CategoryType} – {transmission}",
+                _ => f.Name
+            };
+        }
+    }
+
     // Formuläret för att skapa en fordonsfamilj
     public class FamilyForm
     {
@@ -68,10 +144,28 @@ namespace SeventWebApplication.Models.Admin
         public double? MinCargoVolumeM3 { get; set; }
         public double? MinPayloadKg { get; set; }
         public int? MinPassengerCapacity { get; set; }
+
+        // Sätts av "Skapa ändå" när en liknande familj redan finns
+        public bool ConfirmDuplicate { get; set; }
+    }
+
+    // Formuläret för "Edit family": namn, beskrivning, bild och (för skåpbil) minimikrav
+    public class FamilyEditForm
+    {
+        public Guid FamilyId { get; set; }
+        public string Kind { get; set; } = "";   // "Car" eller "Van", bara för visning
+        public IFormFile? Image { get; set; }
+        [Required] public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public double? MinCargoVolumeM3 { get; set; }
+        public double? MinPayloadKg { get; set; }
+        public int? MinPassengerCapacity { get; set; }
+        public string? CurrentImagePath { get; set; }
     }
 
     public class FamilyRowViewModel
     {
+        public Guid FamilyId { get; init; }
         public string Name { get; init; } = "";
         public string Description { get; init; } = "";
         public string? ImagePath { get; init; }
@@ -82,6 +176,7 @@ namespace SeventWebApplication.Models.Admin
 
     public class FamilyPageViewModel
     {
+        public string? DuplicateWarning { get; init; }
         public List<FamilyRowViewModel> Families { get; init; } = new();
         public FamilyForm Form { get; init; } = new();
     }

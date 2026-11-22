@@ -12,7 +12,7 @@
         <small>@b.Start.ToString("yyyy-MM-dd HH:mm") → @b.End.ToString("yyyy-MM-dd HH:mm")</small>
     </p>
 
-    <form method="post" asp-action="Pickup">
+    <form method="post" asp-action="Pickup" id="pickup-form" data-planned-start="@b.Start.ToString("yyyy-MM-ddTHH:mm:ss")">
         @if (ViewData.ModelState.Values.Any(v => v.Errors.Count > 0))
         {
             <ul class="adm-errors">
@@ -46,3 +46,22 @@
         </p>
     </form>
 </section>
+
+@section Scripts {
+    <script>
+        // Varnar om bilen hämtas ut före den bokade starttiden
+        (function () {
+            var form = document.getElementById("pickup-form");
+            var start = new Date(form.getAttribute("data-planned-start"));
+            form.addEventListener("submit", function (e) {
+                if (new Date() >= start) return;
+                var sameDay = start.toDateString() === new Date().toDateString();
+                var time = start.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+                var when = sameDay ? "kl. " + time
+                    : "den " + start.toLocaleDateString("sv-SE", { day: "numeric", month: "short" }) + " kl. " + time;
+                if (!confirm("Din bokning börjar " + when + ". Vill du hämta ut bilen ändå?"))
+                    e.preventDefault();
+            });
+        })();
+    </script>
+}

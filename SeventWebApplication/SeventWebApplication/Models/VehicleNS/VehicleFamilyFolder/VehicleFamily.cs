@@ -25,6 +25,13 @@
             TransmissionType = transmissionType;
         }
 
+        // Namn och beskrivning kan ändras utan att det påverkar vilka bilar som matchar
+        public void UpdateDescriptive(string name, string description)
+        {
+            Name = name;
+            Description = description;
+        }
+
         public abstract bool Matches(Vehicle vehicle);
     }
 }

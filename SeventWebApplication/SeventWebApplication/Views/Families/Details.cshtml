@@ -1,0 +1,85 @@
+@using SeventWebApplication.Models.Admin
+@using SeventWebApplication.Models.VehicleNS
+@model FamilyDetailsViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="adm-pagehead">
+    <h2>@Model.Name</h2>
+    <div>
+        <a class="adm-btn adm-btn--ghost" asp-action="Manage">Back</a>
+        <a class="adm-btn" asp-action="Edit" asp-route-id="@Model.FamilyId">Edit</a>
+        <form class="adm-inline" method="post" asp-action="Delete" asp-route-id="@Model.FamilyId"
+              data-confirm="Vill du radera familjen @Model.Name? Det går inte att ångra.">
+            <button class="adm-btn adm-btn--danger" type="submit">Delete</button>
+        </form>
+    </div>
+</div>
+
+<section class="adm-card adm-panel">
+    <div class="adm-panel__head"><h2>Properties</h2></div>
+    @if (!string.IsNullOrEmpty(Model.ImagePath))
+    {
+        <img class="adm-thumb" src="@Model.ImagePath" alt="" style="max-width:240px;height:auto" />
+    }
+    <dl>
+        <dt>Type</dt><dd>@Model.Kind</dd>
+        <dt>Transmission</dt><dd>@Model.Transmission</dd>
+        <dt>Category</dt><dd>@Model.Category</dd>
+        @if (Model.Comfort != null)
+        {
+            <dt>Comfort level</dt><dd>@Model.Comfort</dd>
+        }
+        @if (Model.MinCargoVolumeM3 != null)
+        {
+            <dt>Min cargo volume (m³)</dt><dd>@Model.MinCargoVolumeM3</dd>
+        }
+        @if (Model.MinPayloadKg != null)
+        {
+            <dt>Min payload (kg)</dt><dd>@Model.MinPayloadKg</dd>
+        }
+        @if (Model.MinPassengerCapacity != null)
+        {
+            <dt>Min passengers</dt><dd>@Model.MinPassengerCapacity</dd>
+        }
+        <dt>Description</dt><dd>@Model.Description</dd>
+    </dl>
+</section>
+
+<section class="adm-card adm-panel">
+    <div class="adm-panel__head"><h2>Vehicles in this family (@Model.Vehicles.Count)</h2></div>
+    <div class="adm-table-wrap">
+        <table class="adm-table">
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Reg nr</th>
+                    <th scope="col">Vehicle</th>
+                    <th scope="col">Year</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var v in Model.Vehicles)
+                {
+                    <tr>
+                        <td>@if (!string.IsNullOrEmpty(v.ImagePath)) { <img class="adm-thumb" src="@v.ImagePath" alt="" /> }</td>
+                        <td><a asp-controller="Fleet" asp-action="Details" asp-route-id="@v.VehicleId">@v.RegNr</a></td>
+                        <td>@v.Name</td>
+                        <td>@v.Year</td>
+                        <td>
+                            <span class="adm-status adm-status--@v.Status.ToString().ToLower()">@v.Status</span>
+                            @if (v.IsRented) { <small> (rented)</small> }
+                        </td>
+                    </tr>
+                }
+                @if (Model.Vehicles.Count == 0)
+                {
+                    <tr class="adm-table__empty"><td colspan="5">No vehicles in this family.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

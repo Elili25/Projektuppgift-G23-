@@ -26,7 +26,7 @@
                 {
                     <tr>
                         <td>@if (!string.IsNullOrEmpty(v.ImagePath)) { <img class="adm-thumb" src="@v.ImagePath" alt="" /> }</td>
-                        <td>@v.RegNr</td>
+                        <td><a asp-controller="Fleet" asp-action="Details" asp-route-id="@v.VehicleId">@v.RegNr</a></td>
                         <td>@v.Name</td>
                         <td>@v.Type</td>
                         <td>@v.Year</td>
@@ -52,6 +52,12 @@
                             {
                                 <a class="adm-btn adm-btn--ghost" asp-controller="Returns" asp-action="Damages">View damages</a>
                             }
+                            <a class="adm-btn adm-btn--ghost" asp-controller="Fleet" asp-action="Details" asp-route-id="@v.VehicleId">View</a>
+                            <a class="adm-btn adm-btn--ghost" asp-controller="Fleet" asp-action="Edit" asp-route-id="@v.VehicleId">Edit</a>
+                            <form class="adm-inline" method="post" asp-controller="Fleet" asp-action="Delete" asp-route-id="@v.VehicleId"
+                                  data-confirm="Vill du radera @v.Name (@v.RegNr)? Det går inte att ångra.">
+                                <button class="adm-btn adm-btn--danger" type="submit">Delete</button>
+                            </form>
                         </td>
                     </tr>
                 }

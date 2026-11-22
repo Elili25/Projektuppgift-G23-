@@ -27,6 +27,12 @@
                 ?.FamilyId;
         }
 
+        // Removes the vehicle's family assignment (if any).
+        public void Unassign(Guid vehicleId)
+        {
+            _assignments.RemoveAll(a => a.VehicleId == vehicleId);
+        }
+
         // Returns all vehicle-family assignments.
         public IEnumerable<VehicleFamilyAssignment> GetAll()
         {

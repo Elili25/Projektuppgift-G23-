@@ -25,7 +25,12 @@
             <main class="adm-content">
                 @if (ViewData["OwnFlash"] is not true && TempData["Success"] is string ok)
                 {
-                    <div class="adm-flash adm-flash--ok">@ok</div>
+                    <div class="adm-flash adm-flash--ok">@ok
+                        @if (TempData["SuccessLink"] is string okLink)
+                        {
+                            <a href="@okLink">@(TempData["SuccessLinkText"] as string ?? "Visa")</a>
+                        }
+                    </div>
                 }
                 @if (ViewData["OwnFlash"] is not true && TempData["Error"] is string err)
                 {
@@ -40,6 +45,13 @@
     </div>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Bekräftelsedialog för formulär med data-confirm (t.ex. radera)
+        document.addEventListener("submit", function (e) {
+            var msg = e.target.getAttribute && e.target.getAttribute("data-confirm");
+            if (msg && !confirm(msg)) e.preventDefault();
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

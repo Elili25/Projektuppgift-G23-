@@ -26,6 +26,7 @@ namespace SeventWebApplication.Models.VehicleNS
 
             // Varje ny bil i flottan kopplas automatiskt till en matchande familj
             _fleetManager.VehicleAdded += vehicle => AutoAssignFamily(vehicle);
+            _fleetManager.VehicleRemoved += vehicle => _assignmentRepository.Unassign(vehicle.VehicleId);
         }
 
         // --- Bil ↔ familj ---
@@ -56,6 +57,26 @@ namespace SeventWebApplication.Models.VehicleNS
             }
 
             return assigned;
+        }
+
+        // Familjen bilen är kopplad till, eller null
+        public VehicleFamily? GetFamilyOf(Guid vehicleId)
+        {
+            return _assignmentRepository.GetFamilyId(vehicleId) is Guid id ? _familyRepository.GetById(id) : null;
+        }
+
+        // Räknar om kopplingen för en bil (t.ex. efter redigering): släpper den gamla och kopplar om
+        public bool ReassignFamily(Vehicle vehicle)
+        {
+            _assignmentRepository.Unassign(vehicle.VehicleId);
+            return AutoAssignFamily(vehicle);
+        }
+
+        // Räknar om alla bilars koppling (t.ex. efter ändrade minimikrav på en familj)
+        public void ReassignAllVehicles()
+        {
+            foreach (var vehicle in _fleetManager.GetAllVehicles())
+                ReassignFamily(vehicle);
         }
 
         // Kopplar en bil till en specifik familj, men bara om bilen matchar

@@ -20,6 +20,9 @@
         }
 
 
+        // Removes a family. Returns false if it did not exist.
+        public bool Remove(Guid id) => _families.Remove(id);
+
         // Returns all vehicle families in the repository.
 
         public IEnumerable<VehicleFamily> GetAll()
