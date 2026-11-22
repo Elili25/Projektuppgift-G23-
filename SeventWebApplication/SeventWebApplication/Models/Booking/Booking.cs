@@ -43,6 +43,13 @@ namespace SeventWebApplication.Models.Booking
         public DateTime? PaidAt { get; set; }
         public DateTime? RefundedAt { get; set; }
 
+        // Avgifterna (förseningsavgift + skadeavgift) som kunden redan har betalat.
+        // Hyran ligger kvar i PaidAmount, så RefundBooking (som bygger på PaidAmount) påverkas inte.
+
+        // Avgifter som kunden fortfarande ska betala. Räknas ut, så den blir rätt även för
+        // bokningar utan avgifter (0) och de seedade bokningarna.
+        public decimal FeesOutstanding => Math.Max(0m, LateFee + DamageFee);
+
         // Allt kunden ska betala: hyra + förseningsavgift + skadeavgift
         public decimal GrandTotal => (TotalPrice ?? 0m) + LateFee + DamageFee;
 

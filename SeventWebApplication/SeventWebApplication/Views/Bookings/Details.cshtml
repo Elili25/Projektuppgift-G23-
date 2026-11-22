@@ -126,6 +126,25 @@
                 }
             </dd>
 
+            @* Avgifterna (försening + skada) betalas separat från hyran, när bilen lämnats tillbaka *@
+            @if (b.FeesPaid > 0)
+            {
+                <dt class="col-sm-3">Fees paid</dt>
+                <dd class="col-sm-9">@b.FeesPaid.ToString("N0", sv) kr</dd>
+            }
+
+            @if (b.FeesOutstanding > 0)
+            {
+                <dt class="col-sm-3">To pay</dt>
+                <dd class="col-sm-9">
+                    <strong class="text-danger">@b.FeesOutstanding.ToString("N0", sv) kr</strong>
+                    @if (!Model.IsStaff)
+                    {
+                        <a class="ms-2" asp-action="Index">Pay under My bookings</a>
+                    }
+                </dd>
+            }
+
             @if (!string.IsNullOrWhiteSpace(Model.Notes))
             {
                 <dt class="col-sm-3">Notes</dt>

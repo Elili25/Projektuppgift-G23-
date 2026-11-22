@@ -2,7 +2,7 @@
 
 public static class PaymentFactory
 {
-    public static IPayment CreatePayment(PaymentMethod paymentMethod)
+    public static IPayment CreatePayment(PaymentMethod? paymentMethod)
     {
         return paymentMethod switch
         {

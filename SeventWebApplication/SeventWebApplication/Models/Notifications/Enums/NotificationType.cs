@@ -9,6 +9,8 @@
         RentalReturn,
         LateReturnInformation,
         PaymentCompleted,
-        PaymentFailed
+        PaymentFailed,
+        FeesPaymentCompleted,
+        FeesPaymentFailed
     }
 }

@@ -124,6 +124,22 @@ namespace SeventWebApplication.Models.Notifications
             Notification notification = new( "Unfortunately your payment has failed", Guid.Parse( booking.BookingId ), userId, NotificationType.PaymentFailed );
             _notificationRepository.Add( notification );
         }
+
+        public void AddFeesPaymentCompleted( BookingEntity booking )
+        {
+            Guid userId = Guid.Parse( booking.UserId );
+
+            Notification notification = new( "Your outstanding fees have been paid", Guid.Parse( booking.BookingId ), userId, NotificationType.FeesPaymentCompleted );
+            _notificationRepository.Add( notification );
+        }
+
+        public void AddFeesPaymentFailed( BookingEntity booking )
+        {
+            Guid userId = Guid.Parse( booking.UserId );
+
+            Notification notification = new( "Unfortunately your fee payment has failed", Guid.Parse( booking.BookingId ), userId, NotificationType.FeesPaymentFailed );
+            _notificationRepository.Add( notification );
+        }
         
         public void AddPickupReminder( BookingEntity booking )
         {
@@ -162,6 +178,14 @@ namespace SeventWebApplication.Models.Notifications
 
                 case BookingEventType.PaymentFailed: 
                     AddPaymentFailed(booking);
+                    break;
+
+                case BookingEventType.FeesPaymentCompleted:
+                    AddFeesPaymentCompleted(booking);
+                    break;
+
+                case BookingEventType.FeesPaymentFailed:
+                    AddFeesPaymentFailed(booking);
                     break;
             }
         }

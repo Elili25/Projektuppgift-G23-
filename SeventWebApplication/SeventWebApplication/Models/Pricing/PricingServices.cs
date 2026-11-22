@@ -38,7 +38,7 @@ public class PricingServices
     
     // Räknar ut hyrespriset för bokningen med standardpris och sparar det på bokningen (Booking.TotalPrice).
     // Bilen avgör dagspriset. Vid en familjebokning utan bil skickas en bil ur familjen in (samma dagspris).
-    // Fordon utan prissättning lämnar priset orört (null).
+   
     public void ApplyPrice(Booking.Booking booking, Vehicle vehicle)
     {
         ArgumentNullException.ThrowIfNull(booking);

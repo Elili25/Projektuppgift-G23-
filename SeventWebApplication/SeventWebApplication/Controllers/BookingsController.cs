@@ -6,6 +6,7 @@ using SeventWebApplication.Models.VehicleNS;
 using SeventWebApplication.Models.Addon;
 using SeventWebApplication.Models.Addon.Enums;
 using SeventWebApplication.Models.Addon.Interfaces;
+using SeventWebApplication.Models.Payment;
 using SeventWebApplication.Models.Pricing;
 using SeventWebApplication.Models.Pricing.PricingCategories;
 using BookingEntity = SeventWebApplication.Models.Booking.Booking;
@@ -28,6 +29,7 @@ namespace SeventWebApplication.Controllers
         private readonly BaseCosts _baseCosts;
         private readonly BookingManagementService _management;
         private readonly StaffCustomerService _staffCustomers;
+        private readonly PaymentServices _payments;
 
         public BookingsController(
             UserSession session,
@@ -39,10 +41,12 @@ namespace SeventWebApplication.Controllers
             PricingServices pricing,
             BaseCosts baseCosts,
             BookingManagementService management,
-            StaffCustomerService staffCustomers)
+            StaffCustomerService staffCustomers,
+            PaymentServices payments)
         {
             _management = management;
             _staffCustomers = staffCustomers;
+            _payments = payments;
             _session = session;
             _viewer = viewer;
             _users = users;
@@ -116,6 +120,13 @@ namespace SeventWebApplication.Controllers
                 CountActive = rows.Count(r => r.Status == BookingStatus.Active),
                 CountCompleted = rows.Count(r => r.Status == BookingStatus.Completed),
                 CountCancelled = rows.Count(r => r.Status == BookingStatus.Cancelled),
+
+                // Kundens avgifter att betala. Tas från rows INNAN statusfiltret, så tabellen syns oavsett flik.
+                // (rows är bara sökfiltrerad för personal, och personal får ingen betaltabell.)
+                OutstandingFees = isStaff
+                    ? new List<BookingRowViewModel>()
+                    : rows.Where(r => r.FeesOutstanding > 0).OrderBy(r => r.End).ToList(),
+
                 Bookings = SortRows(rows.Where(r => selected is null || r.Status == selected), sortKey, descending)
             };
 
@@ -177,6 +188,45 @@ namespace SeventWebApplication.Controllers
             {
                 TempData["Error"] = ex.Message;
             }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Kunden betalar avgifterna (försening + skada) som tillkom vid retur (tabellen "Outstanding fees").
+        // Beloppet kommer från bokningen (FeesOutstanding), aldrig från formuläret, bara id och betalsätt skickas in.
+        // Bokningen hämtas via kundens egen Visibility, så man bara kan betala sina egna avgifter.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult PayFees(string id, PaymentMethod? method)
+        {
+            User? user = _session.CurrentUser;
+
+            if (user is null)
+                return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Index", "Bookings") });
+
+            // Personal har ingen betalsida, det är kundens avgifter
+            if (user is not Customer customer)
+                return StatusCode(403);
+
+            BookingEntity? booking = _viewer.ViewBookings(customer)
+                .FirstOrDefault(b => string.Equals(b.BookingId, id, StringComparison.OrdinalIgnoreCase));
+
+            if (booking is null)
+                return NotFound();
+
+            // PaymentMethod? så att ett saknat värde inte tyst blir Card (enumens första värde)
+            if (method is not { } chosen)
+            {
+                TempData["Error"] = "Choose a payment method.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            PaymentResult result = _payments.PayOutstandingFees(booking, chosen);
+
+            if (result.success)
+                TempData["Success"] = "The fees have been paid. Thank you!";
+            else
+                TempData["Error"] = result.message;
 
             return RedirectToAction(nameof(Index));
         }
