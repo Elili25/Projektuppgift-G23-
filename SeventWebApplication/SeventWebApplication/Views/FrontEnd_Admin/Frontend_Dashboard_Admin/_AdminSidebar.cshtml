@@ -13,6 +13,7 @@
     bool inFleet = Is("Fleet", "Index") || Is("Fleet", "Create") || Is("Families", "Manage") || Is("Fleet", "Service") || Is("Maintenance", "Index") || Is("Maintenance", "Create");
     bool inBookings = Is("Bookings", "Index") || Is("Bookings", "Create") || Is("BookingManagement", "Pending") || Is("BookingManagement", "Confirmed") || Is("BookingManagement", "Pickup") || Is("BookingManagement", "Active");
     bool inReturns = Is("Returns", "Register") || Is("Returns", "Damages");
+    bool inDocs = controller.Equals("Documentation", StringComparison.OrdinalIgnoreCase);
 }
 
 <aside class="adm-sidebar" aria-label="Admin navigation">
@@ -61,6 +62,15 @@
             </summary>
             <a class="@Sub("Returns", "Register")" asp-controller="Returns" asp-action="Register">Register return</a>
             <a class="@Sub("Returns", "Damages")" asp-controller="Returns" asp-action="Damages">Damages</a>
+        </details>
+
+        <details class="adm-nav__group" open="@(inDocs)">
+            <summary class="adm-nav__link">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h7" /></svg>
+                Documentation
+                <svg class="adm-nav__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+            </summary>
+            <a class="@Sub("Documentation", "PickupReturn")" asp-controller="Documentation" asp-action="PickupReturn">Pickup &amp; return</a>
         </details>
 
         <a class="@(controller == "Calendar" ? "adm-nav__link is-active" : "adm-nav__link")" asp-controller="Calendar" asp-action="Index">

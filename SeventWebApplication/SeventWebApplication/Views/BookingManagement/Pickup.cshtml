@@ -54,24 +54,24 @@
 
 @section Scripts {
     <script>
-        // Varnar om bilen hämtas ut före den bokade starttiden
+        // Warns if the vehicle is picked up before the booked start time
         (function () {
             var form = document.getElementById("pickup-form");
             var start = new Date(form.getAttribute("data-planned-start"));
-            // Tidigaste tillåtna upphämtning kommer från RentalReturnService (servern)
+            // The earliest allowed pickup comes from RentalReturnService (the server)
             var earliest = new Date(form.getAttribute("data-earliest-pickup"));
             form.addEventListener("submit", function (e) {
                 if (new Date() < earliest) {
-                    alert("Pickup öppnar " + earliest.toLocaleString("sv-SE", { dateStyle: "short", timeStyle: "short" }) + ".");
+                    alert("Pickup opens " + earliest.toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" }) + ".");
                     e.preventDefault();
                     return;
                 }
                 if (new Date() >= start) return;
                 var sameDay = start.toDateString() === new Date().toDateString();
-                var time = start.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
-                var when = sameDay ? "kl. " + time
-                    : "den " + start.toLocaleDateString("sv-SE", { day: "numeric", month: "short" }) + " kl. " + time;
-                if (!confirm("Din bokning börjar " + when + ". Vill du hämta ut bilen ändå?"))
+                var time = start.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+                var when = sameDay ? "at " + time
+                    : "on " + start.toLocaleDateString("en-GB", { day: "numeric", month: "short" }) + " at " + time;
+                if (!confirm("The booking starts " + when + ". Hand over the vehicle anyway?"))
                     e.preventDefault();
             });
         })();
