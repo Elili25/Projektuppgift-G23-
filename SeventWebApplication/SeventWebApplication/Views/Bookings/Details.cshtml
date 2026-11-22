@@ -135,7 +135,7 @@
 
             @if (b.FeesOutstanding > 0)
             {
-                <dt class="col-sm-3">To pay</dt>
+                <dt class="col-sm-3">Outstanding</dt>
                 <dd class="col-sm-9">
                     <strong class="text-danger">@b.FeesOutstanding.ToString("N0", sv) kr</strong>
                     @if (!Model.IsStaff)

@@ -119,7 +119,7 @@
                     <th>Period</th>
                     <th class="text-end">Late fee</th>
                     <th class="text-end">Damage fee</th>
-                    <th class="text-end">Total outstanding</th>
+                    <th class="text-end">Outstanding</th>
                     <th></th>
                 </tr>
             </thead>
@@ -149,7 +149,7 @@
                             @* Betalsätt + Pay i samma formulär. Bara id och betalsätt skickas, beloppet räknas ut på servern. *@
                             <form method="post" asp-action="PayFees" asp-route-id="@f.BookingId"
                                   class="d-flex gap-2 justify-content-end"
-                                  onsubmit="return confirm('Pay @due kr?');">
+                                  data-confirm="Pay @due kr?">
                                 <select name="method" class="form-select form-select-sm w-auto" aria-label="Payment method for booking @f.ShortId">
                                     <option value="Card" selected="@(f.PaymentMethod == "Card")">Card</option>
                                     <option value="Swish" selected="@(f.PaymentMethod == "Swish")">Swish</option>
