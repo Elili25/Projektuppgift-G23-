@@ -7,6 +7,10 @@ namespace SeventWebApplication.Models.Users
     {
         public List<BookingRowViewModel> Bookings { get; init; } = new();
 
+        // Bokningar med avgifter kunden ska betala (tabellen "Outstanding fees").
+        // Oberoende av status-flikarna och sökningen, så tabellen syns oavsett filter. Tom för personal.
+        public List<BookingRowViewModel> OutstandingFees { get; init; } = new();
+
         // Personal ser kundkolumnen och kan söka, kunder ser bara sina egna så det behövs inte
         public bool IsStaff { get; init; }
 
