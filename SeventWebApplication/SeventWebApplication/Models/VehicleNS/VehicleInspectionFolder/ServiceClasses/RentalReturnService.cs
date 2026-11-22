@@ -14,6 +14,9 @@ namespace SeventWebApplication.Models.VehicleNS
         private readonly PricingServices _pricingService;
         private readonly BookingNotifier _bookingNotifier;
 
+        // Hur långt före bokad start bilen tidigast får hämtas ut
+        public static readonly TimeSpan EarliestPickupBeforeStart = TimeSpan.FromHours(1);
+
 
         public RentalReturnService(
             BookingRepository bookingRepository,
@@ -51,6 +54,14 @@ namespace SeventWebApplication.Models.VehicleNS
             if (booking.Status != BookingStatus.Confirmed)
                 throw new InvalidOperationException("Booking must be approved before pickup.");
 
+            var pickupDate = DateTime.Now;
+
+            // Bilen får inte hämtas ut för långt före bokad start
+            if (pickupDate < booking.StartDate - EarliestPickupBeforeStart)
+                throw new InvalidOperationException(
+                    $"The booking starts {booking.StartDate:yyyy-MM-dd HH:mm}. " +
+                    $"Pickup is allowed at the earliest {EarliestPickupBeforeStart.TotalHours:0} hour(s) before the start.");
+
             if (!vehicle.IsOperational)
                 throw new InvalidOperationException($"Vehicle is {vehicle.VehicleStatus} and cannot be rented.");
 
@@ -59,8 +70,6 @@ namespace SeventWebApplication.Models.VehicleNS
 
             if (_damageService.HasOpenDamages(vehicleId))
                 throw new InvalidOperationException("Vehicle has unresolved damages.");
-
-            var pickupDate = DateTime.Now;
 
             // 1. Pickup-inspektion
             var inspection = new VehicleInspection(
@@ -89,7 +98,7 @@ namespace SeventWebApplication.Models.VehicleNS
             vehicle.IsAvailable = false;
             booking.Status = BookingStatus.Active;
 
-            _bookingNotifier.Notify( new BookingEvent( BookingEventType.RentalStarted, booking ) );
+            _bookingNotifier.Notify(new BookingEvent(BookingEventType.RentalStarted, booking));
         }
 
         public void RegisterReturn(
