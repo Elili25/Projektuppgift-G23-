@@ -1,0 +1,55 @@
+@*
+    Sökrutan i hero: kolla vilka fordonsklasser som är lediga under en period.
+    Scriptet i Views/Home/Index.cshtml hämtar resultatet (VehiclesController.Available) och visar det under hero.
+*@
+@using SeventWebApplication.Models.VehicleNS
+@inject VehicleFamilyRepository Families
+@{
+    var families = Families.GetAll().OrderBy(f => f.Name).ToList();
+}
+
+<form class="hx__search booking-search" method="get" asp-controller="Vehicles" asp-action="Available" id="booking-search" novalidate>
+
+    <div class="hx__field">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4" /></svg>
+        <div>
+            <label for="bs-start">Pick-up date</label>
+            <input type="date" name="start" id="bs-start" required />
+        </div>
+    </div>
+
+    <div class="hx__field">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4" /></svg>
+        <div>
+            <label for="bs-end">Return date</label>
+            <input type="date" name="end" id="bs-end" required />
+        </div>
+    </div>
+
+    <div class="hx__field">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l1.6-4.2A2 2 0 0 1 8.5 6.5h7a2 2 0 0 1 1.9 1.3L19 12M4 17v-3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3h-2M4 17h2M10 17h4" /><circle cx="8" cy="17" r="2" /><circle cx="16" cy="17" r="2" /></svg>
+        <div>
+            <label for="bs-family">Car or van</label>
+            <select name="family" id="bs-family">
+                <option value="">Any car or van</option>
+                <optgroup label="Passenger cars">
+                    @foreach (var f in families.OfType<PassengerCarFamily>())
+                    {
+                        <option value="@f.FamilyId">@f.Name</option>
+                    }
+                </optgroup>
+                <optgroup label="Vans">
+                    @foreach (var f in families.OfType<VanFamily>())
+                    {
+                        <option value="@f.FamilyId">@f.Name</option>
+                    }
+                </optgroup>
+            </select>
+        </div>
+    </div>
+
+    <button type="submit" class="hx__submit booking-search__submit">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+        Search
+    </button>
+</form>

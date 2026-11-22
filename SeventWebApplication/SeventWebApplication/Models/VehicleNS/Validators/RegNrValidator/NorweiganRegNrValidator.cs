@@ -1,0 +1,16 @@
+using SeventWebApplication.Models.VehicleNS;
+using System.Text.RegularExpressions;
+
+namespace SeventWebApplication.Models.VehicleNS
+{
+    // Norge: AB 12345
+    public class NorwegianRegNrValidator : IRegNrValidator
+    {
+        public void ValidateRegNr(string regNr)
+        {
+            if (regNr is null || !Regex.IsMatch(regNr.Trim(), @"^[A-Z]{2}\s?\d{4,5}$", RegexOptions.IgnoreCase))
+                throw new ArgumentException(RegNrFormatHints.Message(RegNrFormatHints.Norway));
+        }
+    }
+
+}

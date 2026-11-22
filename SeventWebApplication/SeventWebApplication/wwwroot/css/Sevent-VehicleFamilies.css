@@ -1,0 +1,110 @@
+/*
+  Sevent – "Explore Our Vehicle Families" (rutorna under hero på startsidan)
+  Gäller Views/Shared/Components/VehicleCategories/Default.cshtml. Allt börjar med .vf.
+*/
+
+.vf {
+    --vf-purple: #6c55b8;
+    --vf-text: #30204f;
+    --vf-muted: #625878;
+    margin: 0 0 40px;
+    padding-top: 48px;   /* padding i stället för margin, annars slås den ihop med hero-sektionens marginal under */
+    font-family: Inter, "Segoe UI", sans-serif;
+}
+
+.vf__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.vf__head h2 {
+    margin: 0;
+    color: var(--vf-text);
+    font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+    font-weight: 780;
+    letter-spacing: -0.03em;
+}
+
+.vf__all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--vf-purple);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.vf__all:hover { color: #5942a5; }
+.vf__all svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.vf__grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vf__card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 12px 14px 14px;
+    border: 1px solid rgba(91, 68, 145, 0.08);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 6px 20px rgba(66, 43, 112, 0.07);
+    color: var(--vf-text);
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+a.vf__card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(108, 85, 184, 0.3);
+    box-shadow: 0 16px 34px rgba(66, 43, 112, 0.14);
+    color: var(--vf-text);
+}
+
+.vf__media { display: grid; place-items: center; height: 96px; margin-bottom: 8px; }
+
+.vf__media img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 8px rgba(48, 32, 79, 0.16));
+    transition: transform 0.3s ease;
+}
+
+a.vf__card:hover .vf__media img { transform: scale(1.06); }
+
+.vf__row { display: flex; flex: 1; align-items: flex-end; justify-content: space-between; gap: 8px; }
+.vf__text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.vf__text strong { font-size: 0.98rem; font-weight: 750; line-height: 1.2; }
+.vf__text small { color: var(--vf-muted); font-size: 0.78rem; line-height: 1.35; }
+
+.vf__arrow {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(108, 85, 184, 0.18);
+    border-radius: 9px;
+    background: #f1ecfd;
+    color: var(--vf-purple);
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.vf__arrow svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+a.vf__card:hover .vf__arrow { background: var(--vf-purple); color: #fff; }
+
+.vf__card.is-soon { opacity: 0.6; }
+
+@media (max-width: 1100px) { .vf__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .vf__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

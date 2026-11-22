@@ -1,0 +1,144 @@
+@using SeventWebApplication.Models.Users
+@using SeventWebApplication.Models.Booking
+@model BookingDetailsViewModel
+@{
+    if (Model.IsStaff) { Layout = "~/Views/Shared/_AdminLayout.cshtml"; }
+    var b = Model.Booking;
+    ViewData["Title"] = $"Booking #{b.ShortId}";
+    var sv = System.Globalization.CultureInfo.GetCultureInfo("en-GB");
+
+    string StatusText(BookingStatus s) => s switch
+    {
+        BookingStatus.Pending => "Pending",
+        BookingStatus.Confirmed => "Confirmed",
+        BookingStatus.Active => "Active",
+        BookingStatus.Completed => "Completed",
+        _ => "Cancelled"
+    };
+    string StatusBadge(BookingStatus s) => s switch
+    {
+        BookingStatus.Pending => "bg-secondary",
+        BookingStatus.Confirmed => "bg-primary",
+        BookingStatus.Active => "bg-success",
+        BookingStatus.Completed => "bg-dark",
+        _ => "bg-danger"
+    };
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h2 class="mb-0">
+        Booking <code>#@b.ShortId</code>
+        <span class="badge fs-6 align-middle @StatusBadge(b.Status)">@StatusText(b.Status)</span>
+    </h2>
+    <a class="btn btn-outline-secondary" asp-action="Index">&larr; Back to bookings</a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Booking ID</dt>
+            <dd class="col-sm-9"><code>@b.BookingId</code></dd>
+
+            @if (Model.IsStaff)
+            {
+                <dt class="col-sm-3">Customer</dt>
+                <dd class="col-sm-9">@b.CustomerName <small class="text-muted">@b.CustomerMail</small></dd>
+            }
+
+            <dt class="col-sm-3">Vehicle</dt>
+            <dd class="col-sm-9">
+                @if (b.RegNr != "")
+                {
+                    <span>@b.Vehicle</span> <small class="text-muted">@b.RegNr</small>
+                }
+                else if (Model.FamilyName != null)
+                {
+                    <span>@Model.FamilyName</span> <small class="text-muted">(a vehicle is assigned before the pickup)</small>
+                }
+                else
+                {
+                    <span class="text-muted">–</span>
+                }
+            </dd>
+
+            <dt class="col-sm-3">Pick-up</dt>
+            <dd class="col-sm-9">@b.Start.ToString("d MMM yyyy HH:mm", sv)</dd>
+
+            <dt class="col-sm-3">Return</dt>
+            <dd class="col-sm-9">@b.End.ToString("d MMM yyyy HH:mm", sv)</dd>
+
+            <dt class="col-sm-3">Duration</dt>
+            <dd class="col-sm-9">@b.Days @(b.Days == 1 ? "day" : "days")</dd>
+
+            <dt class="col-sm-3">Add-ons</dt>
+            <dd class="col-sm-9">
+                @if (b.Addons.Count == 0)
+                {
+                    <span class="text-muted">None</span>
+                }
+                else
+                {
+                    foreach (var addon in b.Addons)
+                    {
+                        <span class="badge rounded-pill bg-light text-dark border me-1">@addon</span>
+                    }
+                }
+            </dd>
+
+            <dt class="col-sm-3">Rental price</dt>
+            <dd class="col-sm-9">@(b.TotalPrice is null ? "–" : b.TotalPrice.Value.ToString("N0", sv) + " kr")</dd>
+
+            @if (b.LateFee > 0)
+            {
+                <dt class="col-sm-3">Late fee</dt>
+                <dd class="col-sm-9">@b.LateFee.ToString("N0", sv) kr</dd>
+            }
+
+            @if (b.DamageFee > 0)
+            {
+                <dt class="col-sm-3">Damage fee</dt>
+                <dd class="col-sm-9">@b.DamageFee.ToString("N0", sv) kr</dd>
+            }
+
+            @if (b.LateFee > 0 || b.DamageFee > 0)
+            {
+                <dt class="col-sm-3">Total</dt>
+                <dd class="col-sm-9"><strong>@b.GrandTotal.ToString("N0", sv) kr</strong></dd>
+            }
+
+            <dt class="col-sm-3">Payment</dt>
+            <dd class="col-sm-9">
+                @if (b.PaymentMethod is null)
+                {
+                    <span class="text-muted">No payment method registered</span>
+                }
+                else if (b.RefundedAt is not null)
+                {
+                    <span>@b.PaymentMethod – @b.PaidAmount.ToString("N0", sv) kr refunded @b.RefundedAt.Value.ToString("d MMM yyyy", sv)</span>
+                }
+                else if (b.PaidAt is not null)
+                {
+                    <span>@b.PaymentMethod – @b.PaidAmount.ToString("N0", sv) kr paid @b.PaidAt.Value.ToString("d MMM yyyy", sv)</span>
+                }
+                else
+                {
+                    <span>@b.PaymentMethod – not paid</span>
+                }
+            </dd>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Notes))
+            {
+                <dt class="col-sm-3">Notes</dt>
+                <dd class="col-sm-9">@Model.Notes</dd>
+            }
+        </dl>
+    </div>
+</div>
+
+@if (!Model.IsStaff && b.CanCancel)
+{
+    <form method="post" asp-action="Cancel" asp-route-id="@b.BookingId"
+          onsubmit="return confirm('Cancel booking #@b.ShortId?');">
+        <button type="submit" class="btn btn-outline-danger">Cancel booking</button>
+    </form>
+}

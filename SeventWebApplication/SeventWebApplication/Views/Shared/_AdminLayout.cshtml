@@ -1,0 +1,57 @@
+@*
+    Gemensam layout för adminsidorna (Fleet, BookingManagement, Returns, Families/Manage).
+    Samma ram som dashboarden: sidebar, topbar och footer. Själva sidan hamnar i RenderBody().
+*@
+@{
+    Layout = null;
+    const string Root = "~/Views/FrontEnd_Admin/Frontend_Dashboard_Admin/";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] – Sevent Admin</title>
+    @* Bootstrap först, så .adm-reglerna vinner. Bookings/Users-vyerna använder Bootstrap-klasser. *@
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/Sevent-AdminDashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Sevent-AdminPages.css" asp-append-version="true" />
+</head>
+<body class="adm">
+    <div class="adm-shell">
+        @await Html.PartialAsync(Root + "_AdminSidebar.cshtml")
+        <div class="adm-main">
+            @await Html.PartialAsync(Root + "_AdminNavbar.cshtml")
+            <main class="adm-content">
+                @if (ViewData["OwnFlash"] is not true && TempData["Success"] is string ok)
+                {
+                    <div class="adm-flash adm-flash--ok">@ok
+                        @if (TempData["SuccessLink"] is string okLink)
+                        {
+                            <a href="@okLink">@(TempData["SuccessLinkText"] as string ?? "Visa")</a>
+                        }
+                    </div>
+                }
+                @if (ViewData["OwnFlash"] is not true && TempData["Error"] is string err)
+                {
+                    <div class="adm-flash adm-flash--error">@err</div>
+                }
+                <div class="adm-bs">
+                    @RenderBody()
+                </div>
+            </main>
+            @await Html.PartialAsync(Root + "_AdminFooter.cshtml")
+        </div>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Bekräftelsedialog för formulär med data-confirm (t.ex. radera)
+        document.addEventListener("submit", function (e) {
+            var msg = e.target.getAttribute && e.target.getAttribute("data-confirm");
+            if (msg && !confirm(msg)) e.preventDefault();
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,249 @@
+@using SeventWebApplication.Models.Users
+@using SeventWebApplication.Models.Booking
+@model BookingListViewModel
+@{
+    if (Model.IsStaff) { Layout = "~/Views/Shared/_AdminLayout.cshtml"; }
+    ViewData["OwnFlash"] = true;
+    ViewData["Title"] = Model.IsStaff ? "All bookings" : "My bookings";
+    var sv = System.Globalization.CultureInfo.GetCultureInfo("en-GB");
+
+    // Hjälpmetoder för flikarna och statusbadgen, så HTML:en nedanför blir lättare att läsa
+    // Sorterbara kolumnrubriker: klick sorterar stigande, nytt klick på samma kolumn vänder ordningen.
+    // Valt filter och sökning följer med i länken.
+    void SortHeader(string key, string label, string cssClass = "")
+    {
+        bool active = Model.SortKey == key;
+        string nextDir = active && !Model.SortDescending ? "desc" : "asc";
+        string url = Url.Action("Index", new
+        {
+            status = Model.SelectedStatus?.ToString().ToLower(),
+            search = Model.Search,
+            sort = key,
+            dir = nextDir
+        })!;
+        string ariaSort = active ? (Model.SortDescending ? "descending" : "ascending") : "none";
+        <th class="@cssClass" aria-sort="@ariaSort">
+            <a href="@url" class="text-decoration-none text-reset" title="Sort by @label.ToLower()">@label@(active ? (Model.SortDescending ? " ▼" : " ▲") : "")</a>
+        </th>
+    }
+
+    string TabClass(BookingStatus? s) => Model.SelectedStatus == s ? "nav-link active" : "nav-link";
+    string StatusText(BookingStatus s) => s switch
+    {
+        BookingStatus.Pending => "Pending",
+        BookingStatus.Confirmed => "Confirmed",
+        BookingStatus.Active => "Active",
+        BookingStatus.Completed => "Completed",
+        _ => "Cancelled"
+    };
+    string StatusBadge(BookingStatus s) => s switch
+    {
+        BookingStatus.Pending => "bg-secondary",
+        BookingStatus.Confirmed => "bg-primary",
+        BookingStatus.Active => "bg-success",
+        BookingStatus.Completed => "bg-dark",
+        _ => "bg-danger"
+    };
+}
+
+@* Rubrik + kort förklaring av vad man ser *@
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+    <div>
+        @if (!Model.IsStaff)
+        {
+            <h2 class="mb-0">@ViewData["Title"]</h2>
+        }
+        <small class="text-muted">
+            @(Model.IsStaff ? "You are viewing all customers' bookings." : "These are your bookings.")
+        </small>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+    @* Sökrutan finns bara för personal *@
+    @if (Model.IsStaff)
+    {
+        <form method="get" asp-action="Index" class="d-flex gap-2">
+            @if (Model.SelectedStatus != null)
+            {
+                <input type="hidden" name="status" value="@(Model.SelectedStatus.Value.ToString().ToLower())" />
+            }
+            @if (Model.SortKey != null)
+            {
+                <input type="hidden" name="sort" value="@Model.SortKey" />
+                <input type="hidden" name="dir" value="@(Model.SortDescending ? "desc" : "asc")" />
+            }
+            <input class="form-control" type="search" name="search" value="@Model.Search"
+                   placeholder="Search customer, reg. no., vehicle..." aria-label="Search bookings" />
+            <button class="btn btn-primary" type="submit">Search</button>
+            @if (!string.IsNullOrEmpty(Model.Search))
+            {
+                <a class="btn btn-outline-secondary" asp-action="Index"
+                   asp-route-status="@(Model.SelectedStatus?.ToString().ToLower())"
+                   asp-route-sort="@Model.SortKey" asp-route-dir="@(Model.SortKey == null ? null : (Model.SortDescending ? "desc" : "asc"))">Clear</a>
+            }
+        </form>
+    }
+        <a class="btn btn-primary text-nowrap" asp-action="Create">+ @(Model.IsStaff ? "New booking" : "Book a vehicle")</a>
+    </div>
+</div>
+
+@* Meddelande efter att en bokning skapats (skickas med TempData efter redirect) *@
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @success
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@* Fel vid avbokning (layoutens flash är avstängd på den här sidan) *@
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @error
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@* Flikar för att filtrera på status, siffrorna visar hur många som finns i varje *@
+<ul class="nav nav-pills mb-3">
+    <li class="nav-item">
+        <a class="@TabClass(null)" asp-action="Index" asp-route-search="@Model.Search" asp-route-sort="@Model.SortKey" asp-route-dir="@(Model.SortKey == null ? null : (Model.SortDescending ? "desc" : "asc"))">
+            All <span class="badge bg-light text-dark">@Model.CountAll</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="@TabClass(BookingStatus.Pending)" asp-action="Index" asp-route-status="pending" asp-route-search="@Model.Search" asp-route-sort="@Model.SortKey" asp-route-dir="@(Model.SortKey == null ? null : (Model.SortDescending ? "desc" : "asc"))">
+            Pending <span class="badge bg-light text-dark">@Model.CountPending</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="@TabClass(BookingStatus.Confirmed)" asp-action="Index" asp-route-status="confirmed" asp-route-search="@Model.Search" asp-route-sort="@Model.SortKey" asp-route-dir="@(Model.SortKey == null ? null : (Model.SortDescending ? "desc" : "asc"))">
+            Confirmed <span class="badge bg-light text-dark">@Model.CountConfirmed</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="@TabClass(BookingStatus.Active)" asp-action="Index" asp-route-status="active" asp-route-search="@Model.Search" asp-route-sort="@Model.SortKey" asp-route-dir="@(Model.SortKey == null ? null : (Model.SortDescending ? "desc" : "asc"))">
+            Active <span class="badge bg-light text-dark">@Model.CountActive</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="@TabClass(BookingStatus.Completed)" asp-action="Index" asp-route-status="completed" asp-route-search="@Model.Search" asp-route-sort="@Model.SortKey" asp-route-dir="@(Model.SortKey == null ? null : (Model.SortDescending ? "desc" : "asc"))">
+            Completed <span class="badge bg-light text-dark">@Model.CountCompleted</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="@TabClass(BookingStatus.Cancelled)" asp-action="Index" asp-route-status="cancelled" asp-route-search="@Model.Search" asp-route-sort="@Model.SortKey" asp-route-dir="@(Model.SortKey == null ? null : (Model.SortDescending ? "desc" : "asc"))">
+            Cancelled <span class="badge bg-light text-dark">@Model.CountCancelled</span>
+        </a>
+    </li>
+</ul>
+
+@if (Model.Bookings.Count == 0)
+{
+    @* Tomt läge, så det inte bara blir en tom tabell *@
+    <div class="alert alert-light border text-center py-4">
+        @if (!string.IsNullOrEmpty(Model.Search))
+        {
+            <span>No bookings match "<strong>@Model.Search</strong>".</span>
+        }
+        else if (Model.SelectedStatus != null)
+        {
+            <span>No bookings with that status.</span>
+        }
+        else
+        {
+            <span>There are no bookings yet.</span>
+        }
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Booking</th>
+                    @if (Model.IsStaff)
+                    {
+                        SortHeader("customer", "Customer");
+                    }
+                    @{ SortHeader("vehicle", "Vehicle"); }
+                    @{ SortHeader("period", "Period"); }
+                    <th>Add-ons</th>
+                    @{ SortHeader("price", "Price", "text-end"); }
+                    @{ SortHeader("status", "Status"); }
+                    @if (!Model.IsStaff)
+                    {
+                        <th></th>
+                    }
+                </tr>
+
+            </thead>
+            <tbody>
+                @foreach (var b in Model.Bookings)
+                {
+                    <tr>
+                        <td><a asp-action="Details" asp-route-id="@b.BookingId"><code title="@b.BookingId">#@b.ShortId</code></a></td>
+
+                        @if (Model.IsStaff)
+                        {
+                            <td>
+                                <div>@b.CustomerName</div>
+                                <small class="text-muted">@b.CustomerMail</small>
+                            </td>
+                        }
+
+                        <td>
+                            <div>@b.Vehicle</div>
+                            <small class="text-muted">@b.RegNr</small>
+                        </td>
+
+                        <td>
+                            <div>@b.Start.ToString("d MMM HH:mm", sv) – @b.End.ToString("d MMM HH:mm", sv)</div>
+                            <small class="text-muted">@b.Days @(b.Days == 1 ? "day" : "days")</small>
+                        </td>
+
+                        <td>
+                            @if (b.Addons.Count == 0)
+                            {
+                                <span class="text-muted">–</span>
+                            }
+                            else
+                            {
+                                foreach (var addon in b.Addons)
+                                {
+                                    <span class="badge rounded-pill bg-light text-dark border me-1">@addon</span>
+                                }
+                            }
+                        </td>
+
+                        <td class="text-end text-nowrap">
+                            @(b.TotalPrice is null ? "–" : b.GrandTotal.ToString("N0", sv) + " kr")
+                            @if (b.LateFee > 0 || b.DamageFee > 0)
+                            {
+                                <div><small class="text-muted">incl. fees</small></div>
+                            }
+                        </td>
+
+                        <td><span class="badge @StatusBadge(b.Status)">@StatusText(b.Status)</span></td>
+
+                        @if (!Model.IsStaff)
+                        {
+                            <td class="text-end">
+                                @if (b.CanCancel)
+                                {
+                                    <form method="post" asp-action="Cancel" asp-route-id="@b.BookingId"
+                                          onsubmit="return confirm('Cancel booking #@b.ShortId?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                    </form>
+                                }
+                            </td>
+                        }
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+    </div>
+}

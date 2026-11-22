@@ -1,0 +1,51 @@
+@using SeventWebApplication.Models.Users
+@using SeventWebApplication.Controllers
+@model CreateUserForm
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "New user";
+}
+
+<section class="adm-card adm-panel adm-formcard">
+        <a asp-action="Index" class="text-decoration-none">&larr; Back to users</a>
+        <p class="text-muted">Create an account for a customer or an employee.</p>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+
+        <form asp-action="Create" method="post">
+            <div class="mb-3">
+                <label class="form-label" asp-for="Name">Name</label>
+                <input class="form-control" asp-for="Name" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="Mail">Email</label>
+                <input class="form-control" asp-for="Mail" type="email" required />
+                <div class="form-text">Used to log in and cannot be changed later.</div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="Phone">Phone</label>
+                <input class="form-control" asp-for="Phone" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="Password">Password</label>
+                <input class="form-control" asp-for="Password" type="password" required minlength="8" />
+                <div class="form-text">At least 8 characters.</div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label" asp-for="Role">Role</label>
+                @* Bara rollerna AccountService tillåter (Kund/Anställd i detta fall), så listan och reglerna aldrig glider isär *@
+                <select class="form-select" asp-for="Role">
+                    @foreach (var role in AccountService.AssignableRoles)
+                    {
+                        <option value="@role">@UsersController.RoleText(role)</option>
+                    }
+                </select>
+            </div>
+
+            <button class="btn btn-primary" type="submit">Create account</button>
+            <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+        </form>
+</section>

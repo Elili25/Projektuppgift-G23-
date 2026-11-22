@@ -1,0 +1,38 @@
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<link rel="stylesheet" href="~/css/Sevent-Auth.css" asp-append-version="true" />
+
+<section class="auth">
+    <div class="auth__card">
+        <span class="auth__badge">Welcome back</span>
+        <h1 class="auth__title">Log in</h1>
+        <p class="auth__lead">Log in to view and manage your bookings.</p>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="auth__error" role="alert">@ViewBag.Error</div>
+        }
+
+        <form asp-action="Login" method="post">
+            @* Kommer ihåg vart man skulle innan man fick logga in *@
+            <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+
+            <div class="auth__field">
+                <label for="mail">Email</label>
+                <input id="mail" type="email" name="mail" placeholder="name@example.com" autocomplete="email" required />
+            </div>
+            <div class="auth__field">
+                <label for="password">Password</label>
+                <input id="password" type="password" name="password" placeholder="••••••••" autocomplete="current-password" required />
+            </div>
+
+            <button class="auth__submit" type="submit">Log in</button>
+        </form>
+
+        <p class="auth__switch">
+            Don't have an account? <a asp-action="Register">Create account</a>
+        </p>
+    </div>
+</section>

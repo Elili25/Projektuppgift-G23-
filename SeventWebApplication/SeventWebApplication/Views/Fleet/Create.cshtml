@@ -1,0 +1,128 @@
+@using SeventWebApplication.Models.Admin
+@using SeventWebApplication.Models.VehicleNS
+@model VehicleForm
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Add vehicle";
+}
+
+<section class="adm-card adm-panel">
+    <form method="post" asp-action="Create" enctype="multipart/form-data">
+        @if (ViewData.ModelState.Values.Any(v => v.Errors.Count > 0))
+        {
+            <ul class="adm-errors">
+                @foreach (var e in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@e.ErrorMessage</li>
+                }
+            </ul>
+        }
+
+        <div class="adm-form">
+            <label class="adm-field adm-field--wide">Image
+                <input type="file" name="Image" accept="image/png,image/jpeg,image/webp" />
+                <small>Optional. PNG, JPG or WebP, max 5 MB. A transparent PNG with the vehicle from the side looks best.</small>
+            </label>
+            <label class="adm-field">Type
+                <select asp-for="Type" asp-items="Html.GetEnumSelectList<VehicleType>()" id="vehicle-type"></select>
+            </label>
+            <label class="adm-field">Registration number
+                <input asp-for="RegNr" id="regnr-input" placeholder="@RegNrFormatHints.For(Model.CountryCode)" autocomplete="off" />
+                <small id="regnr-hint">Format: @RegNrFormatHints.For(Model.CountryCode)</small>
+            </label>
+            <label class="adm-field">Country
+                <select asp-for="CountryCode" asp-items="Html.GetEnumSelectList<CountryCode>()" id="country-select"></select>
+            </label>
+            <label class="adm-field">Brand
+                <input asp-for="Brand" />
+            </label>
+            <label class="adm-field">Model
+                <input asp-for="ModelName" />
+            </label>
+            <label class="adm-field">Year
+                <input asp-for="Year" type="number" />
+            </label>
+            <label class="adm-field">Horsepower
+                <input asp-for="HorsePower" type="number" />
+            </label>
+            <label class="adm-field">Passenger capacity
+                <input asp-for="PassengerCapacity" type="number" />
+            </label>
+            <label class="adm-field">Luggage capacity (l)
+                <input asp-for="LuggageCapacity" type="number" step="any" />
+            </label>
+            <label class="adm-field">Fuel type
+                <select asp-for="FuelType" asp-items="Html.GetEnumSelectList<FuelType>()"></select>
+            </label>
+            <label class="adm-field">Transmission
+                <select asp-for="TransmissionType" asp-items="Html.GetEnumSelectList<TransmissionType>()"></select>
+            </label>
+            <label class="adm-field">Fuel tank (l)
+                <input asp-for="FuelCapacityLiters" type="number" />
+                <small>Petrol, diesel and hybrid</small>
+            </label>
+            <label class="adm-field">Battery (kWh)
+                <input asp-for="BatteryCapacityKwh" type="number" />
+                <small>Electric only</small>
+            </label>
+            <label class="adm-field">Range (km)
+                <input asp-for="RangeKm" type="number" />
+                <small>Electric only</small>
+            </label>
+
+            <label class="adm-field" data-for="Car">Car category
+                <select asp-for="CarCategory" asp-items="Html.GetEnumSelectList<PassengerCarCategoryType>()"></select>
+            </label>
+            <label class="adm-field" data-for="Car">Comfort level
+                <select asp-for="Comfort" asp-items="Html.GetEnumSelectList<VehicleComfortType>()"></select>
+            </label>
+
+            <label class="adm-field" data-for="Van">Van category
+                <select asp-for="VanCategory" asp-items="Html.GetEnumSelectList<VanCategoryType>()"></select>
+            </label>
+            <label class="adm-field" data-for="Van">Cargo volume (m³)
+                <input asp-for="CargoCapacityM3" type="number" step="any" />
+            </label>
+            <label class="adm-field" data-for="Van">Max payload (kg)
+                <input asp-for="MaxPayloadKg" type="number" step="any" />
+            </label>
+        </div>
+
+        <p style="margin-top:18px">
+            <button class="adm-btn" type="submit">Add to fleet</button>
+            <a class="adm-btn adm-btn--ghost" asp-action="Index">Cancel</a>
+        </p>
+    </form>
+</section>
+
+@* Visar bara fälten som hör till vald typ (bil eller skåpbil) *@
+<script>
+    // Formatexempel per land som placeholder och hjälptext för regnumret
+    (function () {
+        var hints = { SE: "@RegNrFormatHints.Sweden", DE: "@RegNrFormatHints.Germany", UK: "@RegNrFormatHints.UK",
+                      NO: "@RegNrFormatHints.Norway", DK: "@RegNrFormatHints.Denmark", FI: "@RegNrFormatHints.Finland" };
+        var country = document.getElementById("country-select");
+        var input = document.getElementById("regnr-input");
+        var hint = document.getElementById("regnr-hint");
+        function update() {
+            var h = hints[country.options[country.selectedIndex].text] || "";
+            input.placeholder = h;
+            hint.textContent = "Format: " + h;
+        }
+        country.addEventListener("change", update);
+        update();
+    })();
+</script>
+<script>
+    (function () {
+        var select = document.getElementById("vehicle-type");
+        function update() {
+            var current = select.options[select.selectedIndex].text;
+            document.querySelectorAll("[data-for]").forEach(function (el) {
+                el.style.display = el.getAttribute("data-for") === current ? "" : "none";
+            });
+        }
+        select.addEventListener("change", update);
+        update();
+    })();
+</script>

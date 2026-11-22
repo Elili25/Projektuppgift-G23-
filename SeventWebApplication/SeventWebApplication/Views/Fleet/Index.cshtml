@@ -1,0 +1,13 @@
+@using SeventWebApplication.Models.Admin
+@model List<VehicleRowViewModel>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "All vehicles";
+}
+
+<div class="adm-pagehead">
+    <h2>@Model.Count vehicles</h2>
+    <a class="adm-btn" asp-action="Create">+ Add vehicle</a>
+</div>
+
+<partial name="_VehicleTable" model="Model" view-data="@(new ViewDataDictionary(ViewData) { { "Mode", "all" } })" />

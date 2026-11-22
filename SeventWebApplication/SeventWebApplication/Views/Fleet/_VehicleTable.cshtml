@@ -1,0 +1,71 @@
+@using SeventWebApplication.Models.Admin
+@using SeventWebApplication.Models.VehicleNS
+@model List<VehicleRowViewModel>
+@{
+    // ViewData["Mode"] = "all" visar "Mark in service", "service" visar "End service"
+    bool serviceMode = (ViewData["Mode"] as string) == "service";
+}
+
+<section class="adm-card adm-panel">
+    <div class="adm-table-wrap">
+        <table class="adm-table">
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Reg nr</th>
+                    <th scope="col">Vehicle</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Year</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Open damages</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var v in Model)
+                {
+                    <tr>
+                        <td>@if (!string.IsNullOrEmpty(v.ImagePath)) { <img class="adm-thumb" src="@v.ImagePath" alt="" /> }</td>
+                        <td><a asp-controller="Fleet" asp-action="Details" asp-route-id="@v.VehicleId">@v.RegNr</a></td>
+                        <td>@v.Name</td>
+                        <td>@v.Type</td>
+                        <td>@v.Year</td>
+                        <td>
+                            <span class="adm-status adm-status--@v.Status.ToString().ToLower()">@v.Status</span>
+                            @if (v.IsRented) { <small> (rented)</small> }
+                        </td>
+                        <td>@v.OpenDamages</td>
+                        <td>
+                            @if (!serviceMode && v.Status == VehicleStatus.Active && !v.IsRented)
+                            {
+                                <form class="adm-inline" method="post" asp-controller="Fleet" asp-action="MarkInService" asp-route-id="@v.VehicleId">
+                                    <button class="adm-btn adm-btn--ghost" type="submit">Mark in service</button>
+                                </form>
+                            }
+                            @if (v.Status == VehicleStatus.InService)
+                            {
+                                <form class="adm-inline" method="post" asp-controller="Fleet" asp-action="EndService" asp-route-id="@v.VehicleId">
+                                    <button class="adm-btn adm-btn--ok" type="submit">End service</button>
+                                </form>
+                            }
+                            @if (v.Status == VehicleStatus.InRepair)
+                            {
+                                <a class="adm-btn adm-btn--ghost" asp-controller="Returns" asp-action="Damages">View damages</a>
+                            }
+                            <a class="adm-btn adm-btn--ghost" asp-controller="Fleet" asp-action="Details" asp-route-id="@v.VehicleId">View</a>
+                            <a class="adm-btn adm-btn--ghost" asp-controller="Fleet" asp-action="Edit" asp-route-id="@v.VehicleId">Edit</a>
+                            <form class="adm-inline" method="post" asp-controller="Fleet" asp-action="Delete" asp-route-id="@v.VehicleId"
+                                  data-confirm="Vill du radera @v.Name (@v.RegNr)? Det går inte att ångra.">
+                                <button class="adm-btn adm-btn--danger" type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                    <tr class="adm-table__empty"><td colspan="8">No vehicles to show.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

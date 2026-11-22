@@ -1,0 +1,75 @@
+@*
+    Admin – sidebar. Aktiv länk markeras utifrån aktuell controller/action.
+*@
+@{
+    string controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    string action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+    bool Is(string c, string a) =>
+        string.Equals(controller, c, StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(action, a, StringComparison.OrdinalIgnoreCase);
+    string Sub(string c, string a) => Is(c, a) ? "adm-nav__sublink is-active" : "adm-nav__sublink";
+
+    bool inFleet = Is("Fleet", "Index") || Is("Fleet", "Create") || Is("Families", "Manage") || Is("Fleet", "Service");
+    bool inBookings = Is("Bookings", "Index") || Is("Bookings", "Create") || Is("BookingManagement", "Pending") || Is("BookingManagement", "Confirmed") || Is("BookingManagement", "Pickup") || Is("BookingManagement", "Active");
+    bool inReturns = Is("Returns", "Register") || Is("Returns", "Damages");
+}
+
+<aside class="adm-sidebar" aria-label="Admin navigation">
+
+    <a class="adm-logo" asp-controller="Home" asp-action="Index">Sevent</a>
+
+    <span class="adm-nav__label">Admin</span>
+
+    <nav class="adm-nav">
+        <a class="@(Is("Admin", "Index") ? "adm-nav__link is-active" : "adm-nav__link")" asp-controller="Admin" asp-action="Index">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></svg>
+            Overview
+        </a>
+
+        <details class="adm-nav__group" open="@(inFleet || controller == "Admin")">
+            <summary class="adm-nav__link">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l1.6-4.2A2 2 0 0 1 8.5 6.5h7a2 2 0 0 1 1.9 1.3L19 12M4 17v-3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3h-2M4 17h2M10 17h4" /><circle cx="8" cy="17" r="2" /><circle cx="16" cy="17" r="2" /></svg>
+                Fleet
+                <svg class="adm-nav__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+            </summary>
+            <a class="@Sub("Fleet", "Index")" asp-controller="Fleet" asp-action="Index">All vehicles</a>
+            <a class="@Sub("Fleet", "Create")" asp-controller="Fleet" asp-action="Create">Add vehicle</a>
+            <a class="@Sub("Families", "Manage")" asp-controller="Families" asp-action="Manage">Vehicle families</a>
+            <a class="@Sub("Fleet", "Service")" asp-controller="Fleet" asp-action="Service">Service &amp; repairs</a>
+        </details>
+
+        <details class="adm-nav__group" open="@(inBookings || controller == "Admin")">
+            <summary class="adm-nav__link">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4" /></svg>
+                Bookings
+                <svg class="adm-nav__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+            </summary>
+            <a class="@Sub("Bookings", "Index")" asp-controller="Bookings" asp-action="Index">All bookings</a>
+            <a class="@Sub("BookingManagement", "Pending")" asp-controller="BookingManagement" asp-action="Pending">Pending approval</a>
+            <a class="@Sub("BookingManagement", "Confirmed")" asp-controller="BookingManagement" asp-action="Confirmed">Awaiting pickup</a>
+            <a class="@Sub("BookingManagement", "Active")" asp-controller="BookingManagement" asp-action="Active">Active rentals</a>
+            <a class="@Sub("Bookings", "Create")" asp-controller="Bookings" asp-action="Create">Create booking</a>
+        </details>
+
+        <details class="adm-nav__group" open="@(inReturns || controller == "Admin")">
+            <summary class="adm-nav__link">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14l-4-4 4-4M5 10h9a5 5 0 0 1 0 10h-3" /></svg>
+                Returns &amp; inspections
+                <svg class="adm-nav__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+            </summary>
+            <a class="@Sub("Returns", "Register")" asp-controller="Returns" asp-action="Register">Register return</a>
+            <a class="@Sub("Returns", "Damages")" asp-controller="Returns" asp-action="Damages">Damages</a>
+        </details>
+
+        <a class="@(controller == "Calendar" ? "adm-nav__link is-active" : "adm-nav__link")" asp-controller="Calendar" asp-action="Index">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>
+            Calendar
+        </a>
+
+        <a class="@(controller == "Users" ? "adm-nav__link is-active" : "adm-nav__link")" asp-controller="Users" asp-action="Index">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a5 5 0 0 1 3.5 6" /></svg>
+            Users
+        </a>
+    </nav>
+</aside>

@@ -1,0 +1,50 @@
+@{
+    ViewData["Title"] = "How It Works";
+}
+
+<link rel="stylesheet" href="~/css/Sevent-Guest.css" asp-append-version="true" />
+
+<section class="guest">
+    <span class="guest__badge">How It Works</span>
+    <h1 class="guest__title">From booking to return</h1>
+    <p class="guest__lead">Renting a car or van from Sevent takes a few simple steps.</p>
+
+    <div class="guest__grid">
+        <article class="guest__card guest__step">
+            <span class="guest__step-no">1</span>
+            <span class="guest__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 20a8 8 0 0 1 16 0" /></svg></span>
+            <h3>Create an account</h3>
+            <p>Sign up or log in so we can keep your bookings in one place.</p>
+        </article>
+
+        <article class="guest__card guest__step">
+            <span class="guest__step-no">2</span>
+            <span class="guest__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l1.6-4.2A2 2 0 0 1 8.5 6.5h7a2 2 0 0 1 1.9 1.3L19 12M4 17v-3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3h-2M4 17h2M10 17h4" /><circle cx="8" cy="17" r="2" /><circle cx="16" cy="17" r="2" /></svg></span>
+            <h3>Choose a vehicle and dates</h3>
+            <p>Pick a car or van type, or a specific vehicle, set your dates and add extras like GPS or a child seat. You see the price before you book.</p>
+        </article>
+
+        <article class="guest__card guest__step">
+            <span class="guest__step-no">3</span>
+            <span class="guest__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10" /></svg></span>
+            <h3>We confirm your booking</h3>
+            <p>Your request is reviewed by our staff and confirmed. You can follow the status under My bookings.</p>
+        </article>
+
+        <article class="guest__card guest__step">
+            <span class="guest__step-no">4</span>
+            <span class="guest__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="12" r="4" /><path d="M12 12h9M18 12v4M15 12v3" /></svg></span>
+            <h3>Pick up</h3>
+            <p>We inspect the vehicle together with you at pickup and note the mileage and fuel or battery level.</p>
+        </article>
+
+        <article class="guest__card guest__step">
+            <span class="guest__step-no">5</span>
+            <span class="guest__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14l-4-4 4-4M5 10h9a5 5 0 0 1 0 10h-3" /></svg></span>
+            <h3>Return</h3>
+            <p>Bring the vehicle back on time. We inspect it again, and a late return may add a fee.</p>
+        </article>
+    </div>
+
+    <a class="guest__cta" asp-controller="Vehicles" asp-action="Index">Browse vehicles</a>
+</section>

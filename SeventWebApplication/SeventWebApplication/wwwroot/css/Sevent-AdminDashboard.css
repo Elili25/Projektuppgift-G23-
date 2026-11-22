@@ -1,0 +1,694 @@
+/*
+  Sevent – Admin dashboard
+  Applies ONLY to:
+    Views/FrontEnd_Admin/Frontend_Dashboard_Admin/Index.cshtml (+ partials)
+
+  All selectors start with .adm so nothing leaks into the public site.
+*/
+
+.adm {
+    --adm-sidebar: linear-gradient(180deg, #3a2766 0%, #2c1d52 55%, #1a1030 100%);
+    --adm-bg: #f6f4fb;
+    --adm-surface: #ffffff;
+    --adm-surface-soft: #f4f0fd;
+    --adm-purple: #6c55b8;
+    --adm-purple-text: #6044b4;
+    --adm-text: #30204f;
+    --adm-muted: #625878;
+    --adm-border: rgba(91, 68, 145, 0.12);
+    --adm-shadow: 0 10px 28px rgba(66, 43, 112, 0.07);
+    --adm-radius: 18px;
+    margin: 0;
+    background: var(--adm-bg);
+    color: var(--adm-text);
+    font-family: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+.adm *,
+.adm *::before,
+.adm *::after {
+    box-sizing: border-box;
+}
+
+.adm svg {
+    width: 20px;
+    height: 20px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* ========================================
+   SHELL: sidebar + main
+======================================== */
+
+.adm-shell {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    min-height: 100vh;
+}
+
+.adm-main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.adm-content {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding: 0 28px 28px;
+}
+
+/* ========================================
+   SIDEBAR
+======================================== */
+
+.adm-sidebar {
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    height: 100vh;
+    padding: 26px 18px;
+    overflow-y: auto;
+    background: var(--adm-sidebar);
+    color: #e9e2fb;
+}
+
+.adm-logo {
+    margin: 0 0 26px;
+    padding: 0 12px;
+    color: #ffffff;
+    font-size: 1.9rem;
+    font-weight: 800;
+    font-style: italic;
+    letter-spacing: -0.03em;
+    text-decoration: none;
+}
+
+.adm-nav__label {
+    padding: 0 12px 8px;
+    color: #bdb0dd;
+    font-size: 0.78rem;
+    font-weight: 650;
+}
+
+.adm-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.adm-nav__link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    color: #e9e2fb;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    list-style: none;
+    transition: background 0.15s ease;
+}
+
+    .adm-nav__link::-webkit-details-marker {
+        display: none;
+    }
+
+    .adm-nav__link:hover {
+        background: rgba(255, 255, 255, 0.07);
+        color: #ffffff;
+    }
+
+    .adm-nav__link.is-active {
+        background: var(--adm-purple);
+        color: #ffffff;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+
+.adm-nav__chevron {
+    margin-left: auto;
+    width: 16px !important;
+    height: 16px !important;
+    transition: transform 0.15s ease;
+}
+
+.adm-nav__group[open] .adm-nav__chevron {
+    transform: rotate(180deg);
+}
+
+.adm-nav__group {
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.adm-nav__sublink {
+    display: block;
+    padding: 8px 12px 8px 44px;
+    border-radius: 10px;
+    color: #cfc3ee;
+    font-size: 0.88rem;
+    text-decoration: none;
+}
+
+    .adm-nav__sublink:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: #ffffff;
+    }
+
+/* ========================================
+   TOPBAR
+======================================== */
+
+.adm-topbar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 22px 28px;
+}
+
+.adm-topbar__title h1 {
+    margin: 0;
+    font-size: 1.85rem;
+    font-weight: 780;
+    letter-spacing: -0.03em;
+}
+
+.adm-topbar__title p {
+    margin: 2px 0 0;
+    color: var(--adm-muted);
+    font-size: 0.95rem;
+}
+
+.adm-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: min(100%, 400px);
+    margin-left: auto;
+    padding: 0 16px;
+    border: 1px solid var(--adm-border);
+    border-radius: 999px;
+    background: var(--adm-surface);
+    color: var(--adm-muted);
+}
+
+    .adm-search input {
+        flex: 1;
+        min-width: 0;
+        height: 42px;
+        border: 0;
+        background: none;
+        color: var(--adm-text);
+        font: inherit;
+        font-size: 0.9rem;
+        outline: none;
+    }
+
+.adm-topbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.adm-icon-btn {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    background: none;
+    color: var(--adm-text);
+    cursor: pointer;
+}
+
+    .adm-icon-btn:hover {
+        background: var(--adm-surface-soft);
+    }
+
+.adm-icon-btn--sm {
+    width: 30px;
+    height: 30px;
+}
+
+.adm-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 650;
+}
+
+.adm-user__avatar {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--adm-purple);
+    color: #ffffff;
+    font-weight: 700;
+}
+
+/* ========================================
+   CARDS + PANELS
+======================================== */
+
+.adm-card {
+    border: 1px solid var(--adm-border);
+    border-radius: var(--adm-radius);
+    background: var(--adm-surface);
+    box-shadow: var(--adm-shadow);
+}
+
+.adm-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+    padding: 20px 22px;
+}
+
+.adm-panel__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+    .adm-panel__head h2 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+        font-size: 1.15rem;
+        font-weight: 750;
+        letter-spacing: -0.01em;
+    }
+
+        .adm-panel__head h2 svg {
+            color: var(--adm-purple);
+        }
+
+.adm-link {
+    color: var(--adm-purple-text);
+    font-size: 0.88rem;
+    font-weight: 650;
+    text-decoration: none;
+}
+
+    .adm-link:hover {
+        text-decoration: underline;
+    }
+
+.adm-row {
+    display: grid;
+    gap: 22px;
+}
+
+.adm-row--bookings {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+}
+
+.adm-row--fleet {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+}
+
+/* ========================================
+   KPI CARDS
+======================================== */
+
+.adm-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.adm-kpi {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+}
+
+.adm-kpi__icon {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--adm-surface-soft);
+    color: var(--adm-purple);
+}
+
+    .adm-kpi__icon svg {
+        width: 26px;
+        height: 26px;
+    }
+
+.adm-kpi__label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 650;
+}
+
+.adm-kpi__value {
+    display: block;
+    margin: 4px 0 2px;
+    font-size: 1.85rem;
+    font-weight: 780;
+    letter-spacing: -0.03em;
+}
+
+.adm-kpi__trend {
+    color: var(--adm-muted);
+    font-size: 0.82rem;
+}
+
+    .adm-kpi__trend.is-up {
+        color: #2e8b57;
+    }
+
+    .adm-kpi__trend.is-down {
+        color: #c0392b;
+    }
+
+/* ========================================
+   TABLE
+======================================== */
+
+.adm-table-wrap {
+    overflow-x: auto;
+}
+
+.adm-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+    .adm-table th {
+        padding: 12px 14px;
+        background: var(--adm-surface-soft);
+        font-weight: 650;
+        text-align: left;
+    }
+
+        .adm-table th:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .adm-table th:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+
+    .adm-table td {
+        padding: 14px;
+        border-bottom: 1px solid var(--adm-border);
+    }
+
+.adm-table__empty td {
+    padding: 34px 14px;
+    color: var(--adm-muted);
+    text-align: center;
+}
+
+/* Statusbrickor, används när bokningarna finns */
+.adm-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 650;
+}
+
+.adm-status--confirmed {
+    background: #e3f5e9;
+    color: #22764a;
+}
+
+.adm-status--pending {
+    background: #ece5ff;
+    color: var(--adm-purple-text);
+}
+
+.adm-status--cancelled {
+    background: #fde8e8;
+    color: #b42323;
+}
+
+/* ========================================
+   CALENDAR
+======================================== */
+
+.adm-cal__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.adm-cal__grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    text-align: center;
+}
+
+.adm-cal__dow {
+    padding-bottom: 6px;
+    color: var(--adm-muted);
+    font-size: 0.78rem;
+}
+
+.adm-cal__day {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 34px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+}
+
+    .adm-cal__day.is-today {
+        background: var(--adm-purple);
+        color: #ffffff;
+        font-weight: 700;
+    }
+
+    .adm-cal__day.has-booking::after {
+        content: "";
+        position: absolute;
+        bottom: 3px;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: var(--adm-purple);
+    }
+
+/* ========================================
+   FLEET AVAILABILITY (donut)
+======================================== */
+
+.adm-fleet {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.adm-donut {
+    --c-available: #5a3fa8;
+    --c-rented: #a98bf0;
+    --c-service: #d6c9f5;
+    --c-empty: #efeaf9;
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 170px;
+    height: 170px;
+    flex: none;
+    border-radius: 50%;
+    background: conic-gradient(
+        var(--c-available) 0 calc(var(--available) * 1%),
+        var(--c-rented) 0 calc((var(--available) + var(--rented)) * 1%),
+        var(--c-service) 0 calc((var(--available) + var(--rented) + var(--service)) * 1%),
+        var(--c-empty) 0 100%);
+}
+
+.adm-donut__center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 118px;
+    height: 118px;
+    border-radius: 50%;
+    background: var(--adm-surface);
+}
+
+    .adm-donut__center strong {
+        font-size: 1.8rem;
+        font-weight: 780;
+    }
+
+    .adm-donut__center span {
+        color: var(--adm-muted);
+        font-size: 0.85rem;
+    }
+
+.adm-legend {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+    .adm-legend li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.92rem;
+    }
+
+.adm-legend__dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+}
+
+.adm-legend__dot--available {
+    background: #5a3fa8;
+}
+
+.adm-legend__dot--rented {
+    background: #a98bf0;
+}
+
+.adm-legend__dot--service {
+    background: #d6c9f5;
+}
+
+.adm-legend__value {
+    margin-left: auto;
+    font-weight: 700;
+}
+
+/* ========================================
+   QUICK ACTIONS
+======================================== */
+
+.adm-actions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.adm-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 120px;
+    padding: 16px;
+    border-radius: 14px;
+    background: var(--adm-surface-soft);
+    color: var(--adm-text);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+    .adm-action svg {
+        width: 34px;
+        height: 34px;
+        color: var(--adm-purple);
+    }
+
+    .adm-action:hover {
+        background: #ebe3fd;
+        color: var(--adm-text);
+        transform: translateY(-2px);
+    }
+
+/* ========================================
+   FOOTER
+======================================== */
+
+.adm-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: auto;
+    padding: 18px 28px;
+    color: var(--adm-muted);
+    font-size: 0.8rem;
+}
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 1280px) {
+    .adm-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .adm-row--bookings,
+    .adm-row--fleet {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .adm-shell {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .adm-sidebar {
+        position: static;
+        height: auto;
+    }
+
+    .adm-topbar {
+        flex-wrap: wrap;
+    }
+
+    .adm-search {
+        order: 3;
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .adm-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .adm-kpis {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .adm-fleet {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .adm-donut {
+        align-self: center;
+    }
+}

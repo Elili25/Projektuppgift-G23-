@@ -1,0 +1,36 @@
+@{
+    ViewData["Title"] = "Contact";
+
+    // TODO: byt ut mot Sevents riktiga kontaktuppgifter
+    const string Email = "info@sevent.se";
+    const string Phone = "070-000 00 00";
+    const string Hours = "Mon–Fri 08:00–17:00";
+}
+
+<link rel="stylesheet" href="~/css/Sevent-Guest.css" asp-append-version="true" />
+
+<section class="guest">
+    <span class="guest__badge">Contact</span>
+    <h1 class="guest__title">We're here to help</h1>
+    <p class="guest__lead">Questions about a booking or a vehicle? Reach our customer service below.</p>
+
+    <div class="guest__grid">
+        <article class="guest__card">
+            <span class="guest__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></svg></span>
+            <h3>Email</h3>
+            <p><a href="mailto:@Email">@Email</a></p>
+        </article>
+
+        <article class="guest__card">
+            <span class="guest__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" /></svg></span>
+            <h3>Phone</h3>
+            <p><a href="tel:@Phone.Replace(" ", "")">@Phone</a></p>
+        </article>
+
+        <article class="guest__card">
+            <span class="guest__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg></span>
+            <h3>Opening hours</h3>
+            <p>@Hours</p>
+        </article>
+    </div>
+</section>

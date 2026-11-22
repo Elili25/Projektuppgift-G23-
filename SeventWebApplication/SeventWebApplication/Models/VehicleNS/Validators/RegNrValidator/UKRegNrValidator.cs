@@ -1,0 +1,14 @@
+using System.Text.RegularExpressions;
+
+namespace SeventWebApplication.Models.VehicleNS
+{
+    // UK: AB12 CDE
+    public class UKRegNrValidator : IRegNrValidator
+    {
+        public void ValidateRegNr(string regNr)
+        {
+            if (regNr is null || !Regex.IsMatch(regNr.Trim(), @"^[A-Z]{2}\d{2}\s?[A-Z]{3}$", RegexOptions.IgnoreCase))
+                throw new ArgumentException(RegNrFormatHints.Message(RegNrFormatHints.UK));
+        }
+    }
+}

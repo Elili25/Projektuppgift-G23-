@@ -1,0 +1,487 @@
+/*
+  Sevent – Admin-sidor (Fleet, BookingManagement, Returns, Families/Manage)
+  Kompletterar Sevent-AdminDashboard.css. Används av Views/Shared/_AdminLayout.cshtml.
+*/
+
+.adm-pagehead {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.adm-flash {
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.adm-flash--ok { background: #e3f5e9; color: #22764a; }
+.adm-flash--error { background: #fde8e8; color: #b42323; }
+
+.adm-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: var(--adm-purple);
+    color: #fff;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 650;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.adm-btn:hover { filter: brightness(1.08); }
+.adm-btn,
+.adm-btn:hover,
+.adm-btn:focus,
+.adm-btn:visited { color: #fff; }
+.adm-btn--ghost,
+.adm-btn--ghost:hover { color: var(--adm-purple-text); }
+.adm-btn--ghost { background: transparent; border-color: var(--adm-border); color: var(--adm-purple-text); }
+.adm-btn--danger { background: #b42323; }
+.adm-btn--ok { background: #22764a; }
+
+.adm-inline { display: inline-block; margin: 0 4px 0 0; }
+
+.adm-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 16px;
+}
+
+.adm-field { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; font-weight: 600; }
+.adm-field--wide { grid-column: 1 / -1; }
+
+.adm-field input,
+.adm-field select,
+.adm-field textarea {
+    padding: 9px 12px;
+    border: 1px solid var(--adm-border);
+    border-radius: 10px;
+    background: var(--adm-surface);
+    color: var(--adm-text);
+    font: inherit;
+    font-weight: 400;
+}
+
+.adm-field small { color: var(--adm-muted); font-weight: 400; }
+.adm-errors { color: #b42323; font-size: 0.85rem; margin: 0 0 12px; padding-left: 18px; }
+
+.adm-status--active { background: #e3f5e9; color: #22764a; }
+.adm-status--inservice { background: #fff1d6; color: #8a5a00; }
+.adm-status--inrepair { background: #fde8e8; color: #b42323; }
+.adm-status--outofservice { background: #e8e8ee; color: #55506a; }
+.adm-status--completed { background: #e8e8ee; color: #55506a; }
+
+/* ========================================
+   KALENDER (stor variant på /Calendar)
+======================================== */
+
+.adm-cal__head--full { margin-bottom: 14px; font-size: 1.05rem; }
+.adm-cal__head--full > span { display: inline-flex; align-items: center; gap: 8px; }
+
+.adm-cal__grid--full { gap: 6px; }
+
+.adm-cal__grid--full .adm-cal__day {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+    height: auto;
+    min-height: 104px;
+    padding: 6px;
+    border: 1px solid var(--adm-border);
+    border-radius: 12px;
+    background: var(--adm-surface);
+    text-align: left;
+}
+
+.adm-cal__grid--full .adm-cal__day.has-booking::after { display: none; }
+.adm-cal__grid--full .adm-cal__day.is-today { background: var(--adm-surface-soft); border-color: var(--adm-purple); color: var(--adm-text); }
+.adm-cal__num { font-size: 0.8rem; font-weight: 700; color: var(--adm-muted); }
+.adm-cal__day.is-today .adm-cal__num { color: var(--adm-purple-text); }
+
+.adm-chip {
+    display: block;
+    overflow: hidden;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 650;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.adm-cal__legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.adm-cal__legend .adm-chip { display: inline-block; }
+
+.adm-chip--pending { background: #ece5ff; color: var(--adm-purple-text); }
+.adm-chip--confirmed { background: #e3ecff; color: #2a4fb0; }
+.adm-chip--active { background: #e3f5e9; color: #22764a; }
+.adm-chip--completed { background: #e8e8ee; color: #55506a; }
+.adm-chip--more { background: transparent; color: var(--adm-muted); }
+
+@media (max-width: 900px) {
+    .adm-cal__grid--full .adm-cal__day { min-height: 70px; }
+    .adm-cal__grid--full .adm-chip { font-size: 0.65rem; }
+}
+
+/* ========================================
+   TIDSLINJE (/Calendar): fordon som rader, dagar som kolumner, bokningar som staplar
+======================================== */
+
+.adm-tl-card { padding: 0; overflow: hidden; }
+
+.adm-tl__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--adm-border);
+}
+
+.adm-tl__tabs { display: flex; gap: 4px; }
+
+.adm-tl__tab {
+    padding: 18px 16px 15px;
+    border-bottom: 3px solid transparent;
+    color: var(--adm-muted);
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.adm-tl__tab:hover { color: var(--adm-purple-text); }
+.adm-tl__tab.is-active { border-bottom-color: var(--adm-purple); color: var(--adm-text); }
+
+.adm-tl__nav { display: flex; align-items: center; gap: 6px; }
+.adm-tl__title { min-width: 170px; text-align: center; }
+
+/* Scrollar i sidled när dagarna inte ryms (fordonskolumnen ligger kvar till vänster) */
+.adm-tl__scroll {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    max-width: 100%;
+    scrollbar-color: var(--adm-purple) var(--adm-surface-soft);
+}
+
+.adm-tl {
+    --tl-label: 200px;
+    --tl-col: 34px;
+    min-width: calc(var(--tl-label) + var(--days) * var(--tl-col));
+}
+
+.adm-tl__row {
+    display: grid;
+    grid-template-columns: var(--tl-label) repeat(var(--days), var(--tl-col));   /* fasta kolumner, så rutorna inte sträcks ut */
+    align-items: stretch;
+    min-height: 34px;
+    border-bottom: 1px solid var(--adm-border);
+}
+
+.adm-tl__row > * { grid-row: 1; }
+
+.adm-tl__label {
+    grid-column: 1;
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2px 16px;
+    border-right: 1px solid var(--adm-border);
+    background: var(--adm-surface);
+    font-size: 0.84rem;
+    line-height: 1.2;
+    font-weight: 600;
+}
+
+.adm-tl__label small { color: var(--adm-muted); font-size: 0.74rem; font-weight: 400; }
+
+.adm-tl__row--group { min-height: 28px; background: var(--adm-surface-soft); }
+.adm-tl__row--group .adm-tl__label { background: var(--adm-surface-soft); color: var(--adm-purple-text); font-weight: 750; }
+
+/* Nivå 1 (Passenger Cars / Vans) är en smal mörklila avdelare, nivå 2 (SUV, Cargo van ...) är indragen */
+.adm-tl__row--level1 { min-height: 22px; background: #3a2766; border-bottom: 0; }
+.adm-tl__row--level1 .adm-tl__label {
+    background: #3a2766;
+    border-right-color: transparent;
+    color: #fff;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.adm-tl__row--level1 .adm-tl__cell { border-right-color: rgba(255, 255, 255, 0.08); background: transparent; box-shadow: none; }
+.adm-tl__row--level2 .adm-tl__label { padding-left: 28px; font-size: 0.8rem; font-weight: 700; }
+
+.adm-tl__cell {
+    display: grid;
+    place-items: center;
+    border-right: 1px solid var(--adm-border);
+    color: var(--adm-muted);
+    font-size: 0.8rem;
+}
+
+.adm-tl__cell.is-weekend { color: #d33a3a; background: rgba(211, 58, 58, 0.035); }
+.adm-tl__cell.is-today { box-shadow: inset 2px 0 0 #2db36b; background: rgba(45, 179, 107, 0.07); }
+
+/* Rubrikraderna är mindre och sticky överst */
+.adm-tl__head { min-height: 24px; border-bottom: 0; }
+.adm-tl__head--last { border-bottom: 1px solid var(--adm-border); }
+.adm-tl__head .adm-tl__label { background: var(--adm-surface); }
+.adm-tl__head .adm-tl__cell { color: var(--adm-text); font-weight: 650; }
+.adm-tl__dow { font-size: 0.78rem; }
+
+.adm-tl__month {
+    grid-row: 1;
+    padding: 6px 0 0 6px;
+    overflow: visible;
+    color: var(--adm-purple-text);
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Bokningsstaplar */
+.adm-tl__bar {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    align-self: stretch;          /* täcker hela cellernas höjd */
+    gap: 6px;
+    margin: 0;                    /* och hela bredden, ingen "plopp" */
+    padding: 0 8px;
+    border-left: 4px solid rgba(0, 0, 0, 0.25);
+    border-right: 1px solid rgba(255, 255, 255, 0.7);   /* tunn skiljelinje mellan bokningar som ligger intill varandra */
+    border-radius: 0;
+    overflow: hidden;
+    color: var(--adm-text);
+    text-decoration: none;
+}
+
+.adm-tl__bar:hover { filter: brightness(0.95); }
+.adm-tl__bar.is-open-left { border-left: 0; }
+.adm-tl__bar.is-open-right { border-right: 0; }
+
+.adm-tl__name {
+    flex: none;
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Kategori, växellåda och komfort */
+.adm-tl__tag {
+    flex: none;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.6);
+    color: var(--adm-text);
+    font-size: 0.7rem;
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+/* Bilens status: grön = Active, gul = InService, röd = InRepair, grå = OutOfService */
+.adm-tl__dot {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: #9a96ad;
+}
+
+.adm-tl__dot--active { background: #2db36b; }
+.adm-tl__dot--inservice { background: #f0a30a; }
+.adm-tl__dot--inrepair { background: #d33a3a; }
+.adm-tl__dot--outofservice { background: #9a96ad; }
+
+.adm-tl__key { display: inline-flex; align-items: center; gap: 6px; color: var(--adm-muted); font-size: 0.78rem; }
+.adm-tl__key .adm-tl__dot { border-color: transparent; }
+
+.adm-tl__bar--pending { background: #ffe08a; border-left-color: #e0a800; }
+.adm-tl__bar--confirmed { background: #93a3d8; border-left-color: #5d70bd; }
+.adm-tl__bar--active { background: #84d2a4; border-left-color: #2f9d62; }
+.adm-tl__bar--completed { background: #d3d0de; border-left-color: #9a96ad; }
+
+.adm-tl-card .adm-cal__legend { padding: 14px 20px; margin-top: 0; }
+
+/* ========================================
+   BOOTSTRAP-INNEHÅLL I DASHBOARDEN (.adm-bs)
+   Bookings- och Users-vyerna använder Bootstrap-klasser (btn, nav-pills, table, badge...).
+   Här får de dashboardens färger och former. Gäller bara inuti .adm-bs, så den
+   publika sidan (kundens "Mina bokningar") påverkas inte.
+======================================== */
+
+.adm-bs { color: var(--adm-text); font-size: 0.92rem; }
+/* Vanliga länkar lila, men inte knappar (de har egen textfärg, vit på de fyllda) */
+.adm-bs a:not(.btn):not(.adm-btn) { color: var(--adm-purple-text); }
+.adm-bs .text-muted { color: var(--adm-muted) !important; }
+.adm-bs h2 { color: var(--adm-text); font-size: 1.25rem; font-weight: 700; }
+.adm-bs code { color: var(--adm-purple-text); background: var(--adm-surface-soft); padding: 2px 6px; border-radius: 6px; }
+
+/* Knappar */
+.adm-bs .btn {
+    --bs-btn-border-radius: 10px;
+    --bs-btn-font-weight: 650;
+    --bs-btn-font-size: 0.85rem;
+}
+
+.adm-bs .btn-primary {
+    --bs-btn-bg: var(--adm-purple);
+    --bs-btn-border-color: var(--adm-purple);
+    --bs-btn-hover-bg: #5942a5;
+    --bs-btn-hover-border-color: #5942a5;
+    --bs-btn-active-bg: #4d3794;
+    --bs-btn-active-border-color: #4d3794;
+}
+
+.adm-bs .btn-outline-primary {
+    --bs-btn-color: var(--adm-purple-text);
+    --bs-btn-border-color: var(--adm-border);
+    --bs-btn-hover-bg: var(--adm-purple);
+    --bs-btn-hover-border-color: var(--adm-purple);
+    --bs-btn-active-bg: var(--adm-purple);
+    --bs-btn-active-border-color: var(--adm-purple);
+}
+
+.adm-bs .btn-outline-secondary {
+    --bs-btn-color: var(--adm-muted);
+    --bs-btn-border-color: var(--adm-border);
+    --bs-btn-hover-bg: var(--adm-surface-soft);
+    --bs-btn-hover-color: var(--adm-text);
+    --bs-btn-hover-border-color: var(--adm-border);
+}
+
+.adm-bs .btn-outline-danger { --bs-btn-border-color: rgba(180, 35, 35, 0.3); }
+.adm-bs .btn-outline-success { --bs-btn-border-color: rgba(34, 118, 74, 0.3); }
+
+/* Status-flikar (nav-pills) */
+.adm-bs .nav-pills { gap: 6px; }
+
+.adm-bs .nav-pills .nav-link {
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: var(--adm-surface);
+    border: 1px solid var(--adm-border);
+    color: var(--adm-muted);
+    font-weight: 650;
+}
+
+.adm-bs .nav-pills .nav-link:hover { background: var(--adm-surface-soft); color: var(--adm-purple-text); }
+
+.adm-bs .nav-pills .nav-link.active {
+    background: var(--adm-purple);
+    border-color: var(--adm-purple);
+    color: #fff;
+}
+
+.adm-bs .nav-pills .nav-link .badge { background: var(--adm-surface-soft) !important; color: var(--adm-purple-text) !important; }
+
+/* Tabeller: samma utseende som .adm-table, i ett kort */
+.adm-bs .table-responsive {
+    padding: 18px 20px;
+    border: 1px solid var(--adm-border);
+    border-radius: var(--adm-radius);
+    background: var(--adm-surface);
+    box-shadow: var(--adm-shadow);
+}
+
+.adm-bs .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--adm-text);
+    --bs-table-hover-bg: var(--adm-surface-soft);
+    --bs-table-border-color: var(--adm-border);
+    margin-bottom: 0;
+}
+
+.adm-bs .table > thead > tr > th {
+    padding: 12px 14px;
+    background: var(--adm-surface-soft);
+    border-bottom: 0;
+    color: var(--adm-text);
+    font-weight: 650;
+}
+
+.adm-bs .table > thead > tr > th:first-child { border-radius: 10px 0 0 10px; }
+.adm-bs .table > thead > tr > th:last-child { border-radius: 0 10px 10px 0; }
+.adm-bs .table > tbody > tr > td { padding: 14px; }
+
+/* Brickor: samma pill-form och färger som .adm-status */
+.adm-bs .badge {
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 650;
+}
+
+.adm-bs .badge.bg-secondary { background: #ece5ff !important; color: var(--adm-purple-text) !important; }   /* Väntande, Inaktiv */
+.adm-bs .badge.bg-primary { background: #e3ecff !important; color: #2a4fb0 !important; }                      /* Bekräftad, Anställd */
+.adm-bs .badge.bg-success { background: #e3f5e9 !important; color: #22764a !important; }                      /* Pågående, Aktiv */
+.adm-bs .badge.bg-dark { background: #e8e8ee !important; color: #55506a !important; }                         /* Avslutad, Admin */
+.adm-bs .badge.bg-danger { background: #fde8e8 !important; color: #b42323 !important; }                       /* Avbokad */
+.adm-bs .badge.bg-light { background: var(--adm-surface-soft) !important; color: var(--adm-purple-text) !important; border-color: var(--adm-border) !important; }
+
+/* Formulär */
+.adm-bs .form-control,
+.adm-bs .form-select {
+    border: 1px solid var(--adm-border);
+    border-radius: 10px;
+    background-color: var(--adm-surface);
+    color: var(--adm-text);
+}
+
+.adm-bs .form-control:focus,
+.adm-bs .form-select:focus {
+    border-color: var(--adm-purple);
+    box-shadow: 0 0 0 3px rgba(108, 85, 184, 0.15);
+}
+
+.adm-bs .form-label { color: var(--adm-text); font-weight: 650; font-size: 0.85rem; }
+.adm-bs .form-text { color: var(--adm-muted); }
+
+/* Meddelanden */
+.adm-bs .alert { border-radius: 12px; border: 0; font-weight: 600; }
+.adm-bs .alert-success { background: #e3f5e9; color: #22764a; }
+.adm-bs .alert-danger { background: #fde8e8; color: #b42323; }
+.adm-bs .alert-light { background: var(--adm-surface); border: 1px solid var(--adm-border); color: var(--adm-muted); }
+
+/* Formulärkort (Users/Create, Users/Edit) */
+.adm-formcard { max-width: 640px; }
+.adm-formcard > a { display: inline-block; margin-bottom: 14px; font-weight: 650; text-decoration: none; }
+
+/* Ny bokning: formuläret har redan dashboardens färger, men inte sin egen rubrikruta/bakgrund här
+   (titeln står redan i topbaren) */
+.adm-bs .booking-page {
+    overflow: visible;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.adm-bs .booking-page .bk-header h1,
+.adm-bs .booking-page .bk-badge { display: none; }
+
+.adm-bs .booking-page .bk-header p { margin-bottom: 18px; }
+
+/* Miniatyrbild i fordons- och familjetabellerna */
+.adm-thumb {
+    display: block;
+    width: 64px;
+    height: 36px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #eee4ff, #dfcdfb);
+}
+
+.adm-field input[type="file"] { padding: 8px 10px; }

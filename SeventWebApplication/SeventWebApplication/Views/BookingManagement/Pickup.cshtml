@@ -1,0 +1,67 @@
+@using SeventWebApplication.Models.Admin
+@model PickupPageViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Register pickup";
+    var b = Model.Booking;
+}
+
+<section class="adm-card adm-panel">
+    <p>
+        Booking <strong>#@b.ShortId</strong> – @b.CustomerName – @b.Vehicle @b.RegNr<br />
+        <small>@b.Start.ToString("yyyy-MM-dd HH:mm") → @b.End.ToString("yyyy-MM-dd HH:mm")</small>
+    </p>
+
+    <form method="post" asp-action="Pickup" id="pickup-form" data-planned-start="@b.Start.ToString("yyyy-MM-ddTHH:mm:ss")">
+        @if (ViewData.ModelState.Values.Any(v => v.Errors.Count > 0))
+        {
+            <ul class="adm-errors">
+                @foreach (var e in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@e.ErrorMessage</li>
+                }
+            </ul>
+        }
+
+        <input type="hidden" name="BookingId" value="@Model.Form.BookingId" />
+
+        <div class="adm-form">
+            <label class="adm-field">Mileage (km)
+                <input name="Mileage" type="number" min="0" value="@Model.Form.Mileage" />
+            </label>
+            <label class="adm-field">Fuel level (%)
+                <input name="FuelLevel" type="number" step="any" min="0" max="100" value="@Model.Form.FuelLevel" />
+            </label>
+            <label class="adm-field">Battery level (%)
+                <input name="BatteryLevel" type="number" step="any" min="0" max="100" value="@Model.Form.BatteryLevel" />
+            </label>
+            <label class="adm-field adm-field--wide">Notes
+                <textarea name="Notes" rows="2">@Model.Form.Notes</textarea>
+            </label>
+        </div>
+
+        <p style="margin-top:18px">
+            <button class="adm-btn adm-btn--ok" type="submit">Register pickup</button>
+            <a class="adm-btn" asp-action="Confirmed">Back</a>
+        </p>
+    </form>
+</section>
+
+@section Scripts {
+    <script>
+        // Varnar om bilen hämtas ut före den bokade starttiden
+        (function () {
+            var form = document.getElementById("pickup-form");
+            var start = new Date(form.getAttribute("data-planned-start"));
+            form.addEventListener("submit", function (e) {
+                if (new Date() >= start) return;
+                var sameDay = start.toDateString() === new Date().toDateString();
+                var time = start.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+                var when = sameDay ? "kl. " + time
+                    : "den " + start.toLocaleDateString("sv-SE", { day: "numeric", month: "short" }) + " kl. " + time;
+                if (!confirm("Din bokning börjar " + when + ". Vill du hämta ut bilen ändå?"))
+                    e.preventDefault();
+            });
+        })();
+    </script>
+}

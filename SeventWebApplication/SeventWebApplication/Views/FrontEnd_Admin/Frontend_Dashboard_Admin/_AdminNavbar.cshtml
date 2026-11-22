@@ -1,0 +1,26 @@
+@*
+    Admin – topbar: sidtitel, sök, notiser och inloggad admin.
+*@
+
+<header class="adm-topbar">
+    <div class="adm-topbar__title">
+        <h1>@ViewData["Title"]</h1>
+        <p>Real-time status, bookings and fleet performance</p>
+    </div>
+
+    <form class="adm-search" role="search" method="get" action="#">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+        <input type="search" name="q" placeholder="Search bookings, vehicles, customers…" aria-label="Search" />
+    </form>
+
+    <div class="adm-topbar__actions">
+        <button class="adm-icon-btn" type="button" aria-label="Notifications">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0" /></svg>
+        </button>
+
+        <div class="adm-user">
+            <span class="adm-user__avatar" aria-hidden="true">A</span>
+            <span class="adm-user__name">Admin</span>
+        </div>
+    </div>
+</header>

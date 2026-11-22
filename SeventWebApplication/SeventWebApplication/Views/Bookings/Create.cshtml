@@ -1,0 +1,997 @@
+@using SeventWebApplication.Models.Booking
+@model CreateBookingViewModel
+@{
+    if (Model.IsStaff) { Layout = "~/Views/Shared/_AdminLayout.cshtml"; }
+    ViewData["Title"] = Model.IsStaff ? "New booking" : "Book a vehicle";
+    var sv = System.Globalization.CultureInfo.GetCultureInfo("en-GB");
+    bool familyChosen = Model.Form.VehicleChoice != "vehicle";
+    string recipient = Model.Form.Recipient is "customer" or "dummy" ? Model.Form.Recipient : "management";
+
+    // Gör fältet rött om BookingCreationService/valideringen hittade fel i det
+    string Invalid(params string[] properties) => Model.HasError(properties) ? " is-invalid" : "";
+
+    // Antal som är valt för ett tillägg (behålls om formuläret visas igen efter fel)
+    int Quantity(string key) => Model.Form.Addons.TryGetValue(key, out int q) ? q : 0;
+}
+
+<section class="booking-page">
+    <header class="bk-header">
+        <a asp-action="Index" class="bk-back">
+            &larr; Back to @(Model.IsStaff ? "all bookings" : "my bookings")
+        </a>
+        <div><span class="bk-badge">@(Model.IsStaff ? "Staff" : "Booking")</span></div>
+        <h1>@ViewData["Title"]</h1>
+        <p>
+            @if (Model.IsStaff)
+            {
+                <span>Create a booking for management, a customer or a dummy booking. Bookings created by staff are confirmed immediately.</span>
+            }
+            else
+            {
+                <span>Send a booking request. It is confirmed by our staff before it is final.</span>
+            }
+        </p>
+    </header>
+
+    @* Alla fel samlade överst, fälten med fel blir också röda nedanför *@
+    @if (Model.Errors.Count > 0)
+    {
+        <div class="bk-errors" role="alert">
+            <strong>The booking could not be created:</strong>
+            <ul>
+                @foreach (var error in Model.Errors)
+                {
+                    <li>@error.Message</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <form id="booking-form" asp-action="Create" method="post" class="bk-layout">
+
+        <div class="bk-steps">
+
+            @* Vem bokningen gäller (bara personal) *@
+            @if (Model.IsStaff)
+            {
+                <div class="bk-card" id="recipient-card">
+                    <h2 class="bk-card__title">Booking for</h2>
+
+                    <div class="bk-segmented recipient-choice" role="group" aria-label="Who is the booking for?">
+                        <input type="radio" name="Form.Recipient" id="recipient-management-radio" value="management" @(recipient == "management" ? "checked" : "") />
+                        <label for="recipient-management-radio">Management</label>
+
+                        <input type="radio" name="Form.Recipient" id="recipient-customer-radio" value="customer" @(recipient == "customer" ? "checked" : "") />
+                        <label for="recipient-customer-radio">Customer</label>
+
+                        <input type="radio" name="Form.Recipient" id="recipient-dummy-radio" value="dummy" @(recipient == "dummy" ? "checked" : "") />
+                        <label for="recipient-dummy-radio">Dummy booking</label>
+                    </div>
+
+                    @* Management: personal är en kort lista, första valet är du själv *@
+                    <div id="recipient-management" class="@(recipient == "management" ? "" : "d-none")">
+                        <div class="bk-field@(Invalid("TargetUserId"))">
+                            <span class="bk-field__icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" /></svg>
+                            </span>
+                            <div class="bk-field__content">
+                                <label class="bk-field__label" for="staff-target">Staff member</label>
+                                <select id="staff-target" name="Form.TargetUserId" disabled="@(recipient != "management")">
+                                    @foreach (var s in Model.StaffMembers)
+                                    {
+                                        <option value="@s.Value" selected="@(s.Value == Model.Form.TargetUserId)">@s.Text (@s.Hint)</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Customer: sök bland befintliga kunder, eller fyll i uppgifterna nedan för en ny kund *@
+                    <div id="recipient-customer" class="@(recipient == "customer" ? "" : "d-none")">
+                        <input type="hidden" id="customer-id" name="Form.TargetUserId" value="@(recipient == "customer" ? Model.Form.TargetUserId : "")" disabled="@(recipient != "customer")" />
+
+                        <div class="bk-field@(Invalid("TargetUserId"))">
+                            <span class="bk-field__icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4.5 4.5" /></svg>
+                            </span>
+                            <div class="bk-field__content">
+                                <label class="bk-field__label" for="customer-search">Search existing customers</label>
+                                <input id="customer-search" type="search" autocomplete="off" placeholder="Name, email or phone (at least 2 characters)" />
+                            </div>
+                        </div>
+                        <ul class="bk-results d-none" id="customer-results" aria-label="Matching customers"></ul>
+                        <p class="bk-hint" id="customer-selected" hidden>
+                            <span id="customer-selected-text"></span>
+                            <button type="button" class="bk-link" id="customer-clear">Choose another</button>
+                        </p>
+                        <p class="bk-hint" id="customer-hint">Not in the list? Fill in the details below to add a new customer.</p>
+                    </div>
+
+                    @* Uppgifter: för en ny kund eller dummy. Låses när en befintlig kund valts *@
+                    <div id="guest-details" class="@(recipient == "management" ? "d-none" : "")">
+                        <div class="bk-grid-2 bk-guest-grid">
+                            <div class="bk-field@(Invalid("Guest"))">
+                                <div class="bk-field__content">
+                                    <label class="bk-field__label" for="Form_GuestName">Name</label>
+                                    <input asp-for="Form.GuestName" maxlength="100" autocomplete="off" />
+                                </div>
+                            </div>
+                            <div class="bk-field@(Invalid("Guest"))">
+                                <div class="bk-field__content">
+                                    <label class="bk-field__label" for="Form_GuestMail"><span id="guest-mail-label">Email</span></label>
+                                    <input asp-for="Form.GuestMail" type="email" maxlength="254" autocomplete="off" />
+                                </div>
+                            </div>
+                            <div class="bk-field@(Invalid("Guest"))">
+                                <div class="bk-field__content">
+                                    <label class="bk-field__label" for="Form_GuestPhone">Phone (optional)</label>
+                                    <input asp-for="Form.GuestPhone" type="tel" maxlength="30" autocomplete="off" />
+                                </div>
+                            </div>
+                        </div>
+                        <p class="bk-hint" id="guest-hint-customer">A new customer is created without a login. They can be searched for and booked again later.</p>
+                        <p class="bk-hint d-none" id="guest-hint-dummy">A dummy booking is a test booking that is not linked to a real customer. Email is optional and the booking works like any other.</p>
+                    </div>
+                </div>
+            }
+
+            @* Fordon: familj eller specifik bil *@
+            <div class="bk-card">
+                <h2 class="bk-card__title">Vehicle</h2>
+
+                <div class="bk-segmented vehicle-choice" role="group" aria-label="Choose how to pick a vehicle">
+                    <input type="radio" name="Form.VehicleChoice" id="choice-family" value="family" @(familyChosen ? "checked" : "") />
+                    <label for="choice-family">Car or van</label>
+
+                    <input type="radio" name="Form.VehicleChoice" id="choice-vehicle" value="vehicle" @(!familyChosen ? "checked" : "") />
+                    <label for="choice-vehicle">Specific vehicle</label>
+                </div>
+
+                <div id="family-picker" class="@(familyChosen ? "" : "d-none")">
+                    <div class="bk-field@(Invalid("VehicleFamilyId", "Booking"))">
+                        <span class="bk-field__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5.5A2 2 0 0 1 8.4 9h7.2a2 2 0 0 1 1.9 1.5L19 16" /><rect x="3" y="16" width="18" height="4" rx="1.5" /><circle cx="7.5" cy="18" r=".6" /><circle cx="16.5" cy="18" r=".6" /></svg>
+                        </span>
+                        <div class="bk-field__content">
+                            <label class="bk-field__label" asp-for="Form.VehicleFamilyId">Car or van</label>
+                            <select asp-for="Form.VehicleFamilyId">
+                                <option value="">Choose a car or van...</option>
+                                @foreach (var f in Model.Families)
+                                {
+                                    <option value="@f.Value" title="@f.Hint">@f.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <p class="bk-hint">You get an available vehicle of this type when the booking is confirmed.</p>
+                </div>
+
+                <div id="vehicle-picker" class="@(familyChosen ? "d-none" : "")">
+                    <div class="bk-field@(Invalid("VehicleId", "Booking"))">
+                        <span class="bk-field__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5.5A2 2 0 0 1 8.4 9h7.2a2 2 0 0 1 1.9 1.5L19 16" /><rect x="3" y="16" width="18" height="4" rx="1.5" /><circle cx="7.5" cy="18" r=".6" /><circle cx="16.5" cy="18" r=".6" /></svg>
+                        </span>
+                        <div class="bk-field__content">
+                            <label class="bk-field__label" asp-for="Form.VehicleId">Vehicle</label>
+                            <select asp-for="Form.VehicleId">
+                                <option value="">Choose a vehicle...</option>
+                                @foreach (var v in Model.Vehicles)
+                                {
+                                    <option value="@v.Value">@v.Text – @v.Hint</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Period *@
+            <div class="bk-card">
+                <h2 class="bk-card__title">Period</h2>
+                <div class="bk-grid-2">
+                    <div class="bk-field@(Invalid("Start"))">
+                        <span class="bk-field__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>
+                        </span>
+                        <div class="bk-field__content">
+                            <label class="bk-field__label" asp-for="Form.Start">Pickup</label>
+                            <input asp-for="Form.Start" type="datetime-local" required />
+                        </div>
+                    </div>
+                    <div class="bk-field@(Invalid("End"))">
+                        <span class="bk-field__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>
+                        </span>
+                        <div class="bk-field__content">
+                            <label class="bk-field__label" asp-for="Form.End">Return</label>
+                            <input asp-for="Form.End" type="datetime-local" required />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Tillval *@
+            @if (Model.Addons.Count > 0)
+            {
+                <div class="bk-card">
+                    <h2 class="bk-card__title">Add-ons</h2>
+                    @foreach (var addon in Model.Addons)
+                    {
+                        <div class="bk-addon">
+                            <div>
+                                <div class="bk-addon__name">@addon.Name</div>
+                                <div class="bk-addon__meta">@addon.Price.ToString("N0", sv) kr/st · max @addon.MaxLimit</div>
+                            </div>
+                            <div class="bk-field@(Model.HasError("Addons") && Quantity(addon.Key) > addon.MaxLimit ? " is-invalid" : "")">
+                                <div class="bk-field__content">
+                                    <input type="number" name="Form.Addons[@addon.Key]" value="@Quantity(addon.Key)"
+                                           min="0" max="@addon.MaxLimit" aria-label="Quantity @addon.Name" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            @* Betalsätt *@
+            <div class="bk-card">
+                <h2 class="bk-card__title">Payment method</h2>
+                <div class="bk-field@(Model.HasError("PaymentMethod") ? " is-invalid" : "")">
+                    <div class="bk-field__content">
+                        <label class="bk-field__label" for="Form_PaymentMethod">How would you like to pay?</label>
+                        <select asp-for="Form.PaymentMethod">
+                            <option value="Card">Card</option>
+                            <option value="Swish">Swish</option>
+                            <option value="Invoice">Invoice</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            @* Anteckning *@
+            <div class="bk-card">
+                <div class="bk-field">
+                    <span class="bk-field__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v16H5z" /><path d="M8.5 9h7M8.5 13h7M8.5 17h4" /></svg>
+                    </span>
+                    <div class="bk-field__content">
+                        <label class="bk-field__label" asp-for="Form.Notes">Note (optional)</label>
+                        <textarea asp-for="Form.Notes" rows="2" maxlength="500"
+                                  placeholder="E.g. preferred pickup time or anything else we should know"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Preliminärt pris: uppdateras medan man fyller i, innan bokningen skapas *@
+        <aside class="bk-summary" aria-live="polite">
+            <h2 class="bk-summary__title">Estimated price</h2>
+            <p class="bk-summary__sub" id="price-sub">&nbsp;</p>
+
+            <div class="bk-summary__body">
+                <p class="bk-summary__empty" id="price-empty">Choose a vehicle and period to see the price.</p>
+
+                <div id="price-body" hidden>
+                    <ul class="bk-lines" id="price-lines"></ul>
+                    <div class="bk-total">
+                        <span>Totalt</span>
+                        <strong id="price-total"></strong>
+                    </div>
+                </div>
+            </div>
+
+            <p class="bk-note">Estimated price. The final price is set at return, for example a late fee may be added.</p>
+
+            <button class="bk-submit" type="submit">
+                @(Model.IsStaff ? "Create booking" : "Send booking request")
+            </button>
+            <a class="bk-cancel" asp-action="Index">Cancel</a>
+        </aside>
+    </form>
+</section>
+
+<style>
+
+
+.booking-page {
+    --bk-bg: #f7f4fc;
+    --bk-purple: #6c55b8;
+    --bk-purple-hover: #5942a5;
+    --bk-text: #30204f;
+    --bk-muted: #625878;
+    --bk-border: rgba(91, 68, 145, 0.14);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: clamp(28px, 4vw, 52px) clamp(18px, 4vw, 56px) clamp(24px, 3vw, 40px);
+    border-radius: 24px;
+    background: radial-gradient(ellipse at 90% 8%, rgba(211, 190, 250, 0.48), transparent 40%), linear-gradient(120deg, #faf8fe 0%, var(--bk-bg) 54%, #f0eafb 100%);
+    color: var(--bk-text);
+    font-family: Inter, "Segoe UI", sans-serif;
+}
+
+/* Rubrik */
+.booking-page .bk-back {
+    display: inline-block;
+    margin-bottom: 14px;
+    color: var(--bk-purple);
+    font-size: 0.88rem;
+    font-weight: 650;
+}
+
+.booking-page .bk-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 14px;
+    padding: 8px 15px;
+    border: 1px solid rgba(126, 94, 196, 0.08);
+    border-radius: 999px;
+    background: rgba(226, 215, 249, 0.72);
+    color: #6044b4;
+    font-size: 0.72rem;
+    font-weight: 750;
+    letter-spacing: 0.11em;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.booking-page .bk-header h1 {
+    margin: 0 0 10px;
+    color: var(--bk-text);
+    font-size: clamp(2rem, 4vw, 3.1rem);
+    font-weight: 760;
+    letter-spacing: -0.05em;
+    line-height: 1.06;
+}
+
+.booking-page .bk-header p {
+    max-width: 560px;
+    margin: 0 0 26px;
+    color: var(--bk-muted);
+    line-height: 1.6;
+}
+
+/* Felruta */
+.booking-page .bk-errors {
+    margin-bottom: 22px;
+    padding: 14px 18px;
+    border: 1px solid rgba(190, 50, 70, 0.25);
+    border-radius: 14px;
+    background: rgba(255, 240, 242, 0.9);
+    color: #8f2236;
+}
+
+    .booking-page .bk-errors ul {
+        margin: 6px 0 0;
+        padding-left: 1.2rem;
+    }
+
+/* Layout: formulär + prisruta */
+.booking-page .bk-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 22px;
+    align-items: start;
+}
+
+.booking-page .bk-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+
+/* Kort (samma glas som sökrutan på startsidan) */
+.booking-page .bk-card {
+    padding: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 17px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 12px 30px rgba(66, 43, 112, 0.10);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.booking-page .bk-card__title {
+    margin: 0 0 14px;
+    color: var(--bk-text);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+/* Fält (som .booking-field på startsidan) */
+.booking-page .bk-field {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+    min-height: 52px;
+    padding: 0 14px;
+    border: 1px solid var(--bk-border);
+    border-radius: 12px;
+    background: #faf9fd;
+    color: var(--bk-text);
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+    .booking-page .bk-field:hover {
+        border-color: rgba(108, 85, 184, 0.4);
+        background: #fff;
+    }
+
+    .booking-page .bk-field:focus-within {
+        border-color: #8e79c6;
+        background: #fff;
+    }
+
+    .booking-page .bk-field.is-invalid {
+        border-color: #c0394f;
+        background: #fff7f8;
+    }
+
+.booking-page .bk-field__icon {
+    display: flex;
+    flex-shrink: 0;
+    color: var(--bk-purple);
+}
+
+    .booking-page .bk-field__icon svg {
+        width: 1.15rem;
+        height: 1.15rem;
+    }
+
+.booking-page .bk-field__content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    padding: 8px 0;
+}
+
+.booking-page .bk-field__label {
+    margin: 0;
+    color: #55466f;
+    font-size: 0.72rem;
+    font-weight: 650;
+}
+
+.booking-page .bk-field input,
+.booking-page .bk-field select,
+.booking-page .bk-field textarea {
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--bk-text);
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.booking-page .bk-field select {
+    cursor: pointer;
+}
+
+.booking-page .bk-field textarea {
+    resize: vertical;
+}
+
+.booking-page .bk-hint {
+    margin: 8px 2px 0;
+    color: var(--bk-muted);
+    font-size: 0.8rem;
+}
+
+.booking-page .bk-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* Val mellan fordonsklass / specifik bil */
+.booking-page .bk-segmented {
+    display: inline-flex;
+    gap: 4px;
+    margin-bottom: 14px;
+    padding: 4px;
+    border: 1px solid var(--bk-border);
+    border-radius: 12px;
+    background: #faf9fd;
+}
+
+    .booking-page .bk-segmented input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .booking-page .bk-segmented label {
+        margin: 0;
+        padding: 9px 18px;
+        border-radius: 9px;
+        color: var(--bk-muted);
+        font-size: 0.86rem;
+        font-weight: 650;
+        cursor: pointer;
+        transition: background 0.2s ease, color 0.2s ease;
+    }
+
+        .booking-page .bk-segmented label:hover {
+            color: var(--bk-purple);
+        }
+
+    .booking-page .bk-segmented input:checked + label {
+        background: linear-gradient(135deg, #8065d0 0%, var(--bk-purple) 100%);
+        color: #fff;
+        box-shadow: 0 5px 14px rgba(108, 85, 184, 0.18);
+    }
+
+    .booking-page .bk-segmented input:focus-visible + label {
+        outline: 3px solid rgba(108, 85, 184, 0.42);
+        outline-offset: 2px;
+    }
+
+/* Tillval */
+.booking-page .bk-addon {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 10px 0;
+    border-top: 1px solid var(--bk-border);
+}
+
+    .booking-page .bk-addon:first-of-type {
+        border-top: 0;
+        padding-top: 0;
+    }
+
+.booking-page .bk-addon__name {
+    font-weight: 650;
+}
+
+.booking-page .bk-addon__meta {
+    color: var(--bk-muted);
+    font-size: 0.8rem;
+}
+
+.booking-page .bk-addon .bk-field {
+    width: 5.5rem;
+    min-height: 44px;
+}
+
+    .booking-page .bk-addon .bk-field input {
+        text-align: right;
+    }
+
+/* Prisruta */
+.booking-page .bk-summary {
+    position: sticky;
+    top: 16px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 17px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 14px 34px rgba(66, 43, 112, 0.12);
+}
+
+.booking-page .bk-summary__title {
+    margin: 0 0 2px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.booking-page .bk-summary__sub {
+    margin: 0 0 14px;
+    color: var(--bk-muted);
+    font-size: 0.84rem;
+}
+
+.booking-page .bk-summary__empty {
+    margin: 0 0 14px;
+    padding: 14px;
+    border: 1px dashed rgba(91, 68, 145, 0.3);
+    border-radius: 12px;
+    color: var(--bk-muted);
+    font-size: 0.88rem;
+}
+
+.booking-page .bk-lines {
+    margin: 0 0 12px;
+    padding: 0;
+    list-style: none;
+}
+
+    .booking-page .bk-lines li {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 6px 0;
+        font-size: 0.9rem;
+    }
+
+        .booking-page .bk-lines li small {
+            display: block;
+            color: var(--bk-muted);
+        }
+
+        .booking-page .bk-lines li.is-discount {
+            color: #2f7d4f;
+        }
+
+.booking-page .bk-total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    padding-top: 12px;
+    border-top: 1px solid var(--bk-border);
+    font-weight: 700;
+}
+
+    .booking-page .bk-total strong {
+        font-size: 1.55rem;
+        letter-spacing: -0.03em;
+    }
+
+.booking-page .bk-note {
+    margin: 0 0 16px;
+    color: var(--bk-muted);
+    font-size: 0.76rem;
+    line-height: 1.5;
+}
+
+.booking-page.is-loading .bk-summary__body {
+    opacity: 0.55;
+    transition: opacity 0.15s ease;
+}
+
+/* Knappar */
+.booking-page .bk-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 52px;
+    padding: 0 25px;
+    border: 0;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #8065d0 0%, var(--bk-purple) 100%);
+    box-shadow: 0 6px 15px rgba(108, 85, 184, 0.2);
+    color: #fff;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 700;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+    .booking-page .bk-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 9px 20px rgba(108, 85, 184, 0.27);
+    }
+
+.booking-page .bk-cancel {
+    display: block;
+    margin-top: 12px;
+    color: #39266c;
+    font-size: 0.88rem;
+    font-weight: 650;
+    text-align: center;
+}
+
+.booking-page a:focus-visible,
+.booking-page button:focus-visible,
+.booking-page input:focus-visible,
+.booking-page select:focus-visible,
+.booking-page textarea:focus-visible {
+    outline: 3px solid rgba(108, 85, 184, 0.42);
+    outline-offset: 3px;
+}
+
+/* Responsivt */
+@@media (max-width: 900px) {
+    .booking-page .bk-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-page .bk-summary {
+        position: static;
+    }
+}
+
+@@media (max-width: 600px) {
+    .booking-page {
+        padding: 24px 14px 18px;
+        border-radius: 18px;
+    }
+
+    .booking-page .bk-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+@@media (prefers-reduced-motion: reduce) {
+    .booking-page *,
+    .booking-page *::before,
+    .booking-page *::after {
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Booking for (personal): sökträffar och valda kunder */
+.booking-page .bk-results {
+    margin: 8px 0 0;
+    padding: 4px;
+    list-style: none;
+    border: 1px solid var(--bk-border);
+    border-radius: 12px;
+    background: #fff;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+    .booking-page .bk-results li button {
+        display: block;
+        width: 100%;
+        padding: 9px 12px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--bk-text);
+        text-align: left;
+    }
+
+        .booking-page .bk-results li button:hover,
+        .booking-page .bk-results li button:focus-visible {
+            background: #f0eafb;
+        }
+
+    .booking-page .bk-results small {
+        display: block;
+        color: var(--bk-muted);
+    }
+
+.booking-page .bk-results .bk-results__empty {
+    padding: 9px 12px;
+    color: var(--bk-muted);
+}
+
+.booking-page .bk-guest-grid {
+    margin-top: 14px;
+}
+
+.booking-page .bk-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--bk-purple);
+    font-weight: 650;
+    text-decoration: underline;
+}
+
+.booking-page .bk-field input[readonly] {
+    color: var(--bk-muted);
+}
+</style>
+
+@section Scripts {
+    <script>
+        // Visar antingen fordonsklass- eller bil-listan beroende på vilket val som är markerat
+        document.querySelectorAll('input[name="Form.VehicleChoice"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                const family = document.getElementById('choice-family').checked;
+                document.getElementById('family-picker').classList.toggle('d-none', !family);
+                document.getElementById('vehicle-picker').classList.toggle('d-none', family);
+            });
+        });
+
+        // Booking for (personal): visar rätt del beroende på Management / Customer / Dummy booking
+        (() => {
+            const radios = document.querySelectorAll('input[name="Form.Recipient"]');
+            if (radios.length === 0) return;
+
+            const byId = id => document.getElementById(id);
+            const form = byId('booking-form');
+            const staffPanel = byId('recipient-management');
+            const customerPanel = byId('recipient-customer');
+            const guestDetails = byId('guest-details');
+            const staffSelect = byId('staff-target');
+            const customerId = byId('customer-id');
+            const search = byId('customer-search');
+            const results = byId('customer-results');
+            const selected = byId('customer-selected');
+            const selectedText = byId('customer-selected-text');
+            const hint = byId('customer-hint');
+            const name = byId('Form_GuestName');
+            const mail = byId('Form_GuestMail');
+            const phone = byId('Form_GuestPhone');
+            const searchUrl = '@Url.Action("SearchCustomers", "Bookings")';
+
+            const current = () => document.querySelector('input[name="Form.Recipient"]:checked').value;
+
+            // Ett disabled fält skickas inte med, så bara det som hör till valet följer med formuläret
+            function apply() {
+                const kind = current();
+                staffPanel.classList.toggle('d-none', kind !== 'management');
+                customerPanel.classList.toggle('d-none', kind !== 'customer');
+                guestDetails.classList.toggle('d-none', kind === 'management');
+                staffSelect.disabled = kind !== 'management';
+                customerId.disabled = kind !== 'customer';
+                byId('guest-hint-customer').classList.toggle('d-none', kind !== 'customer');
+                byId('guest-hint-dummy').classList.toggle('d-none', kind !== 'dummy');
+                byId('guest-mail-label').textContent = kind === 'dummy' ? 'Email (optional)' : 'Email';
+                name.required = kind !== 'management';
+                mail.required = kind === 'customer';
+                lockDetails(kind === 'customer' && customerId.value !== '');
+            }
+
+            // När en befintlig kund är vald visas uppgifterna men går inte att ändra
+            function lockDetails(locked) {
+                [name, mail, phone].forEach(f => { f.readOnly = locked; });
+                selected.hidden = !locked;
+                hint.hidden = locked;
+            }
+
+            function chooseCustomer(c) {
+                customerId.value = c.id;
+                name.value = c.name;
+                mail.value = c.mail;
+                phone.value = c.phone;
+                selectedText.textContent = 'Booking for ' + c.name + ' (' + c.mail + '). ';
+                results.classList.add('d-none');
+                search.value = '';
+                lockDetails(true);
+            }
+
+            byId('customer-clear').addEventListener('click', () => {
+                customerId.value = '';
+                [name, mail, phone].forEach(f => { f.value = ''; });
+                lockDetails(false);
+                search.focus();
+            });
+
+            let timer = null;
+            let latest = 0; // så ett långsamt gammalt svar inte skriver över ett nyare
+            search.addEventListener('input', () => {
+                clearTimeout(timer);
+                const q = search.value.trim();
+                if (q.length < 2) { results.classList.add('d-none'); return; }
+
+                timer = setTimeout(async () => {
+                    const mine = ++latest;
+                    try {
+                        const response = await fetch(searchUrl + '?q=' + encodeURIComponent(q), { headers: { 'Accept': 'application/json' } });
+                        if (!response.ok) throw new Error('HTTP ' + response.status);
+                        const found = await response.json();
+                        if (mine !== latest) return;
+
+                        results.replaceChildren();
+                        if (found.length === 0) {
+                            const li = document.createElement('li');
+                            li.className = 'bk-results__empty';
+                            li.textContent = 'No customers found. Fill in the details below to add a new customer.';
+                            results.appendChild(li);
+                        }
+                        found.forEach(c => {
+                            // textContent så namn från servern aldrig tolkas som HTML
+                            const li = document.createElement('li');
+                            const button = document.createElement('button');
+                            button.type = 'button';
+                            button.textContent = c.name;
+                            const small = document.createElement('small');
+                            small.textContent = [c.mail, c.phone].filter(Boolean).join(' · ');
+                            button.appendChild(small);
+                            button.addEventListener('click', () => chooseCustomer(c));
+                            li.appendChild(button);
+                            results.appendChild(li);
+                        });
+                        results.classList.remove('d-none');
+                    } catch {
+                        // Sökningen misslyckades, man kan fortfarande fylla i uppgifterna själv
+                    }
+                }, 250);
+            });
+
+            // Enter i sökrutan ska inte skicka in hela formuläret av misstag
+            search.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
+
+            radios.forEach(r => r.addEventListener('change', apply));
+            apply();
+        })();
+
+        // Återlämningen kan inte väljas före upphämtningen
+        const start = document.getElementById('Form_Start');
+        const end = document.getElementById('Form_End');
+        const syncEndMin = () => { end.min = start.value; };
+        start.addEventListener('change', syncEndMin);
+        syncEndMin();
+
+        // Preliminärt pris
+        // Frågar /Bookings/Estimate med det som är ifyllt och visar svaret i prisrutan.
+        // Körs direkt vid laddning (så priset syns även när formuläret visas igen efter fel) och vid varje ändring.
+        (() => {
+            const estimateUrl = '@Url.Action("Estimate", "Bookings")';
+            const page = document.querySelector('.booking-page');
+            const form = document.getElementById('booking-form');
+            const sub = document.getElementById('price-sub');
+            const empty = document.getElementById('price-empty');
+            const body = document.getElementById('price-body');
+            const lines = document.getElementById('price-lines');
+            const total = document.getElementById('price-total');
+
+            const kr = n => n.toLocaleString('en-GB', { maximumFractionDigits: 2 }) + ' kr';
+            const dagar = n => n + (n === 1 ? ' day' : ' days');
+
+            // textContent (inte innerHTML) så namn från servern aldrig tolkas som HTML
+            function addLine(label, amount, detail, cssClass) {
+                const li = document.createElement('li');
+                if (cssClass) li.className = cssClass;
+
+                const left = document.createElement('span');
+                left.textContent = label;
+                if (detail) {
+                    const small = document.createElement('small');
+                    small.textContent = detail;
+                    left.appendChild(small);
+                }
+
+                const right = document.createElement('span');
+                right.textContent = amount;
+
+                li.append(left, right);
+                lines.appendChild(li);
+            }
+
+            function showMessage(text) {
+                sub.textContent = '\u00a0';
+                empty.textContent = text;
+                empty.hidden = false;
+                body.hidden = true;
+            }
+
+            function render(d) {
+                if (!d.ok) { showMessage(d.reason); return; }
+
+                sub.textContent = d.vehicleLabel + ' · ' + dagar(d.days);
+                lines.replaceChildren();
+
+                addLine('Rental', kr(d.baseRate), kr(d.dailyRate) + ' × ' + dagar(d.days));
+                if (d.discount > 0) addLine('Discount', '−' + kr(d.discount), null, 'is-discount');
+                addLine('Booking fee', kr(d.baseFee));
+                d.addons.forEach(a => addLine(a.name, kr(a.amount), 'Qty: ' + a.quantity));
+
+                total.textContent = kr(d.total);
+                empty.hidden = true;
+                body.hidden = false;
+            }
+
+            let timer = null;
+            let latest = 0; // så ett långsamt gammalt svar inte skriver över ett nyare
+
+            async function refresh() {
+                const mine = ++latest;
+                page.classList.add('is-loading');
+                try {
+                    const params = new URLSearchParams(new FormData(form));
+                    params.delete('__RequestVerificationToken');
+                    const response = await fetch(estimateUrl + '?' + params.toString(), { headers: { 'Accept': 'application/json' } });
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    const data = await response.json();
+                    if (mine === latest) render(data);
+                } catch {
+                    if (mine === latest) showMessage('The price could not be calculated right now. You can still send the booking.');
+                } finally {
+                    if (mine === latest) page.classList.remove('is-loading');
+                }
+            }
+
+            const schedule = () => { clearTimeout(timer); timer = setTimeout(refresh, 200); };
+            form.addEventListener('input', schedule);
+            form.addEventListener('change', schedule);
+            refresh();
+        })();
+    </script>
+}

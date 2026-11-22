@@ -1,0 +1,51 @@
+@using SeventWebApplication.Models.Users
+@model RegisterForm
+@{
+    ViewData["Title"] = "Create account";
+}
+
+<link rel="stylesheet" href="~/css/Sevent-Auth.css" asp-append-version="true" />
+
+<section class="auth">
+    <div class="auth__card">
+        <span class="auth__badge">New account</span>
+        <h1 class="auth__title">Create account</h1>
+        <p class="auth__lead">It takes a minute. Afterwards you're logged in and can book right away.</p>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="auth__error" role="alert">@ViewBag.Error</div>
+        }
+
+        <form asp-action="Register" method="post" novalidate>
+            <div class="auth__field">
+                <label for="Name">Name</label>
+                <input asp-for="Name" placeholder="First and last name" autocomplete="name" required maxlength="100" />
+                <span asp-validation-for="Name" class="auth__error" role="alert"></span>
+            </div>
+            <div class="auth__field">
+                <label for="Mail">Email</label>
+                <input asp-for="Mail" type="email" placeholder="name@example.com" autocomplete="email" required />
+                <span asp-validation-for="Mail" class="auth__error" role="alert"></span>
+            </div>
+            <div class="auth__field">
+                <label for="Phone">Phone</label>
+                <input asp-for="Phone" type="tel" placeholder="070-000 00 00" autocomplete="tel" />
+                <div class="auth__hint">Optional. Digits, spaces and hyphens, e.g. 070-123 45 67 or +46 70 123 45 67.</div>
+                <span asp-validation-for="Phone" class="auth__error" role="alert"></span>
+            </div>
+            <div class="auth__field">
+                <label for="Password">Password</label>
+                <input asp-for="Password" type="password" placeholder="At least 8 characters" autocomplete="new-password" required minlength="8" />
+                <div class="auth__hint">At least 8 characters.</div>
+                <span asp-validation-for="Password" class="auth__error" role="alert"></span>
+            </div>
+
+            <button class="auth__submit" type="submit">Create account</button>
+        </form>
+
+        <p class="auth__switch">
+            Already have an account? <a asp-action="Login">Log in</a>
+        </p>
+    </div>
+</section>

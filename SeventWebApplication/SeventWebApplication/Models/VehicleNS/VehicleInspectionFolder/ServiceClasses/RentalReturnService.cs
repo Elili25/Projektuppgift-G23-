@@ -1,0 +1,244 @@
+﻿using SeventWebApplication.Models.Booking;
+using SeventWebApplication.Models.Observers;
+using SeventWebApplication.Models.Pricing;
+using BookingEntity = SeventWebApplication.Models.Booking.Booking;
+
+namespace SeventWebApplication.Models.VehicleNS
+{
+    public class RentalReturnService
+    {
+        private readonly BookingRepository _bookingRepository;
+        private readonly VehicleRentalRecordRepository _recordRepository;
+        private readonly VehicleInspectionRepository _inspectionRepository;
+        private readonly VehicleDamageService _damageService;
+        private readonly PricingServices _pricingService;
+        private readonly BookingNotifier _bookingNotifier;
+
+
+        public RentalReturnService(
+            BookingRepository bookingRepository,
+            VehicleRentalRecordRepository recordRepository,
+            VehicleInspectionRepository inspectionRepository,
+            VehicleDamageService damageService,
+            PricingServices pricingService,
+            BookingNotifier bookingNotifier)
+        {
+            _bookingRepository = bookingRepository;
+            _recordRepository = recordRepository;
+            _inspectionRepository = inspectionRepository;
+            _damageService = damageService;
+            _pricingService = pricingService;
+            _bookingNotifier = bookingNotifier;
+        }
+
+        public void RegisterPickup(
+            string bookingId,
+            int mileage,
+            decimal fuelLevel,
+            decimal batteryLevel,
+            string notes = "")
+        {
+            EnsurePercentage(fuelLevel, "Fuel level");
+            EnsurePercentage(batteryLevel, "Battery level");
+
+            var booking = GetBooking(bookingId);
+            var vehicle = GetVehicle(booking);
+            var vehicleId = vehicle.VehicleId;
+
+            if (_recordRepository.GetByBookingId(bookingId) != null)
+                throw new InvalidOperationException("Pickup has already been registered.");
+
+            if (booking.Status != BookingStatus.Confirmed)
+                throw new InvalidOperationException("Booking must be approved before pickup.");
+
+            if (!vehicle.IsOperational)
+                throw new InvalidOperationException($"Vehicle is {vehicle.VehicleStatus} and cannot be rented.");
+
+            if (!vehicle.IsAvailable)
+                throw new InvalidOperationException("Vehicle is already rented out.");
+
+            if (_damageService.HasOpenDamages(vehicleId))
+                throw new InvalidOperationException("Vehicle has unresolved damages.");
+
+            var pickupDate = DateTime.Now;
+
+            // 1. Pickup-inspektion
+            var inspection = new VehicleInspection(
+                vehicleId,
+                pickupDate,
+                InspectionType.Pickup,
+                mileage,
+                InspectionResult.Approved,
+                notes);
+
+            _inspectionRepository.Add(inspection);
+
+            // 2. Rental record
+            var record = new VehicleRentalRecord
+            {
+                BookingId = bookingId,
+                ActualPickupDate = pickupDate,
+                PickupMileage = mileage,
+                PickupFuelLevel = fuelLevel,
+                PickupBatteryLevel = batteryLevel
+            };
+
+            _recordRepository.Add(record);
+
+            // 3. Uppdatera bil och bokning
+            vehicle.IsAvailable = false;
+            booking.Status = BookingStatus.Active;
+
+            _bookingNotifier.Notify( new BookingEvent( BookingEventType.RentalStarted, booking ) );
+        }
+
+        public void RegisterReturn(
+            string bookingId,
+            int mileage,
+            decimal? fuelLevel,
+            decimal? batteryLevel,
+            InspectionResult inspectionResult,
+            IEnumerable<string>? damageDescriptions = null,
+            string notes = "",
+            decimal damageFee = 0m,
+            DateTime? returnedAt = null)
+        {
+            if (damageFee < 0)
+                throw new ArgumentException("Damage fee cannot be negative.");
+
+            EnsurePercentage(fuelLevel, "Fuel level");
+            EnsurePercentage(batteryLevel, "Battery level");
+
+            var booking = GetBooking(bookingId);
+            var record = GetRecord(bookingId);
+            var vehicle = GetVehicle(booking);
+            var vehicleId = vehicle.VehicleId;
+
+            if (record.IsReturned())
+                throw new InvalidOperationException("Return has already been registered.");
+
+            if (booking.Status != BookingStatus.Active)
+                throw new InvalidOperationException("Booking must be active before return.");
+
+            if (mileage < record.PickupMileage)
+                throw new ArgumentException("Return mileage cannot be lower than pickup mileage.");
+
+            var descriptions = (damageDescriptions ?? Enumerable.Empty<string>()).ToList();
+
+            if (descriptions.Any(string.IsNullOrWhiteSpace))
+                throw new ArgumentException("Damage descriptions cannot be empty.");
+
+            // Den faktiska returtiden kan anges av personalen, annars är det nu. Förseningsavgiften räknas
+            // från den, så en bil som lämnades i tid inte debiteras för att returen registreras sent.
+            var now = DateTime.Now;
+            var returnDate = returnedAt ?? now;
+
+            if (returnDate > now.AddMinutes(1))
+                throw new ArgumentException("The return time cannot be in the future.");
+
+            if (returnDate < record.ActualPickupDate)
+                throw new ArgumentException("The return time cannot be before the pickup.");
+
+            // 1. Retur-inspektion
+            var inspection = new VehicleInspection(
+                vehicleId,
+                returnDate,
+                InspectionType.Return,
+                mileage,
+                inspectionResult,
+                notes);
+
+            _inspectionRepository.Add(inspection);
+
+            // 2. Registrera skador kopplade till inspektionen
+            foreach (var description in descriptions)
+            {
+                var damage = new VehicleDamage
+                {
+                    VehicleId = vehicleId,
+                    InspectionId = inspection.VehicleInspectionId,
+                    Description = description
+                };
+
+                if (!_damageService.RegisterDamage(damage))
+                    throw new InvalidOperationException($"Could not register damage: {description}");
+            }
+
+            // 3. Uppdatera rental record
+            record.ActualReturnDate = returnDate;
+            record.ReturnMileage = mileage;
+            record.ReturnFuelLevel = fuelLevel;
+            record.ReturnBatteryLevel = batteryLevel;
+
+            _recordRepository.Update(record);
+
+            // Avgifterna sparas på bokningen så de finns kvar efter returen
+            booking.LateFee = CalculateLateFee(bookingId);
+            booking.DamageFee = damageFee;
+
+            // 4. Bilen är inte uthyrd längre. Om skador hittades har RegisterDamage
+            //    redan satt VehicleStatus = InRepair, så den kan ändå inte hyras ut.
+            vehicle.IsAvailable = true;
+            booking.Status = BookingStatus.Completed;
+
+            _bookingNotifier.Notify( new BookingEvent( BookingEventType.RentalReturned, booking ) );
+
+            if( IsLateReturn( bookingId ) )
+                _bookingNotifier.Notify( new BookingEvent( BookingEventType.LateReturn, booking ) );
+        }
+
+        public decimal CalculateLateFee(string bookingId)
+        {
+            var delay = GetDelay(bookingId);
+
+            return delay > TimeSpan.Zero
+                ? _pricingService.CalculateLateFee(bookingId, delay)
+                : 0m;
+        }
+
+        public bool IsLateReturn(string bookingId)
+        {
+            return GetDelay(bookingId) > TimeSpan.Zero;
+        }
+
+        // Bränsle- och batterinivå anges i procent. Null = inte angivet (tillåtet vid retur).
+        private static void EnsurePercentage(decimal? level, string name)
+        {
+            if (level is < 0 or > 100)
+                throw new ArgumentException($"{name} must be between 0 and 100 %.");
+        }
+
+        private BookingEntity GetBooking(string bookingId)
+        {
+            return _bookingRepository.GetById(bookingId)
+                ?? throw new InvalidOperationException("Booking not found.");
+        }
+
+        private static Vehicle GetVehicle(BookingEntity booking)
+        {
+            return booking.Vehicle
+                ?? throw new InvalidOperationException("Booking has no vehicle.");
+        }
+
+        private VehicleRentalRecord GetRecord(string bookingId)
+        {
+            return _recordRepository.GetByBookingId(bookingId)
+                ?? throw new InvalidOperationException("No pickup record exists for this booking.");
+        }
+
+        private TimeSpan GetDelay(string bookingId)
+        {
+            var record = _recordRepository.GetByBookingId(bookingId);
+            if (record == null || !record.IsReturned())
+                return TimeSpan.Zero;
+
+            var booking = _bookingRepository.GetById(bookingId);
+            if (booking == null)
+                return TimeSpan.Zero;
+
+            return record.CalculateDelay(booking.EndDate);
+        }
+        
+        
+    }
+}

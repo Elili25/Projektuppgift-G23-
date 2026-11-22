@@ -1,0 +1,241 @@
+﻿using SeventWebApplication.Models.Booking;
+using SeventWebApplication.Models.Observers;
+using SeventWebApplication.Models.Users;
+using BookingEntity = SeventWebApplication.Models.Booking.Booking;
+
+namespace SeventWebApplication.Models.Notifications
+{
+    public class NotificationService : BackgroundService, IBookingObserver
+    {
+        private readonly INotificationRepository _notificationRepository = new NotificationRepository();
+        private readonly Dictionary<NotificationChannelType, INotificationChannel> _notificationChannels = [];
+        private readonly IReminderScheduler _scheduler;
+
+        private PeriodicTimer? _timer = null; //Timer used for calling ProcessNotifications()
+
+        private BookingRepository _bookingRepository;
+
+        public NotificationService( 
+            BookingRepository bookingRepository, 
+            BookingNotifier bookingNotifier ) 
+        {
+            _scheduler = new ReminderScheduler( 30 );
+            _bookingRepository = bookingRepository;
+            bookingNotifier.Subscribe( this );
+        }
+
+        public void AddChannel( INotificationChannel channel )
+        {
+            if( !_notificationChannels.TryAdd( channel.GetChannelType(), channel ) )
+                throw new InvalidOperationException( "A notification channel of the same type already exists" );
+        }
+
+        public void RemoveChannel( NotificationChannelType type )
+        {
+            _notificationChannels.Remove( type );
+        }
+        
+        // Called to start processing the current messages
+        private void ProcessNotifications()
+        {
+            var notifications = _notificationRepository.GetPending();
+
+            foreach( var notification in notifications )
+            {
+                try
+                {
+                    Send( notification );
+                }
+                catch( Exception )
+                {
+                    notification.Status = NotificationStatus.Failed;
+                }
+            }
+
+            var scheduledReminder = _scheduler.GetPending();
+
+            foreach( var reminder in scheduledReminder )
+            {
+                try
+                {
+                    SendReminder( reminder );
+                }
+                catch( Exception )
+                {
+                    reminder.Status = NotificationStatus.Failed;
+                }
+                
+            }
+        }
+
+        public void AddBookingConfirmed( BookingEntity booking )
+        {
+            Guid userId = Guid.Parse( booking.UserId );
+
+            Notification notification = new( "Your booking has been confirmed", Guid.Parse( booking.BookingId ), userId, NotificationType.BookingConfirmation );
+            _notificationRepository.Add( notification );
+        }
+
+        public void AddCancellationConfirmed( BookingEntity booking )
+        {
+            Guid userId = Guid.Parse( booking.UserId );
+
+            Notification notification = new( "Your booking has successfully been cancelled", Guid.Parse( booking.BookingId ), userId, NotificationType.CancelledConfirmation );
+            _notificationRepository.Add( notification );
+        }
+
+        // Den här kommer nog inte användas
+        public void AddBookingChanged( BookingEntity booking )
+        {
+            Guid userId = Guid.Parse( booking.UserId );
+
+            Notification notification = new( "Your booking has successfully been changed", Guid.Parse( booking.BookingId ), userId, NotificationType.BookingChanged );
+            _notificationRepository.Add( notification );
+        }
+
+        public void AddRentalReturned( BookingEntity booking )
+        {
+            Guid userId = Guid.Parse( booking.UserId );
+
+            Notification notification = new( "Thank you for choosing Sevent, would you like to give us 5 start on welp.com", Guid.Parse( booking.BookingId ), userId, NotificationType.RentalReturn );
+            _notificationRepository.Add( notification );
+        }
+
+        public void AddLateReturn( BookingEntity booking )
+        {
+            Guid userId = Guid.Parse( booking.UserId );
+
+            Notification notification = new( "Unfortunately your car was returned late", Guid.Parse( booking.BookingId ), userId, NotificationType.LateReturnInformation );
+            _notificationRepository.Add( notification );
+        }
+
+        public void AddPaymentCompleted( BookingEntity booking )
+        {
+            Guid userId = Guid.Parse( booking.UserId );
+
+            Notification notification = new( "Your booking has been successfully paid for", Guid.Parse( booking.BookingId ), userId, NotificationType.PaymentCompleted );
+            _notificationRepository.Add( notification );
+        }
+
+        public void AddPaymentFailed( BookingEntity booking )
+        {
+            Guid userId = Guid.Parse( booking.UserId );
+
+            Notification notification = new( "Unfortunately your payment has failed", Guid.Parse( booking.BookingId ), userId, NotificationType.PaymentFailed );
+            _notificationRepository.Add( notification );
+        }
+        
+        public void AddPickupReminder( BookingEntity booking )
+        {
+            _scheduler.Schedule( booking );
+        }
+
+        // Observer: anropas av BookingNotifier när något händer med en bokning
+        public void OnBookingEvent(BookingEvent bookingEvent)
+        {
+            BookingEntity booking = bookingEvent.Booking;
+
+            switch (bookingEvent.Type)
+            {
+                case BookingEventType.Confirmed:
+                    AddBookingConfirmed(booking);
+                    AddPickupReminder(booking);
+                    break;
+
+                case BookingEventType.Cancelled:
+                    _notificationRepository.CancelNotification(booking);
+                    _scheduler.Cancel(Guid.Parse(booking.BookingId));
+                    AddCancellationConfirmed(booking);
+                    break;
+
+                case BookingEventType.RentalReturned:
+                    AddRentalReturned(booking);
+                    break;
+
+                case BookingEventType.LateReturn:
+                    AddLateReturn(booking);
+                    break;
+
+                case BookingEventType.PaymentCompleted:
+                    AddPaymentCompleted(booking);
+                    break;
+
+                case BookingEventType.PaymentFailed: 
+                    AddPaymentFailed(booking);
+                    break;
+            }
+        }
+
+        // Sends a message to all channels
+        // It's up to every channel to check whether what they need actually exists (like phone number) 
+        private void Send( Notification notification )
+        {
+            ArgumentNullException.ThrowIfNull( notification );
+
+            if( _notificationChannels.Count <= 0 )
+                throw new InvalidOperationException( "No notification channels found in NotificationService" );
+
+            notification.Status = NotificationStatus.Processed;
+
+            foreach( INotificationChannel channel in _notificationChannels.Values )
+                channel.Send( notification );
+        }
+
+        private void SendReminder( Reminder reminder )
+        {
+            ArgumentNullException.ThrowIfNull( reminder );
+
+            if( !_notificationChannels.TryGetValue( NotificationChannelType.InApp, out var inApp ) )
+                throw new NullReferenceException( "No InApp notification channel was found" );
+
+            BookingEntity? booking = _bookingRepository.GetById( reminder.BookingId.ToString() );
+
+            if( booking == null )
+            {
+                reminder.Status = NotificationStatus.Cancelled;
+                return;
+            }
+
+            Notification reminderNotification = new(
+                $"Reminder: your booking for today is at {reminder.ScheduleAt.Hour}:{reminder.ScheduleAt.Minute}",
+                reminder.BookingId,
+                Guid.Parse( booking.UserId ),
+                NotificationType.PickupReminder );
+                
+
+            reminder.Status = NotificationStatus.Processed;
+            inApp.Send( reminderNotification );
+        }
+
+        // Called after app.Run()
+        protected override async Task ExecuteAsync( CancellationToken stoppingToken )
+        {
+            if( _timer != null )
+                throw new InvalidOperationException( "A Notification async task is already running" );
+
+            Console.WriteLine( "Started NotificationService Task" );
+
+            foreach( var channelType in Enum.GetValues<NotificationChannelType>() )
+            {
+                if( !_notificationChannels.ContainsKey( channelType ) )
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"WARNING: NotificationService does not have a channel for {channelType}, consider adding one in Program.cs");
+                    Console.ResetColor();
+                }
+            }
+
+            _timer = new( TimeSpan.FromSeconds( 1 ) );
+
+            while( await _timer.WaitForNextTickAsync( stoppingToken ) )
+            {
+                ProcessNotifications();
+            }
+            
+            _timer?.Dispose();
+            _timer = null;
+
+            Console.WriteLine( "Exited NotificationService Task" );
+        }
+    }
+}

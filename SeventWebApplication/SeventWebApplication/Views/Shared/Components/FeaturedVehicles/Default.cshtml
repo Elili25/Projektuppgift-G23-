@@ -1,0 +1,116 @@
+@model List<SeventWebApplication.ViewModels.FeaturedVehicleViewModel>
+@using System.Globalization
+@using SeventWebApplication.Models.VehicleNS
+@{
+    var sv  = CultureInfo.GetCultureInfo("sv-SE");
+    string Kr(decimal v) => v.ToString("N0", sv) + " kr";
+    var max = Model.Count == 0 ? 1 : Model.Max(f => f.DailyPrice);
+    int Width(decimal p) => (int)Math.Round(p / max * 100);
+    var defaultTier = Model.Any(f => f.ComfortType == VehicleComfortType.Premium) ? "premium" : Model.FirstOrDefault()?.Tier;
+}
+
+<link rel="stylesheet" href="~/css/Sevent-FeaturedVehicles-Partial.css" asp-append-version="true" />
+
+<section class="featured-vehicles" aria-labelledby="fv-title">
+
+    @foreach (var f in Model)
+    {
+        <input class="fv-tier-input" type="radio" name="fv-tier" id="fv-tier-@f.Tier"
+               value="@f.ComfortType" checked="@(f.Tier == defaultTier)" />
+    }
+
+    <header class="fv-header">
+        <h2 id="fv-title">Pick your comfort level</h2>
+        <p>Every car has a clear daily price, built from the comfort level and the body type.</p>
+    </header>
+
+    <div class="fv-tiers" role="radiogroup" aria-label="Comfort level">
+        @foreach (var f in Model)
+        {
+            <label class="fv-tier" for="fv-tier-@f.Tier">
+                <span class="fv-tier__name">@f.ComfortType</span>
+                <span class="fv-tier__price">from @Kr(f.DailyPrice)</span>
+            </label>
+        }
+    </div>
+
+    <div class="fv-panels">
+        @foreach (var f in Model)
+        {
+            <div class="fv-panel fv-panel--@f.Tier">
+                <article class="fv-card">
+                    <div class="fv-card__media fv-media--void">
+                        @if (f.FuelType == FuelType.Electric)
+                        {
+                            <span class="fv-electric-badge">
+                                <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z" /></svg>
+                                Electric
+                            </span>
+                        }
+                        @if (!string.IsNullOrEmpty(f.ImagePath))
+                        {
+                            <img class="fv-car-image" src="@f.ImagePath" alt="@(f.ModelName ?? f.Name)" asp-append-version="true" />
+                        }
+                        else
+                        {
+                            <svg class="fv-car-placeholder" viewBox="0 0 260 110" role="img" aria-label="@(f.ModelName ?? f.Name)">
+                                <ellipse cx="130" cy="100" rx="110" ry="6" class="fv-car-shadow" />
+                                <path d="M14 80 L20 62 Q24 54 36 52 L78 48 L104 28 Q112 22 124 22 L170 22 Q182 22 190 30 L212 48 L236 52 Q248 55 248 66 L248 80 Z" class="fv-car-body" />
+                                <path d="M112 32 L124 30 L160 30 L160 46 L94 46 Z" class="fv-car-glass" />
+                                <path d="M168 30 L184 32 L200 46 L168 46 Z" class="fv-car-glass" />
+                                <circle cx="66" cy="82" r="16" class="fv-car-wheel" />
+                                <circle cx="66" cy="82" r="7" class="fv-car-rim" />
+                                <circle cx="198" cy="82" r="16" class="fv-car-wheel" />
+                                <circle cx="198" cy="82" r="7" class="fv-car-rim" />
+                            </svg>
+                        }
+                    </div>
+                    <div class="fv-card__body">
+                        <div class="fv-card__title">
+                            <span class="fv-card__family">@f.Name</span>
+                            <div class="fv-card__model"><h3>@(f.ModelName ?? f.Name)</h3></div>
+                            @if (f.Year is int year)
+                            {
+                                <span class="fv-card__similar">or similar · @year</span>
+                            }
+                        </div>
+                        <dl class="fv-specs">
+                            <div class="fv-spec"><dt>Gearbox</dt><dd>@f.Transmission</dd></div>
+                            @if (f.FuelType is not null)
+                            {
+                                <div class="fv-spec"><dt>Fuel</dt><dd>@f.FuelType</dd></div>
+                                <div class="fv-spec"><dt>Power</dt><dd>@f.HorsePower hp</dd></div>
+                                <div class="fv-spec"><dt>Luggage</dt><dd>@f.LuggageLitres?.ToString("0") L</dd></div>
+                            }
+                        </dl>
+                        <a class="fv-button" asp-controller="Bookings" asp-action="Create" asp-route-familyId="@f.FamilyId"
+                        aria-label="Book @f.Name">
+                        Book this car
+                        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                        </a>
+                    </div>
+                </article>
+
+                <aside class="fv-pricing" aria-label="How the price is set">
+                    <span class="fv-pricing__label">How the price is set</span>
+                    <div class="fv-pricing__calc">
+                        <div class="fv-pricing__row"><span>@f.ComfortType base rate</span><span>@Kr(f.BaseRate)</span></div>
+                        <div class="fv-pricing__row"><span>@f.CategoryLabel factor</span><span>× @f.BodyTypeFactor.ToString("0.0#", CultureInfo.InvariantCulture)</span></div>
+                        <div class="fv-pricing__total"><span>Daily price</span><strong>@Kr(f.DailyPrice)</strong></div>
+                    </div>
+                    <div class="fv-ladder">
+                        <span class="fv-ladder__label">All classes, per day</span>
+                        @foreach (var row in Model)
+                        {
+                            <div class="fv-ladder__row @(row.FamilyId == f.FamilyId ? "is-current" : "")">
+                                <span>@row.ComfortType</span>
+                                <span class="fv-ladder__track"><span class="fv-ladder__bar" style="--w: @Width(row.DailyPrice)%"></span></span>
+                                <span>@Kr(row.DailyPrice)</span>
+                            </div>
+                        }
+                    </div>
+                </aside>
+            </div>
+        }
+    </div>
+</section>
