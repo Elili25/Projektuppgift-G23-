@@ -71,13 +71,6 @@ namespace SeventWebApplication.Controllers
             if (!ModelState.IsValid)
                 return View("Manage", BuildPage(form));
 
-            // Varna om en familj med samma typ, transmission och kategori redan finns (kan bekräftas med "Skapa ändå")
-            if (!form.ConfirmDuplicate && FindDuplicate(form) is VehicleFamily duplicate)
-            {
-                return View("Manage", BuildPage(form,
-                    $"En familj med samma typ, transmission och kategori finns redan: \"{duplicate.Name}\" ({FamilyLabels.For(duplicate)}). Vill du skapa en till ändå?"));
-            }
-
             try
             {
                 // Kolla bilden först, så familjen inte skapas om den är ogiltig
@@ -106,22 +99,6 @@ namespace SeventWebApplication.Controllers
                 ModelState.AddModelError("", ex.Message);
                 return View("Manage", BuildPage(form));
             }
-        }
-
-        // Befintlig familj av samma typ med samma transmission och kategori (för bil även komfortnivå)
-        private VehicleFamily? FindDuplicate(FamilyForm form)
-        {
-            return _familyRepository.GetAll().FirstOrDefault(f => f switch
-            {
-                PassengerCarFamily c => form.Type == VehicleType.Car
-                    && c.TransmissionType == form.TransmissionType
-                    && c.CategoryType == form.CarCategory
-                    && c.ComfortType == form.Comfort,
-                VanFamily v => form.Type == VehicleType.Van
-                    && v.TransmissionType == form.TransmissionType
-                    && v.CategoryType == form.VanCategory,
-                _ => false
-            });
         }
 
         // ---- Detaljvy ----
@@ -273,10 +250,9 @@ namespace SeventWebApplication.Controllers
             return RedirectToAction(nameof(Manage));
         }
 
-        private FamilyPageViewModel BuildPage(FamilyForm form, string? duplicateWarning = null) => new()
+        private FamilyPageViewModel BuildPage(FamilyForm form) => new()
         {
             Form = form,
-            DuplicateWarning = duplicateWarning,
             Families = _familyRepository.GetAll().Select(f => new FamilyRowViewModel
             {
                 FamilyId = f.FamilyId,

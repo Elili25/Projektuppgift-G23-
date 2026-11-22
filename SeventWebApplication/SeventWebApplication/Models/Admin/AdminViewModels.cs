@@ -144,9 +144,6 @@ namespace SeventWebApplication.Models.Admin
         public double? MinCargoVolumeM3 { get; set; }
         public double? MinPayloadKg { get; set; }
         public int? MinPassengerCapacity { get; set; }
-
-        // Sätts av "Skapa ändå" när en liknande familj redan finns
-        public bool ConfirmDuplicate { get; set; }
     }
 
     // Formuläret för "Edit family": namn, beskrivning, bild och (för skåpbil) minimikrav
@@ -176,7 +173,6 @@ namespace SeventWebApplication.Models.Admin
 
     public class FamilyPageViewModel
     {
-        public string? DuplicateWarning { get; init; }
         public List<FamilyRowViewModel> Families { get; init; } = new();
         public FamilyForm Form { get; init; } = new();
     }

@@ -63,16 +63,6 @@
             </ul>
         }
 
-        @if (Model.DuplicateWarning is string warning)
-        {
-            <div class="adm-flash adm-flash--error">
-                @warning
-                <label style="display:block;margin-top:8px">
-                    <input type="checkbox" name="ConfirmDuplicate" value="true" /> Ja, skapa ändå
-                </label>
-            </div>
-        }
-
         <div class="adm-form">
             <label class="adm-field adm-field--wide">Image
                 <input type="file" name="Image" accept="image/png,image/jpeg,image/webp" />
