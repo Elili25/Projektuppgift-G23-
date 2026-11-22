@@ -235,6 +235,10 @@ namespace SeventWebApplication.Models.Admin
     {
         public BookingRowViewModel Booking { get; init; } = new();
         public PickupForm Form { get; init; } = new();
+
+        // Från RentalReturnService: tidigaste tillåtna upphämtning och om den redan har öppnat
+        public DateTime EarliestPickup { get; init; }
+        public bool CanPickupNow { get; init; } = true;
     }
 
     public class DamageRowViewModel

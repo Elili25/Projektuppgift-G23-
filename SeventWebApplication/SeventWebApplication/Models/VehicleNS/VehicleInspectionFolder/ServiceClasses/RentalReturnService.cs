@@ -17,6 +17,8 @@ namespace SeventWebApplication.Models.VehicleNS
         // Hur långt före bokad start bilen tidigast får hämtas ut
         public static readonly TimeSpan EarliestPickupBeforeStart = TimeSpan.FromHours(1);
 
+        // Tidigaste tidpunkt då en bokning med given starttid får hämtas ut
+        public static DateTime EarliestPickupTime(DateTime bookingStart) => bookingStart - EarliestPickupBeforeStart;
 
         public RentalReturnService(
             BookingRepository bookingRepository,
@@ -57,7 +59,7 @@ namespace SeventWebApplication.Models.VehicleNS
             var pickupDate = DateTime.Now;
 
             // Bilen får inte hämtas ut för långt före bokad start
-            if (pickupDate < booking.StartDate - EarliestPickupBeforeStart)
+            if (pickupDate < EarliestPickupTime(booking.StartDate))
                 throw new InvalidOperationException(
                     $"The booking starts {booking.StartDate:yyyy-MM-dd HH:mm}. " +
                     $"Pickup is allowed at the earliest {EarliestPickupBeforeStart.TotalHours:0} hour(s) before the start.");

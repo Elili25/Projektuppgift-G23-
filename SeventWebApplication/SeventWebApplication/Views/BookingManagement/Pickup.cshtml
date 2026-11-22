@@ -12,7 +12,7 @@
         <small>@b.Start.ToString("yyyy-MM-dd HH:mm") → @b.End.ToString("yyyy-MM-dd HH:mm")</small>
     </p>
 
-    <form method="post" asp-action="Pickup" id="pickup-form" data-planned-start="@b.Start.ToString("yyyy-MM-ddTHH:mm:ss")">
+    <form method="post" asp-action="Pickup" id="pickup-form" data-planned-start="@b.Start.ToString("yyyy-MM-ddTHH:mm:ss")" data-earliest-pickup="@Model.EarliestPickup.ToString("yyyy-MM-ddTHH:mm:ss")">
         @if (ViewData.ModelState.Values.Any(v => v.Errors.Count > 0))
         {
             <ul class="adm-errors">
@@ -21,6 +21,11 @@
                     <li>@e.ErrorMessage</li>
                 }
             </ul>
+        }
+
+        @if (!Model.CanPickupNow)
+        {
+            <p class="adm-errors">Pickup opens @Model.EarliestPickup.ToString("yyyy-MM-dd HH:mm").</p>
         }
 
         <input type="hidden" name="BookingId" value="@Model.Form.BookingId" />
@@ -41,7 +46,7 @@
         </div>
 
         <p style="margin-top:18px">
-            <button class="adm-btn adm-btn--ok" type="submit">Register pickup</button>
+            <button class="adm-btn adm-btn--ok" type="submit" disabled="@(!Model.CanPickupNow)">Register pickup</button>
             <a class="adm-btn" asp-action="Confirmed">Back</a>
         </p>
     </form>
@@ -53,7 +58,14 @@
         (function () {
             var form = document.getElementById("pickup-form");
             var start = new Date(form.getAttribute("data-planned-start"));
+            // Tidigaste tillåtna upphämtning kommer från RentalReturnService (servern)
+            var earliest = new Date(form.getAttribute("data-earliest-pickup"));
             form.addEventListener("submit", function (e) {
+                if (new Date() < earliest) {
+                    alert("Pickup öppnar " + earliest.toLocaleString("sv-SE", { dateStyle: "short", timeStyle: "short" }) + ".");
+                    e.preventDefault();
+                    return;
+                }
                 if (new Date() >= start) return;
                 var sameDay = start.toDateString() === new Date().toDateString();
                 var time = start.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });

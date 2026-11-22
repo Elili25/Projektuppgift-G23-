@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using SeventWebApplication.Models.Admin;
 using SeventWebApplication.Models.Booking;
 using SeventWebApplication.Models.Users;
+using SeventWebApplication.Models.VehicleNS;
 
 namespace SeventWebApplication.Controllers
 {
@@ -142,10 +143,15 @@ namespace SeventWebApplication.Controllers
                 return RedirectToAction(nameof(Confirmed));
             }
 
+            var now = DateTime.Now;
+            var earliest = RentalReturnService.EarliestPickupTime(booking.StartDate);
+
             return View("Pickup", new PickupPageViewModel
             {
-                Booking = BookingRowViewModel.From(booking, _users, DateTime.Now),
-                Form = form
+                Booking = BookingRowViewModel.From(booking, _users, now),
+                Form = form,
+                EarliestPickup = earliest,
+                CanPickupNow = now >= earliest
             });
         }
 
