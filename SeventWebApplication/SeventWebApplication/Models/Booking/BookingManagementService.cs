@@ -19,6 +19,7 @@ namespace SeventWebApplication.Models.Booking
         private readonly PaymentServices _payments;
         private readonly FleetManager _fleetManager;
         private readonly PricingServices _pricing;
+        private readonly VehicleFamilyRepository _vehicleFamilyRepository;
 
         public BookingManagementService(
             BookingRepository bookingRepository,
@@ -27,7 +28,8 @@ namespace SeventWebApplication.Models.Booking
             BookingNotifier bookingNotifier,
             PaymentServices payments,
             FleetManager fleetManager,
-            PricingServices pricing)
+            PricingServices pricing,
+            VehicleFamilyRepository vehicleFamilyRepository)
         {
             _fleetManager = fleetManager;
             _pricing = pricing;
@@ -36,6 +38,7 @@ namespace SeventWebApplication.Models.Booking
             _assignmentService = assignmentService;
             _rentalReturnService = rentalReturnService;
             _bookingNotifier = bookingNotifier;
+            _vehicleFamilyRepository = vehicleFamilyRepository;
         }
 
         // Hur långt före start en bil senast måste vara tilldelad. En familjebokning får vara utan bil
@@ -124,17 +127,104 @@ namespace SeventWebApplication.Models.Booking
 
         // Bekräftade familjebokningar utan bil där det är dags (VehicleAssignDeadline före start) får en ledig bil.
         // Körs regelbundet av VehicleAutoAssignWorker. Returnerar hur många som fick bil.
-        public int AutoAssignDueVehicles(DateTime now)
+        public int AutoAssignDueVehicles( DateTime now )
         {
             int assigned = 0;
 
-            foreach (var booking in _bookingRepository.GetByStatus(BookingStatus.Confirmed)
-                         .Where(b => b.Vehicle == null && b.VehicleFamilyId != null && now >= b.StartDate - VehicleAssignDeadline)
-                         .OrderBy(b => b.StartDate)
-                         .ToList())
+            foreach( var booking in _bookingRepository.GetByStatus( BookingStatus.Confirmed )
+                         .Where( b => b.Vehicle == null && b.VehicleFamilyId != null && now >= b.StartDate - VehicleAssignDeadline )
+                         .OrderBy( b => b.StartDate )
+                         .ToList() )
             {
-                if (_assignmentService.ConfirmVehicleAssignment(booking))
+                if( _assignmentService.ConfirmVehicleAssignment( booking ) )
+                {
                     assigned++;
+                    continue;
+                }
+
+                // Försöker hitta en liknande familj
+                // Kan fortfarande faila men väldigt liten chans
+
+                VehicleFamily? bookingFamily = _vehicleFamilyRepository.GetById( (Guid)booking.VehicleFamilyId! );
+
+                // Kan vara null om familjen tagits bort
+                if( bookingFamily == null )
+                {
+                    // Lite osäker på vad som borde hända här
+                    MarkCancelled( booking );
+                    Console.WriteLine( $"A Booking:{booking.BookingId} has an invalid vehicle family:{booking.VehicleFamilyId} that could not be found in the vehicle family repository" );
+                    continue;
+                }
+
+                var families = _vehicleFamilyRepository.GetAll().Where( b => b.VehicleCategoryType == bookingFamily.VehicleCategoryType );
+
+                Guid oldFamily = (Guid)booking.VehicleFamilyId;
+
+                foreach( var family in families )
+                {
+
+                    if( family.VehicleCategoryType == VehicleCategoryType.PassengerCar )
+                    {
+                        PassengerCarFamily carFamily = (PassengerCarFamily)family;
+                        PassengerCarFamily bookingCarFamily = (PassengerCarFamily)bookingFamily;
+
+
+                        if( carFamily.ComfortType < bookingCarFamily.ComfortType )
+                            continue;
+
+                        // om bokningen är för en automatisk bil borde vi bara kolla efter automatiska bilfamiljer
+                        if( bookingCarFamily.TransmissionType != TransmissionType.Manual &&
+                            carFamily.TransmissionType == TransmissionType.Manual )
+                            continue;
+
+
+                        booking.SetVehicleFamily( carFamily.FamilyId );
+                        if( _assignmentService.ConfirmVehicleAssignment( booking ) )
+                        {
+                            assigned++;
+                            break;
+                        }
+                        else
+                        {
+                            booking.SetVehicleFamily( oldFamily );
+                            continue;
+                        }
+
+                    }
+                    else
+                    {
+                        VanFamily vanFamily = (VanFamily)family;
+                        VanFamily bookingVanFamily = (VanFamily)bookingFamily;
+
+                        if( vanFamily.MinCargoVolumeM3 < bookingVanFamily.MinCargoVolumeM3 ||
+                            vanFamily.MinPassengerCapacity < bookingVanFamily.MinPassengerCapacity ||
+                            vanFamily.MinPayloadKg < bookingVanFamily.MinPayloadKg )
+                            continue;
+
+                        // om bokningen är för en automatisk van borde vi bara kolla efter automatiska vanfamiljer
+                        if( bookingVanFamily.TransmissionType != TransmissionType.Manual &&
+                            vanFamily.TransmissionType == TransmissionType.Manual )
+                            continue;
+
+                        booking.SetVehicleFamily( vanFamily.FamilyId );
+                        if( _assignmentService.ConfirmVehicleAssignment( booking ) )
+                        {
+                            assigned++;
+                            break;
+                        }
+                        else
+                        {
+                            booking.SetVehicleFamily( oldFamily );
+                            continue;
+                        }
+                    }
+                }
+                // Hittade ingen ny bil familj
+                if( oldFamily == booking.VehicleFamilyId )
+                {
+                    // Vet inte om det här heller är helt rätt
+                    MarkCancelled( booking );
+                }
             }
 
             return assigned;
