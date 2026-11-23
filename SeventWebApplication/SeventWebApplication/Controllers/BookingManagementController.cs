@@ -45,6 +45,24 @@ namespace SeventWebApplication.Controllers
             return View(Rows(BookingStatus.Active));
         }
 
+        // GET /BookingManagement/Today – dagens bokningar (startar idag), för att snabbt kunna starta uthyrningarna.
+        // Avbokade visas inte. Detaljsidan (Bookings/Details) har den gröna "Start rental"-knappen.
+        [HttpGet]
+        public IActionResult Today()
+        {
+            if (GetStaff(out _) is IActionResult denied)
+                return denied;
+
+            DateTime now = DateTime.Now;
+            var rows = _bookings.GetAll()
+                .Where(b => b.StartDate.Date == now.Date && b.Status != BookingStatus.Cancelled)
+                .OrderBy(b => b.StartDate)
+                .Select(b => BookingRowViewModel.From(b, _users, now))
+                .ToList();
+
+            return View(rows);
+        }
+
         // GET /BookingManagement/Confirmed – bekräftade bokningar som väntar på upphämtning
         [HttpGet]
         public IActionResult Confirmed()

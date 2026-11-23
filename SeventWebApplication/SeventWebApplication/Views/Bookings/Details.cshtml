@@ -4,6 +4,9 @@
 @{
     if (Model.IsStaff) { Layout = "~/Views/Shared/_AdminLayout.cshtml"; }
     var b = Model.Booking;
+    // Sidan man kom ifrån (t.ex. Today's bookings). Bara lokala adresser godtas.
+    string? returnUrl = Context.Request.Query["returnUrl"];
+    if (!Url.IsLocalUrl(returnUrl)) { returnUrl = null; }
     ViewData["Title"] = $"Booking #{b.ShortId}";
     var sv = System.Globalization.CultureInfo.GetCultureInfo("en-GB");
 
@@ -30,8 +33,20 @@
         Booking <code>#@b.ShortId</code>
         <span class="badge fs-6 align-middle @StatusBadge(b.Status)">@StatusText(b.Status)</span>
     </h2>
-    <a class="btn btn-outline-secondary" asp-action="Index">&larr; Back to bookings</a>
+    <div class="d-flex flex-wrap gap-2">
+        @* Personal: starta uthyrningen. Bekräftad bokning med bil -> upphämtningsformuläret (mätarställning, tank) *@
+        @if (Model.IsStaff && b.Status == BookingStatus.Confirmed && b.RegNr != "")
+        {
+            <a class="btn btn-success" asp-controller="BookingManagement" asp-action="Pickup" asp-route-id="@b.BookingId">Start rental</a>
+        }
+        <a class="btn btn-outline-secondary" href="@(returnUrl ?? Url.Action("Index"))">&larr; Back</a>
+    </div>
 </div>
+
+@if (Model.IsStaff && b.Status == BookingStatus.Confirmed && b.RegNr == "")
+{
+    <p class="text-muted">Assign a vehicle under <a asp-controller="BookingManagement" asp-action="Confirmed">Awaiting pickup</a> to start the rental.</p>
+}
 
 <div class="card mb-3">
     <div class="card-body">

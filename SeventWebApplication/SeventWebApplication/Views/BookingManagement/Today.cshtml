@@ -1,0 +1,60 @@
+@using SeventWebApplication.Models.Users
+@using SeventWebApplication.Models.Booking
+@model List<BookingRowViewModel>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Today's bookings";
+
+    string StatusClass(BookingStatus s) => s switch
+    {
+        BookingStatus.Pending => "pending",
+        BookingStatus.Confirmed => "confirmed",
+        BookingStatus.Active => "active",
+        _ => "completed"
+    };
+}
+
+<div class="adm-pagehead">
+    <h2>@Model.Count booking(s) starting today <small>@DateTime.Today.ToString("yyyy-MM-dd")</small></h2>
+</div>
+
+<section class="adm-card adm-panel">
+    <div class="adm-table-wrap">
+        <table class="adm-table">
+            <thead>
+                <tr>
+                    <th scope="col">Booking #</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Vehicle</th>
+                    <th scope="col">Dates</th>
+                    <th scope="col">Status</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var b in Model)
+                {
+                    <tr>
+                        <td>@b.ShortId</td>
+                        <td>@b.CustomerName<br /><small>@b.CustomerMail</small></td>
+                        <td>@(b.RegNr == "" ? "Not assigned yet" : $"{b.Vehicle} {b.RegNr}")</td>
+                        <td>@b.Start.ToString("HH:mm") → @b.End.ToString("yyyy-MM-dd HH:mm") (@b.Days d)</td>
+                        <td><span class="adm-status adm-status--@StatusClass(b.Status)">@b.Status</span></td>
+                        <td>
+                            <a class="adm-btn adm-btn--ghost" asp-controller="Bookings" asp-action="Details" asp-route-id="@b.BookingId"
+                               asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)">View</a>
+                            @if (b.Status == BookingStatus.Confirmed && b.RegNr != "")
+                            {
+                                <a class="adm-btn adm-btn--ok" asp-controller="BookingManagement" asp-action="Pickup" asp-route-id="@b.BookingId">Start rental</a>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                    <tr class="adm-table__empty"><td colspan="6">No bookings start today.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

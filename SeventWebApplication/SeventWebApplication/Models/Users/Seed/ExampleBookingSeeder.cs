@@ -124,6 +124,37 @@ namespace SeventWebApplication.Models.Users
 
                 TryRegister(registry, familyBooking);
             }
+
+            SeedTodayBooking(users, pricing);
+        }
+
+        // En ny bil med en bekräftad bokning som startar idag, så att "Start rental" går att testa direkt
+        // (Today's bookings → View/Start rental). Läggs till sist så slumpbokningarna ovan aldrig krockar med den.
+        // Starttiden är klockan 08 idag, upphämtning är tillåten från en timme före start, så den går att starta hela dagen.
+        private static void SeedTodayBooking(IUserRepository users, PricingServices pricing)
+        {
+            var customer = users.GetByMail("lisa@sevent.se");
+            if (customer is null)
+                return;
+
+            var car = MakeCar("Ford", "Focus", "NEW123", PassengerCarCategoryType.Hatchback, VehicleComfortType.Standard,
+                TransmissionType.Manual, 2024, 125, FuelType.Petrol, 375m);
+            FleetManager.instance.AddVehicle(car);
+
+            var start = DateTime.Today.AddHours(8);
+            var booking = new BookingEntity(
+                Guid.NewGuid().ToString(),
+                customer.UserId.ToString(),
+                car,
+                start,
+                start.AddDays(3),
+                new AddonPackage())
+            {
+                Status = BookingStatus.Confirmed
+            };
+
+            if (TryApplyPrice(pricing, booking, car))
+                TryRegister(SeventWebApplication.Models.Booking.BookingRegistry.Instance, booking);
         }
 
         // ApplyPrice kastar ArgumentOutOfRangeException för en bil som saknar pris.
