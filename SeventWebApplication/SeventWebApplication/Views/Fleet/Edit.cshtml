@@ -4,10 +4,13 @@
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Edit vehicle";
+
+    string? returnUrl = Context.Request.Query["returnUrl"];
+    if (!Url.IsLocalUrl(returnUrl)) { returnUrl = null; }
 }
 
 <section class="adm-card adm-panel">
-    <form method="post" asp-action="Edit" enctype="multipart/form-data">
+    <form method="post" asp-action="Edit" asp-route-returnUrl="@returnUrl" enctype="multipart/form-data">
         @if (ViewData.ModelState.Values.Any(v => v.Errors.Count > 0))
         {
             <ul class="adm-errors">
@@ -56,7 +59,7 @@
 
         <p style="margin-top:18px">
             <button class="adm-btn" type="submit">Save changes</button>
-            <a class="adm-btn adm-btn--ghost" asp-action="Details" asp-route-id="@Model.VehicleId">Cancel</a>
+            <a class="adm-btn adm-btn--ghost" asp-action="Details" asp-route-id="@Model.VehicleId" asp-route-returnUrl="@returnUrl">Cancel</a>
         </p>
     </form>
 </section>

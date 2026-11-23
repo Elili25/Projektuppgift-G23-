@@ -41,8 +41,12 @@
 .adm-btn:hover,
 .adm-btn:focus,
 .adm-btn:visited { color: #fff; }
+/* :visited/:focus ovan har högre specificitet än .adm-btn--ghost, så ghost-knappar blev vita på vit bakgrund
+   (syntes bara vid hover). Därför samma pseudoklasser här. */
 .adm-btn--ghost,
-.adm-btn--ghost:hover { color: var(--adm-purple-text); }
+.adm-btn--ghost:hover,
+.adm-btn--ghost:focus,
+.adm-btn--ghost:visited { color: var(--adm-purple-text); }
 .adm-btn--ghost { background: transparent; border-color: var(--adm-border); color: var(--adm-purple-text); }
 .adm-btn--danger { background: #b42323; }
 .adm-btn--ok { background: #22764a; }

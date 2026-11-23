@@ -171,7 +171,7 @@ namespace SeventWebApplication.Models.Booking
 
             if (!IsWithinCancelWindow(booking, DateTime.Now))
                 throw new InvalidOperationException(
-                    $"Bookings can only be cancelled more than {CustomerCancelWindow.TotalHours:0} hours before the start.");
+                    $"Bookings can only be cancelled more than {CustomerCancelWindow.TotalHours:0} hours before the start, or within {CustomerFreeCancelWindow.TotalMinutes:0} minutes after being created.");
 
             MarkCancelled(booking);
         }
@@ -184,8 +184,12 @@ namespace SeventWebApplication.Models.Booking
             booking.Status is BookingStatus.Pending or BookingStatus.Confirmed
             && IsWithinCancelWindow(booking, now);
 
+        // Nyskapade bokningar kan alltid avbokas den här tiden efter skapandet, även om de startar inom 8 timmar
+        public static readonly TimeSpan CustomerFreeCancelWindow = TimeSpan.FromMinutes(30);
+
         private static bool IsWithinCancelWindow(Booking booking, DateTime now) =>
-            now < booking.StartDate - CustomerCancelWindow;
+            now < booking.StartDate - CustomerCancelWindow
+            || now < booking.CreatedAt + CustomerFreeCancelWindow;
 
         private void MarkCancelled(Booking booking)
         {

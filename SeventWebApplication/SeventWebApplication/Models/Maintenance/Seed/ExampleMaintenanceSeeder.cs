@@ -14,7 +14,7 @@ namespace SeventWebApplication.Models.Maintenance.Seed
     public static class ExampleMaintenanceSeeder
     {
         public const string DamagedRegNr = "DAM421";
-        public const string MaintenanceRegNr = "SRV318";
+        public const string MaintenanceRegNr = "SER318";
 
         public static void Seed(VehicleDamageService damages, VehicleMaintenanceService maintenance)
         {

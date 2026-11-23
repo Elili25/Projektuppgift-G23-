@@ -52,8 +52,8 @@
                             {
                                 <a class="adm-btn adm-btn--ghost" asp-controller="Returns" asp-action="Damages">View damages</a>
                             }
-                            <a class="adm-btn adm-btn--ghost" asp-controller="Fleet" asp-action="Details" asp-route-id="@v.VehicleId">View</a>
-                            <a class="adm-btn adm-btn--ghost" asp-controller="Fleet" asp-action="Edit" asp-route-id="@v.VehicleId">Edit</a>
+                            <a class="adm-btn adm-btn--ghost" asp-controller="Fleet" asp-action="Details" asp-route-id="@v.VehicleId" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)">View</a>
+                            <a class="adm-btn adm-btn--ghost" asp-controller="Fleet" asp-action="Edit" asp-route-id="@v.VehicleId" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)">Edit</a>
                             <form class="adm-inline" method="post" asp-controller="Fleet" asp-action="Delete" asp-route-id="@v.VehicleId"
                                   data-confirm="Vill du radera @v.Name (@v.RegNr)? Det går inte att ångra.">
                                 <button class="adm-btn adm-btn--danger" type="submit">Delete</button>

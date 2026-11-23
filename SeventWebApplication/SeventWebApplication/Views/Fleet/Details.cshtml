@@ -3,13 +3,17 @@
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = $"{Model.Name} ({Model.RegNr})";
+
+    // Sidan man kom ifrån (t.ex. Service & repairs). Bara lokala adresser godtas.
+    string? returnUrl = Context.Request.Query["returnUrl"];
+    if (!Url.IsLocalUrl(returnUrl)) { returnUrl = null; }
 }
 
 <div class="adm-pagehead">
     <h2>@Model.Name <small>@Model.RegNr</small></h2>
     <div>
-        <a class="adm-btn adm-btn--ghost" asp-action="Index">Back</a>
-        <a class="adm-btn" asp-action="Edit" asp-route-id="@Model.VehicleId">Edit</a>
+        <a class="adm-btn adm-btn--ghost" href="@(returnUrl ?? Url.Action("Index"))">Back</a>
+        <a class="adm-btn" asp-action="Edit" asp-route-id="@Model.VehicleId" asp-route-returnUrl="@returnUrl">Edit</a>
         <form class="adm-inline" method="post" asp-action="Delete" asp-route-id="@Model.VehicleId"
               data-confirm="Vill du radera @Model.Name (@Model.RegNr)? Det går inte att ångra.">
             <button class="adm-btn adm-btn--danger" type="submit">Delete</button>

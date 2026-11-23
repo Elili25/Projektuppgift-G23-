@@ -11,7 +11,8 @@ namespace SeventWebApplication.Models.Booking
         Dummy       // testbokning utan riktig kund
     }
 
-    public record GuestDetails(string? Name, string? Mail, string? Phone);
+    // Password: bara för en ny riktig kund. Med lösenord kan kunden logga in och boka själv senare.
+    public record GuestDetails(string? Name, string? Mail, string? Phone, string? Password = null);
 
     public record BookingRequest
     {

@@ -15,6 +15,7 @@ namespace SeventWebApplication.Models.Booking
         public string? GuestName { get; set; }
         public string? GuestMail { get; set; }
         public string? GuestPhone { get; set; }
+        public string? GuestPassword { get; set; }   // bara för en ny kund (inte dummy)
 
         // "family" = välj en fordonsfamilj, "vehicle" = välj en specifik bil
         public string VehicleChoice { get; set; } = "family";
@@ -47,7 +48,7 @@ namespace SeventWebApplication.Models.Booking
             BookingFor = ParseRecipient(),
             // Dummy har ingen riktig kund, så ett kvarglömt id från ett annat val ska inte följa med
             TargetUserId = string.IsNullOrWhiteSpace(TargetUserId) || Recipient == "dummy" ? null : TargetUserId,
-            Guest = new GuestDetails(GuestName, GuestMail, GuestPhone),
+            Guest = new GuestDetails(GuestName, GuestMail, GuestPhone, GuestPassword),
             VehicleFamilyId = VehicleChoice == "family" ? VehicleFamilyId : null,
             VehicleId = VehicleChoice == "vehicle" ? VehicleId : null,
             Start = Start,

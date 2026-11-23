@@ -29,6 +29,9 @@ namespace SeventWebApplication.Models.Booking
         }
 
         public BookingStatus Status { get; set; } = BookingStatus.Pending;
+
+        // När bokningen skapades. Kunden får avboka fritt en kort stund efter detta (se CustomerFreeCancelWindow)
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
         //public IPricingStrategy PricingStrategy { get; set; }
 
         // Pengar. TotalPrice är hyrespriset (dagar + bokningsavgift + tillägg) och sätts när bokningen skapas.

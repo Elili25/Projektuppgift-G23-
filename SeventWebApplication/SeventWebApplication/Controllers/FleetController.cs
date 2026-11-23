@@ -226,7 +226,7 @@ namespace SeventWebApplication.Controllers
 
         // POST /Fleet/Edit
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(VehicleEditForm form)
+        public async Task<IActionResult> Edit(VehicleEditForm form, string? returnUrl = null)
         {
             if (GetStaff(out _) is IActionResult denied)
                 return denied;
@@ -260,7 +260,7 @@ namespace SeventWebApplication.Controllers
                 VehicleType type = v is Van ? VehicleType.Van : VehicleType.Car;
                 var brand = new VehicleBrand(form.Brand.Trim(), type);
                 var model = new VehicleModel(form.ModelName.Trim(), brand.BrandId, type) { Brand = brand };
-                var plate = new RegistrationPlate(form.RegNr.Trim().ToUpperInvariant(), form.CountryCode);
+                var plate = new RegistrationPlate(NormalizeRegNr(form.RegNr), form.CountryCode);
 
                 _fleet.UpdateVehicle(v.VehicleId, plate, model, form.Year, form.PassengerCapacity, form.LuggageCapacity);
 
@@ -271,7 +271,7 @@ namespace SeventWebApplication.Controllers
                 _assignments.ReassignFamily(v);
 
                 TempData["Success"] = $"{model.Brand.BrandName} {model.ModelName} ({plate.RegNr}) was updated.";
-                return RedirectToAction(nameof(Details), new { id = v.VehicleId });
+                return RedirectToAction(nameof(Details), new { id = v.VehicleId, returnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : null });
             }
             catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or NotSupportedException)
             {
@@ -286,6 +286,11 @@ namespace SeventWebApplication.Controllers
         {
             return RunAndRedirect(_ => _fleet.RemoveVehicle(id), "Vehicle deleted.", nameof(Index));
         }
+
+        // Sparar regnr i samma format överallt: versaler och utan mellanslag ("abc 123" -> "ABC123"),
+        // som de befintliga bilarna. Valideringen tillåter mellanslag, så de tas bort här.
+        private static string NormalizeRegNr(string regNr) =>
+            string.Concat(regNr.Where(c => !char.IsWhiteSpace(c))).ToUpperInvariant();
 
         // Bygger rätt fordon via CarFactory/VanFactory beroende på vald typ.
         // Märke och modell skapas från texten i formuläret (det finns inget register i appen än).
@@ -307,7 +312,7 @@ namespace SeventWebApplication.Controllers
                 var factory = new VanFactory(regNrValidator, brandModelValidator, yearValidator, hpValidator);
                 return factory.Create(new VanCreateRequest
                 {
-                    RegNr = f.RegNr.Trim().ToUpperInvariant(),
+                    RegNr = NormalizeRegNr(f.RegNr),
                     CountryCode = f.CountryCode,
                     Model = model,
                     Year = f.Year,
@@ -328,7 +333,7 @@ namespace SeventWebApplication.Controllers
             var carFactory = new CarFactory(regNrValidator, brandModelValidator, yearValidator, hpValidator);
             return carFactory.Create(new CarCreateRequest
             {
-                RegNr = f.RegNr.Trim().ToUpperInvariant(),
+                RegNr = NormalizeRegNr(f.RegNr),
                 CountryCode = f.CountryCode,
                 Model = model,
                 Year = f.Year,

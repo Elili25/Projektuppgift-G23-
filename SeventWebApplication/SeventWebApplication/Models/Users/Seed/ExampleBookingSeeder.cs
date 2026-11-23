@@ -52,11 +52,11 @@ namespace SeventWebApplication.Models.Users
                 MakeCar("Volvo", "V60", "ABC123", PassengerCarCategoryType.StationWagon, VehicleComfortType.Economy, TransmissionType.Automatic, 2024, 197, FuelType.Petrol, 529m),
 
                 // Cargo Van
-                MakeVan("Volkswagen", "Transporter", "VAN001", VanCategoryType.CargoVan, TransmissionType.Manual, 2021, 150, 10.0, 900.0, 3),
-                MakeVan("Renault", "Master", "VAN002", VanCategoryType.CargoVan, TransmissionType.Manual, 2022, 135, 12.0, 1100.0, 3),
+                MakeVan("Volkswagen", "Transporter", "CAN001", VanCategoryType.CargoVan, TransmissionType.Manual, 2021, 150, 10.0, 900.0, 3),
+                MakeVan("Renault", "Master", "CAN002", VanCategoryType.CargoVan, TransmissionType.Manual, 2022, 135, 12.0, 1100.0, 3),
 
                 // Passenger Van
-                MakeVan("Mercedes-Benz", "Vito Tourer", "PVN001", VanCategoryType.PassengerVan, TransmissionType.Automatic, 2023, 190, 4.5, 800.0, 8)
+                MakeVan("Mercedes-Benz", "Vito Tourer", "PAN001", VanCategoryType.PassengerVan, TransmissionType.Automatic, 2023, 190, 4.5, 800.0, 8)
             };
 
             // Teslan har en egen bild (vit Model 3), samma som Luxury Sedan-familjen visar

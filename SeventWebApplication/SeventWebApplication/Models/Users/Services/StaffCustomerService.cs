@@ -35,13 +35,17 @@ namespace SeventWebApplication.Models.Users
 
         // Kastar ArgumentException/InvalidOperationException om uppgifterna inte duger. Skapar inget.
         // Kund: namn och giltig e-post krävs, och e-posten får inte redan finnas.
+        // Kund: lösenord krävs också (minst 8 tecken), så kunden kan logga in och boka själv senare.
         // Dummy: bara namn krävs. Saknas e-post får kontot en påhittad adress som inte går att nå.
-        public void Validate(string? name, string? mail, string? phone, bool isDummy)
+        public void Validate(string? name, string? mail, string? phone, bool isDummy, string? password = null)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Enter the name.");
 
             ContactValidator.EnsurePhone(phone);
+
+            if (!isDummy && (string.IsNullOrEmpty(password) || password.Length < 8))
+                throw new ArgumentException("Enter a password of at least 8 characters so the customer can log in.");
 
             if (!isDummy || !string.IsNullOrWhiteSpace(mail))
             {
@@ -56,20 +60,23 @@ namespace SeventWebApplication.Models.Users
             }
         }
 
-        // Skapar en kund som inte kan logga in. isDummy = testbokning utan riktig kund.
-        public User CreateWithoutLogin(IBookingManager actor, string? name, string? mail, string? phone, bool isDummy)
+        // Skapar en ny kund åt personalen. Riktig kund får det angivna lösenordet och kan logga in.
+        // isDummy = testbokning utan riktig kund, kan inte logga in.
+        public User CreateWithoutLogin(IBookingManager actor, string? name, string? mail, string? phone, bool isDummy, string? password = null)
         {
             EnsureStaff(actor);
-            Validate(name, mail, phone, isDummy);
+            Validate(name, mail, phone, isDummy, password);
 
             string address = string.IsNullOrWhiteSpace(mail)
                 ? $"dummy-{Guid.NewGuid():N}@dummy.invalid"
                 : mail;
 
-            // Slumpat lösenord som ingen känner till. CanLogin = false stoppar inloggning ändå.
+            // Dummy: slumpat lösenord som ingen känner till, och CanLogin = false stoppar inloggning ändå.
             var customer = UserFactory.Create(
-                Role.Customer, Guid.NewGuid(), name!, phone ?? "", address, Guid.NewGuid().ToString("N"));
-            customer.MarkNoLogin(isDummy);
+                Role.Customer, Guid.NewGuid(), name!, phone ?? "", address,
+                isDummy ? Guid.NewGuid().ToString("N") : password!);
+            if (isDummy)
+                customer.MarkNoLogin(isDummy);
 
             _users.Add(customer);
             return customer;

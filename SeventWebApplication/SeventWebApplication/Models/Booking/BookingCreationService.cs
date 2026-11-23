@@ -81,7 +81,7 @@ namespace SeventWebApplication.Models.Booking
                     try
                     {
                         _staffCustomers.Validate(request.Guest?.Name, request.Guest?.Mail, request.Guest?.Phone,
-                            isDummy: bookingFor == BookingFor.Dummy);
+                            isDummy: bookingFor == BookingFor.Dummy, request.Guest?.Password);
                     }
                     catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
                     {
@@ -196,7 +196,7 @@ namespace SeventWebApplication.Models.Booking
                 {
                     createdGuest = _staffCustomers.CreateWithoutLogin(
                         (IBookingManager)actor, request.Guest?.Name, request.Guest?.Mail, request.Guest?.Phone,
-                        isDummy: request.BookingFor == BookingFor.Dummy);
+                        isDummy: request.BookingFor == BookingFor.Dummy, request.Guest?.Password);
                 }
                 catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or UnauthorizedAccessException)
                 {

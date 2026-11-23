@@ -5,6 +5,7 @@ using System.Security.Cryptography.X509Certificates;
 using SeventWebApplication.Models.Maintenance;
 using SeventWebApplication.Models.VehicleNS;
 using SeventWebApplication.Models.Maintenance.Repsitories;
+using SeventWebApplication.Models.Booking;
 
 
 
@@ -15,12 +16,14 @@ namespace SeventWebApplication.Models.Maintenance.Services
     {
     private readonly MaintenanceRepository _maintenanceRepository;
     private readonly FleetManager _fleetManager;
+    private readonly BookingRepository _bookingRepository;
 
 
-    public VehicleMaintenanceService (MaintenanceRepository maintenanceRepository, FleetManager fleetManager)
+    public VehicleMaintenanceService (MaintenanceRepository maintenanceRepository, FleetManager fleetManager, BookingRepository bookingRepository)
     {
         _maintenanceRepository = maintenanceRepository;
         _fleetManager = fleetManager;
+        _bookingRepository = bookingRepository;
     } // lägg till nullexepctions
 
 
@@ -55,6 +58,7 @@ namespace SeventWebApplication.Models.Maintenance.Services
             {
                 throw new ArgumentException("End date cannot be earlier than start date.");
             }
+            EnsureNotRentedDuring(vehicleId, startDate, endDate);
 
             var maintenanceRecord = new MaintenanceRecord
             {
@@ -114,6 +118,7 @@ namespace SeventWebApplication.Models.Maintenance.Services
         {
             EnsureVehicleExists(vehicleId);
             var now = DateTime.UtcNow;
+            EnsureNotRentedDuring(vehicleId, now, null);
 
 
             var maintenanceRecord = new MaintenanceRecord
@@ -170,6 +175,22 @@ namespace SeventWebApplication.Models.Maintenance.Services
             => _maintenanceRepository.GetUpcomingServices(from ?? DateTime.Now);
         /// Unsure of this one.
         /// 
+
+        // En uthyrd bil (Active bokning, inte återlämnad än) kan inte tas ur drift eller bokas för underhåll
+        // under tiden den är uthyrd. end = null betyder tillsvidare. En försenad bil räknas som uthyrd tills den lämnas tillbaka.
+        private void EnsureNotRentedDuring(Guid vehicleId, DateTime start, DateTime? end)
+        {
+            var now = DateTime.Now;
+            bool rented = _bookingRepository.GetAll().Any(b =>
+                b.Status == BookingStatus.Active
+                && b.Vehicle != null
+                && b.Vehicle.VehicleId == vehicleId
+                && (end == null || b.StartDate < end.Value.ToLocalTime())
+                && start.ToLocalTime() < (b.EndDate > now ? b.EndDate : now));
+
+            if (rented)
+                throw new InvalidOperationException("The vehicle is rented out during that time and cannot be put in maintenance. Wait for the return, or choose a period after it.");
+        }
 
         public Vehicle EnsureVehicleExists(Guid vehicleId)
         {

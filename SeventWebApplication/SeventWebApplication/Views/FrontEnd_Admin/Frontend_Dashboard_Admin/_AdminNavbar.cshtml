@@ -22,5 +22,10 @@
             <span class="adm-user__avatar" aria-hidden="true">A</span>
             <span class="adm-user__name">Admin</span>
         </div>
+
+        @* POST + antiforgery, samma som Log out i vanliga layouten (AccountController.Logout) *@
+        <form method="post" asp-controller="Account" asp-action="Logout" class="m-0">
+            <button type="submit" class="adm-btn adm-btn--ghost">Log out</button>
+        </form>
     </div>
 </header>

@@ -128,8 +128,14 @@
                                     <input asp-for="Form.GuestPhone" type="tel" maxlength="30" autocomplete="off" />
                                 </div>
                             </div>
+                            <div class="bk-field@(Invalid("Guest"))" id="guest-password-field">
+                                <div class="bk-field__content">
+                                    <label class="bk-field__label" for="Form_GuestPassword">Password</label>
+                                    <input asp-for="Form.GuestPassword" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" />
+                                </div>
+                            </div>
                         </div>
-                        <p class="bk-hint" id="guest-hint-customer">A new customer is created without a login. They can be searched for and booked again later.</p>
+                        <p class="bk-hint" id="guest-hint-customer">A new customer gets an account with this password, so they can log in and book themselves later. Tell them the password.</p>
                         <p class="bk-hint d-none" id="guest-hint-dummy">A dummy booking is a test booking that is not linked to a real customer. Email is optional and the booking works like any other.</p>
                     </div>
                 </div>
@@ -808,6 +814,8 @@
             const name = byId('Form_GuestName');
             const mail = byId('Form_GuestMail');
             const phone = byId('Form_GuestPhone');
+            const password = byId('Form_GuestPassword');
+            const passwordField = byId('guest-password-field');
             const searchUrl = '@Url.Action("SearchCustomers", "Bookings")';
 
             const current = () => document.querySelector('input[name="Form.Recipient"]:checked').value;
@@ -831,6 +839,11 @@
             // När en befintlig kund är vald visas uppgifterna men går inte att ändra
             function lockDetails(locked) {
                 [name, mail, phone].forEach(f => { f.readOnly = locked; });
+                // Lösenord behövs bara för en ny kund (inte dummy, inte en befintlig vald kund)
+                const newCustomer = current() === 'customer' && !locked;
+                passwordField.classList.toggle('d-none', !newCustomer);
+                password.disabled = !newCustomer;
+                password.required = newCustomer;
                 selected.hidden = !locked;
                 hint.hidden = locked;
             }

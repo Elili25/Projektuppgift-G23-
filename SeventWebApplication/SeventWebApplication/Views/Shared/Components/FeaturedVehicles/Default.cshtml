@@ -83,7 +83,7 @@
                                 <div class="fv-spec"><dt>Luggage</dt><dd>@f.LuggageLitres?.ToString("0") L</dd></div>
                             }
                         </dl>
-                        <a class="fv-button" asp-controller="Bookings" asp-action="Create" asp-route-familyId="@f.FamilyId"
+                        <a class="fv-button" asp-controller="Bookings" asp-action="Create" asp-route-family="@f.FamilyId" data-book-link
                         aria-label="Book @f.Name">
                         Book this car
                         <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
