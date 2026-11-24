@@ -37,12 +37,12 @@ namespace SeventWebApplication.Models.VehicleNS
             if (_brands.Count > 0)
                 return;
 
-            Add(new VehicleBrand("Volvo"));
-            Add(new VehicleBrand("BMW"));
-            Add(new VehicleBrand("Audi"));
-            Add(new VehicleBrand("Volkswagen"));
-            Add(new VehicleBrand("Toyota"));
-            Add(new VehicleBrand("Mercedes-Benz"));
+            Add(new VehicleBrand("Volvo", VehicleType.Car));
+            Add(new VehicleBrand("BMW", VehicleType.Car));
+            Add(new VehicleBrand("Audi", VehicleType.Car));
+            Add(new VehicleBrand("Volkswagen", VehicleType.Car));
+            Add(new VehicleBrand("Toyota", VehicleType.Car));
+            Add(new VehicleBrand("Mercedes-Benz", VehicleType.Car));
         }
     }
 }

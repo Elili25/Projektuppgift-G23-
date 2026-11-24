@@ -34,10 +34,11 @@
                 <select asp-for="CountryCode" asp-items="Html.GetEnumSelectList<CountryCode>()" id="country-select"></select>
             </label>
             <label class="adm-field">Brand
-                <input asp-for="Brand" />
+                <select asp-for="Brand" id="brand-select" data-selected="@Model.Brand"></select>
             </label>
             <label class="adm-field">Model
-                <input asp-for="ModelName" />
+                <select asp-for="ModelName" id="model-select" data-selected="@Model.ModelName"></select>
+                <small>Missing a brand or model? Add it from the dashboard.</small>
             </label>
             <label class="adm-field">Year
                 <input asp-for="Year" type="number" />
@@ -111,6 +112,37 @@
         }
         country.addEventListener("change", update);
         update();
+    })();
+</script>
+<script>
+    // Märke- och modelllistorna fylls från registret, filtrerade på vald biltyp och märke
+    (function () {
+        var catalog = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewData["Catalog"]));
+        var type = document.getElementById("vehicle-type");
+        var brand = document.getElementById("brand-select");
+        var model = document.getElementById("model-select");
+
+        function fill(select, values, keep) {
+            select.innerHTML = "";
+            values.forEach(function (v) {
+                var o = document.createElement("option");
+                o.value = o.textContent = v;
+                if (v === keep) o.selected = true;
+                select.appendChild(o);
+            });
+        }
+        function brands() { return catalog[type.options[type.selectedIndex].text] || []; }
+        function updateModels(keep) {
+            var b = brands().find(function (x) { return x.Name === brand.value; });
+            fill(model, b ? b.Models : [], keep);
+        }
+        function updateBrands(keepBrand, keepModel) {
+            fill(brand, brands().map(function (x) { return x.Name; }), keepBrand);
+            updateModels(keepModel);
+        }
+        type.addEventListener("change", function () { updateBrands(); });
+        brand.addEventListener("change", function () { updateModels(); });
+        updateBrands(brand.getAttribute("data-selected"), model.getAttribute("data-selected"));
     })();
 </script>
 <script>

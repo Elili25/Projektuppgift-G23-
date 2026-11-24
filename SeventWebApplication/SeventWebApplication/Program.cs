@@ -71,6 +71,10 @@ namespace SeventWebApplication
             builder.Services.AddSingleton<VehicleRentalRecordRepository>();
             builder.Services.AddSingleton<VehicleInspectionRepository>();
             builder.Services.AddSingleton<VehicleDamageRepository>();
+            // Märkes- och modellregistret som Fleet/Create väljer ur (och dashboarden fyller på)
+            builder.Services.AddSingleton<VehicleBrandRepository>();
+            builder.Services.AddSingleton<SeventWebApplication.Repositories.VehicleModelRepository>();
+            builder.Services.AddSingleton<VehicleCatalogService>();
             // FleetManager har privat konstruktor, så Dependency Injection får använda den befintliga instansen
             builder.Services.AddSingleton<FleetManager>(_ => FleetManager.instance);
             // ---- Underhåll ----
@@ -127,6 +131,9 @@ namespace SeventWebApplication
                     seedScope.ServiceProvider.GetRequiredService<VehicleDamageService>(),
                     app.Services.GetRequiredService<VehicleMaintenanceService>());
             }
+
+            // Märkesregistret: standardmärkena plus kombinationerna för bilarna som redan finns i flottan
+            app.Services.GetRequiredService<VehicleCatalogService>().Seed(FleetManager.instance.GetAllVehicles());
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

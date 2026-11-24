@@ -1,0 +1,47 @@
+@*
+    Brands & models – registret som Fleet/Create väljer ur. Här lägger admin till nya märke/modell-kombinationer.
+    Postar till Fleet/AddCatalogEntry, som skickar tillbaka hit.
+*@
+@using SeventWebApplication.Models.VehicleNS
+@inject VehicleCatalogService Catalog
+
+@{
+    var brands = Catalog.GetCatalog();
+}
+
+<section class="adm-card adm-panel" aria-labelledby="adm-catalog-title">
+    <div class="adm-panel__head">
+        <h2 id="adm-catalog-title">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" /></svg>
+            Brands &amp; models
+        </h2>
+    </div>
+
+    <form method="post" asp-controller="Fleet" asp-action="AddCatalogEntry" class="adm-form">
+        <label class="adm-field">Type
+            <select name="type" asp-items="Html.GetEnumSelectList<VehicleType>()"></select>
+        </label>
+        <label class="adm-field">Brand
+            <input name="brand" list="adm-brand-list" required maxlength="40" autocomplete="off" />
+            <datalist id="adm-brand-list">
+                @foreach (var b in brands)
+                {
+                    <option value="@b.Name"></option>
+                }
+            </datalist>
+        </label>
+        <label class="adm-field">Model
+            <input name="model" required maxlength="40" autocomplete="off" />
+        </label>
+        <div class="adm-field">
+            <button class="adm-btn" type="submit">Add</button>
+        </div>
+    </form>
+
+    <ul class="adm-catalog-list" style="margin:12px 0 0; padding:0; list-style:none; max-height:160px; overflow:auto; font-size:.9rem;">
+        @foreach (var b in brands)
+        {
+            <li><strong>@b.Name</strong>: @string.Join(", ", b.Models)</li>
+        }
+    </ul>
+</section>

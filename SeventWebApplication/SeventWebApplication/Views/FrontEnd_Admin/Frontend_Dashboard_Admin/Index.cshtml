@@ -34,6 +34,15 @@
 
             <main class="adm-content">
 
+                @if (TempData["Success"] is string ok)
+                {
+                    <div class="adm-flash adm-flash--ok">@ok</div>
+                }
+                @if (TempData["Error"] is string err)
+                {
+                    <div class="adm-flash adm-flash--error">@err</div>
+                }
+
                 @* KPI-kort: Active bookings, Available vehicles, In service, Revenue *@
                 @await Html.PartialAsync(Root + "Partials/_StatisticsOverview.cshtml")
 
@@ -46,6 +55,9 @@
                     @await Html.PartialAsync(Root + "Partials/_FleetAvailability.cshtml")
                     @await Html.PartialAsync(Root + "Partials/_QuickActions.cshtml")
                 </div>
+
+                @* Märkes- och modellregistret (lägg till kombinationer) *@
+                @await Html.PartialAsync(Root + "Partials/_BrandCatalog.cshtml")
 
             </main>
 

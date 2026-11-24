@@ -87,7 +87,7 @@ namespace SeventWebApplication.Repositories
 
             foreach (var modelName in modelNames)
             {
-                var model = new VehicleModel(modelName, brand.BrandId)
+                var model = new VehicleModel(modelName, brand.BrandId, VehicleType.Car)
                 {
                     Brand = brand
                 };
