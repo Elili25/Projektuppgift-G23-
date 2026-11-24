@@ -110,7 +110,7 @@ namespace SeventWebApplication.Models.Booking
         // Sätter en ny bil familj om en bil inte redan valts
         public void SetVehicleFamily( Guid familyId )
         {
-            if( Status != BookingStatus.Pending || Status != BookingStatus.Confirmed )
+            if( Status != BookingStatus.Pending && Status != BookingStatus.Confirmed )
                 throw new InvalidOperationException( "Only a booking that is Pending or Confirmed can change their vehicle family." );
             if( Vehicle != null || VehicleId != null )
                 throw new InvalidOperationException( "Only a booking that does not have a set vehicle can change their vehicle family." );
