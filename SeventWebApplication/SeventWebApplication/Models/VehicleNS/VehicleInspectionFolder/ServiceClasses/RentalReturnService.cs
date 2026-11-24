@@ -13,6 +13,7 @@ namespace SeventWebApplication.Models.VehicleNS
         private readonly VehicleDamageService _damageService;
         private readonly PricingServices _pricingService;
         private readonly BookingNotifier _bookingNotifier;
+        private readonly FleetManager _fleetManager;
 
         // Hur långt före bokad start bilen tidigast får hämtas ut
         public static readonly TimeSpan EarliestPickupBeforeStart = TimeSpan.FromHours(1);
@@ -26,8 +27,10 @@ namespace SeventWebApplication.Models.VehicleNS
             VehicleInspectionRepository inspectionRepository,
             VehicleDamageService damageService,
             PricingServices pricingService,
-            BookingNotifier bookingNotifier)
+            BookingNotifier bookingNotifier,
+            FleetManager fleetManager)
         {
+            _fleetManager = fleetManager;
             _bookingRepository = bookingRepository;
             _recordRepository = recordRepository;
             _inspectionRepository = inspectionRepository;
@@ -69,6 +72,9 @@ namespace SeventWebApplication.Models.VehicleNS
 
             if (!vehicle.IsAvailable)
                 throw new InvalidOperationException("Vehicle is already rented out.");
+
+            if (_fleetManager.IsInMaintenanceNow(vehicleId))
+                throw new InvalidOperationException("Vehicle is in maintenance right now and cannot be picked up.");
 
             if (_damageService.HasOpenDamages(vehicleId))
                 throw new InvalidOperationException("Vehicle has unresolved damages.");

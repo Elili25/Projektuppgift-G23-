@@ -61,7 +61,7 @@ namespace SeventWebApplication.Models.Maintenance.Services
             {
                 throw new ArgumentException("End date cannot be earlier than start date.");
             }
-            EnsureNotRentedDuring(vehicleId, startDate, endDate);
+            EnsureNoBookingsDuring(vehicleId, startDate, endDate);
 
             var maintenanceRecord = new MaintenanceRecord
             {
@@ -130,7 +130,7 @@ namespace SeventWebApplication.Models.Maintenance.Services
                 throw new InvalidOperationException("The vehicle is rented out and cannot be put in service.");
 
             var now = DateTime.UtcNow;
-            EnsureNotRentedDuring(vehicleId, now, null);
+            EnsureNoBookingsDuring(vehicleId, now, null);
 
 
             var maintenanceRecord = new MaintenanceRecord
@@ -202,20 +202,23 @@ namespace SeventWebApplication.Models.Maintenance.Services
         /// Unsure of this one.
         /// 
 
-        // En uthyrd bil (Active bokning, inte återlämnad än) kan inte tas ur drift eller bokas för underhåll
-        // under tiden den är uthyrd. end = null betyder tillsvidare. En försenad bil räknas som uthyrd tills den lämnas tillbaka.
-        private void EnsureNotRentedDuring(Guid vehicleId, DateTime start, DateTime? end)
+        // Bilen kan inte tas ur drift eller bokas för underhåll om en Pending-, Confirmed- eller Active-bokning
+        // överlappar perioden. end = null betyder tillsvidare. En försenad Active-bokning räknas som pågående tills bilen lämnas tillbaka.
+        // Felet anger antal krockande bokningar så att admin kan flytta eller avboka dem först.
+        private void EnsureNoBookingsDuring(Guid vehicleId, DateTime start, DateTime? end)
         {
             var now = DateTime.Now;
-            bool rented = _bookingRepository.GetAll().Any(b =>
-                b.Status == BookingStatus.Active
+            int conflicts = _bookingRepository.GetAll().Count(b =>
+                b.Status is BookingStatus.Pending or BookingStatus.Confirmed or BookingStatus.Active
                 && b.Vehicle != null
                 && b.Vehicle.VehicleId == vehicleId
                 && (end == null || b.StartDate < end.Value.ToLocalTime())
-                && start.ToLocalTime() < (b.EndDate > now ? b.EndDate : now));
+                && start.ToLocalTime() < (b.Status == BookingStatus.Active && b.EndDate < now ? now : b.EndDate));
 
-            if (rented)
-                throw new InvalidOperationException("The vehicle is rented out during that time and cannot be put in maintenance. Wait for the return, or choose a period after it.");
+            if (conflicts > 0)
+                throw new InvalidOperationException(
+                    $"The vehicle has {conflicts} pending, confirmed or active booking(s) overlapping the maintenance period. " +
+                    "Move or cancel them first, or choose a period after them.");
         }
 
         public Vehicle EnsureVehicleExists(Guid vehicleId)
