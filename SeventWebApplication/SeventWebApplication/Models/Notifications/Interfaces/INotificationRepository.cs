@@ -7,6 +7,7 @@ namespace SeventWebApplication.Models.Notifications
         void Add(Notification notification);
         Notification? GetById(Guid notificationId);
         IEnumerable<Notification> GetByBookingId(Guid bookingId);
+        IEnumerable<Notification> GetByUserId(Guid userId);
         IEnumerable<Notification> GetPending();
         void MarkAsSent(Notification notification);
 

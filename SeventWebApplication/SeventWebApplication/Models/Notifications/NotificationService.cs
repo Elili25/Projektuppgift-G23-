@@ -24,6 +24,14 @@ namespace SeventWebApplication.Models.Notifications
             bookingNotifier.Subscribe( this );
         }
 
+        // Användarens notiser (utom avbrutna/misslyckade), för popup-rutan i frontend
+        public IEnumerable<Notification> GetNotificationsForUser( Guid userId )
+        {
+            return _notificationRepository.GetByUserId( userId )
+                .Where( n => n.Status != NotificationStatus.Cancelled && n.Status != NotificationStatus.Failed )
+                .ToList();
+        }
+
         public void AddChannel( INotificationChannel channel )
         {
             if( !_notificationChannels.TryAdd( channel.GetChannelType(), channel ) )

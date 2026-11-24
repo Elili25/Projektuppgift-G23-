@@ -25,6 +25,11 @@ namespace SeventWebApplication.Models.Notifications
             return _notifications.Values.Where( notification => notification.BookingId == bookingId );
         }
 
+        public IEnumerable<Notification> GetByUserId( Guid userId )
+        {
+            return _notifications.Values.Where( notification => notification.UserId == userId ).ToList();
+        }
+
         public IEnumerable<Notification> GetPending()
         {
             return _notifications.Values.Where( notification => notification.Status == NotificationStatus.Pending );

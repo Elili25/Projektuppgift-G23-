@@ -1,0 +1,56 @@
+@*
+    Popup-ruta för notiser. Pollar /Notifications/Latest och visar en liten ruta för varje ny notis som
+    NotificationService (observer på BookingNotifier) har skapat åt den inloggade användaren,
+    t.ex. efter att man bokat och betalat. Första laddningen räknas som utgångsläge, så gamla notiser inte poppar upp.
+*@
+<style>
+    #notif-toasts { position: fixed; right: 16px; bottom: 16px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; max-width: 320px; }
+    .notif-toast { background: #fff; border: 1px solid #d9d4ee; border-left: 4px solid #6b46c1; border-radius: 8px; padding: 10px 14px;
+                   box-shadow: 0 6px 18px rgba(0,0,0,.18); font-size: .9rem; animation: notif-in .25s ease-out; cursor: pointer; }
+    .notif-toast small { display: block; color: #6b6b7b; margin-bottom: 2px; }
+    @@keyframes notif-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+</style>
+<div id="notif-toasts" aria-live="polite"></div>
+<script>
+    (function () {
+        var box = document.getElementById("notif-toasts");
+        var KEY = "seenNotifications";
+        var labels = { BookingConfirmation: "Booking confirmed", CancelledConfirmation: "Booking cancelled", PickupReminder: "Pickup reminder",
+                       RentalReturn: "Rental returned", LateReturnInformation: "Late return", PaymentCompleted: "Payment received",
+                       PaymentFailed: "Payment failed", FeesPaymentCompleted: "Fees paid", FeesPaymentFailed: "Fee payment failed" };
+
+        function show(n) {
+            var t = document.createElement("div");
+            t.className = "notif-toast";
+            t.innerHTML = "<small></small><span></span>";
+            t.querySelector("small").textContent = "Notification · " + (labels[n.type] || n.type);
+            t.querySelector("span").textContent = n.message;
+            t.addEventListener("click", function () { t.remove(); });
+            box.appendChild(t);
+            setTimeout(function () { t.remove(); }, 6000);
+        }
+
+        function poll() {
+            fetch("/Notifications/Latest", { credentials: "same-origin" })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (!data.loggedIn) return;
+                    var stored = sessionStorage.getItem(KEY);
+                    var seen = stored ? JSON.parse(stored) : null;
+                    var ids = data.items.map(function (i) { return i.id; });
+                    if (seen === null) {              // första laddningen: bara utgångsläge
+                        sessionStorage.setItem(KEY, JSON.stringify(ids));
+                        return;
+                    }
+                    data.items.forEach(function (n) {
+                        if (seen.indexOf(n.id) === -1) { seen.push(n.id); show(n); }
+                    });
+                    sessionStorage.setItem(KEY, JSON.stringify(seen));
+                })
+                .catch(function () { });
+        }
+
+        poll();
+        setInterval(poll, 2500);
+    })();
+</script>
