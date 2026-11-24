@@ -55,6 +55,38 @@
 </section>
 
 <section class="adm-card adm-panel">
+    <div class="adm-panel__head"><h2>Status history</h2></div>
+    @* Scrollbar ruta, senaste perioden överst *@
+    <div class="adm-table-wrap" style="max-height:220px;overflow-y:auto">
+        <table class="adm-table">
+            <thead>
+                <tr>
+                    <th scope="col">Status</th>
+                    <th scope="col">From</th>
+                    <th scope="col">To</th>
+                    <th scope="col">Note</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var h in Model.StatusHistory)
+                {
+                    <tr>
+                        <td><span class="adm-status adm-status--@h.Status.ToString().ToLower()">@h.Status</span></td>
+                        <td>@h.StartDate.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@(h.IsCurrent ? "Current" : h.EndDate!.Value.ToString("yyyy-MM-dd HH:mm"))</td>
+                        <td>@h.Notes</td>
+                    </tr>
+                }
+                @if (Model.StatusHistory.Count == 0)
+                {
+                    <tr class="adm-table__empty"><td colspan="4">No status changes recorded.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="adm-card adm-panel">
     <div class="adm-panel__head"><h2>Booking history</h2></div>
     <div class="adm-table-wrap">
         <table class="adm-table">

@@ -194,6 +194,15 @@ namespace SeventWebApplication.Controllers
                         Description = d.Description,
                         ReportedAt = d.ReportedAt,
                         IsResolved = d.IsResolved
+                    }).ToList(),
+                StatusHistory = v.StatusHistory
+                    .OrderByDescending(h => h.StartDate)
+                    .Select(h => new StatusHistoryRowViewModel
+                    {
+                        Status = h.Status,
+                        StartDate = h.StartDate,
+                        EndDate = h.EndDate,
+                        Notes = h.Notes
                     }).ToList()
             });
         }

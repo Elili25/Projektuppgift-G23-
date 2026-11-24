@@ -86,6 +86,17 @@ namespace SeventWebApplication.Models.Admin
         public string? FamilyLabel { get; init; }
         public List<BookingRowViewModel> Bookings { get; init; } = new();
         public List<DamageRowViewModel> Damages { get; init; } = new();
+        public List<StatusHistoryRowViewModel> StatusHistory { get; init; } = new();
+    }
+
+    // Rad i bilens statushistorik (en period med en viss status, EndDate = null: pågår nu)
+    public class StatusHistoryRowViewModel
+    {
+        public VehicleStatus Status { get; init; }
+        public DateTime StartDate { get; init; }
+        public DateTime? EndDate { get; init; }
+        public string? Notes { get; init; }
+        public bool IsCurrent => EndDate == null;
     }
 
     // Detaljvyn för en familj
