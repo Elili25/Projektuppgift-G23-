@@ -1,10 +1,14 @@
-
+ï»¿
 using SeventWebApplication.Models.VehicleNS.Engine;
 
 namespace SeventWebApplication.Models.VehicleNS
 {
     public abstract class Vehicle
     {
+        // Vehicle 1 â”€â”€ 0..* VehicleStatusHistory. Bilen Ã¤ger sin historik, och den kan bara Ã¤ndras via ChangeStatus.
+        private readonly List<VehicleStatusHistory> _statusHistory = new();
+        public IReadOnlyList<VehicleStatusHistory> StatusHistory => _statusHistory;
+
         public Guid VehicleId { get; private set; } = Guid.NewGuid();
 
         public RegistrationPlate RegistrationPlate { get; private set; }
@@ -22,19 +26,19 @@ namespace SeventWebApplication.Models.VehicleNS
         public int PassengerCapacity { get; private set; }
         public decimal LuggageCapacity { get; private set; }
 
-        // Bilens skick. Ändras bara via ChangeStatus, så att ändringen alltid går att spåra
+        // Bilens skick. Ã„ndras bara via ChangeStatus, sÃ¥ att Ã¤ndringen alltid gÃ¥r att spÃ¥ra
         public VehicleStatus VehicleStatus { get; private set; } = VehicleStatus.Active;
 
-        // Om bilen är uthyrd just nu (sätts vid pickup/retur)
+        // Om bilen Ã¤r uthyrd just nu (sÃ¤tts vid pickup/retur)
         public bool IsAvailable { get; set; } = true;
 
-        // Kan bilen köras överhuvudtaget? (inte trasig, på service eller avställd)
+        // Kan bilen kÃ¶ras Ã¶verhuvudtaget? (inte trasig, pÃ¥ service eller avstÃ¤lld)
         public bool IsOperational => VehicleStatus == VehicleStatus.Active;
 
-        //För viewmodels, för att kunna visa bild på bilen. Kan vara null om ingen bild finns.
+        //FÃ¶r viewmodels, fÃ¶r att kunna visa bild pÃ¥ bilen. Kan vara null om ingen bild finns.
         public string? ImagePath { get; set; }
 
-        // Skickas när statusen ändras. Här kan VehicleStatusHistory koppla in sig senare.
+        // Skickas nÃ¤r statusen Ã¤ndras. HÃ¤r kan VehicleStatusHistory koppla in sig senare.
         public event Action<Vehicle, VehicleStatus, VehicleStatus>? StatusChanged;
 
         protected Vehicle(
@@ -45,7 +49,8 @@ namespace SeventWebApplication.Models.VehicleNS
             int passengerCapacity,
             decimal luggageCapacity,
             IEngine engine,
-            TransmissionType transmissionType)
+            TransmissionType transmissionType
+            )
         {      
 
             RegistrationPlate = registrationPlate
@@ -62,9 +67,11 @@ namespace SeventWebApplication.Models.VehicleNS
             PassengerCapacity = passengerCapacity;
             LuggageCapacity = luggageCapacity;
             TransmissionType = transmissionType;
+            // Bilen bÃ¶rjar som Active
+            _statusHistory.Add(new VehicleStatusHistory(VehicleId, VehicleStatus, DateTime.Now));
         }
-        // Redigering av beskrivande fält (regnummer, märke/modell, år, platser, bagage).
-        // Valideringen görs av anroparen (factories/validators), motor och växellåda ändras inte.
+        // Redigering av beskrivande fÃ¤lt (regnummer, mÃ¤rke/modell, Ã¥r, platser, bagage).
+        // Valideringen gÃ¶rs av anroparen (factories/validators), motor och vÃ¤xellÃ¥da Ã¤ndras inte.
         public void UpdateDetails(RegistrationPlate plate, VehicleModel model, int year, int passengerCapacity, decimal luggageCapacity)
         {
             RegistrationPlate = plate ?? throw new ArgumentNullException(nameof(plate));
@@ -74,10 +81,20 @@ namespace SeventWebApplication.Models.VehicleNS
             LuggageCapacity = luggageCapacity;
         }
 
-        public void ChangeStatus(VehicleStatus newStatus)
+        public void ChangeStatus(VehicleStatus newStatus, string? notes = null)
         {
             if (newStatus == VehicleStatus)
                 return;
+
+            var now = DateTime.Now;
+
+            // StÃ¤ng den pÃ¥gÃ¥ende perioden
+            int current = _statusHistory.FindLastIndex(h => h.IsCurrent);
+            if (current >= 0)
+                _statusHistory[current] = _statusHistory[current] with { EndDate = now };
+
+            // Ã–ppna en ny period
+            _statusHistory.Add(new VehicleStatusHistory(VehicleId, newStatus, now, notes));
 
             var oldStatus = VehicleStatus;
             VehicleStatus = newStatus;
