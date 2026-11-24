@@ -171,6 +171,16 @@ public class FleetManager
         if (!vehicle.IsOperational)
             return false;
 
+        // Underhåll blockerar bilen under perioden. Underhållets datum är UTC, bokningarnas är lokala,
+        // så vi jämför i lokal tid (samma som VehicleMaintenanceService.EnsureNotRentedDuring). EndDate = null: pågående, tillsvidare.
+        bool inMaintenance = _maintenancePeriods.Any(p =>
+            p.VehicleId == vehicle.VehicleId
+            && p.StartDate.ToLocalTime() < endDate
+            && (p.EndDate == null || startDate < p.EndDate.Value.ToLocalTime()));
+
+        if (inMaintenance)
+            return false;
+
         return !BookingRegistry.Instance.GetBookingsByVehicleId(vehicle.VehicleId)
             .Any(b => b.Status != BookingStatus.Cancelled
             && b.Status != BookingStatus.Completed
