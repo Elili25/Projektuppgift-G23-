@@ -72,6 +72,15 @@ public class FleetManager
         _maintenancePeriods[index] = _maintenancePeriods[index] with { EndDate = endDate };
     }
 
+    // Pågår det underhåll för bilen just nu? (EndDate = null: tillsvidare)
+    public bool IsInMaintenanceNow(Guid vehicleId)
+    {
+        var now = DateTime.UtcNow;
+        return _maintenancePeriods.Any(p => p.VehicleId == vehicleId
+            && p.StartDate <= now
+            && (p.EndDate == null || p.EndDate.Value > now));
+    }
+
     public IEnumerable<MaintenancePeriod> GetMaintenancePeriods(Guid vehicleId)
         => _maintenancePeriods.Where(p => p.VehicleId == vehicleId).ToList();
 

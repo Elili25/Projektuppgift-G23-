@@ -17,13 +17,16 @@ namespace SeventWebApplication.Models.Maintenance.Services
     private readonly MaintenanceRepository _maintenanceRepository;
     private readonly FleetManager _fleetManager;
     private readonly BookingRepository _bookingRepository;
+    // Repot (singleton) och inte VehicleDamageService (scoped), annars hamnar ett scoped beroende i en singleton
+    private readonly VehicleDamageRepository _damageRepository;
 
 
-    public VehicleMaintenanceService (MaintenanceRepository maintenanceRepository, FleetManager fleetManager, BookingRepository bookingRepository)
+    public VehicleMaintenanceService (MaintenanceRepository maintenanceRepository, FleetManager fleetManager, BookingRepository bookingRepository, VehicleDamageRepository damageRepository)
     {
         _maintenanceRepository = maintenanceRepository;
         _fleetManager = fleetManager;
         _bookingRepository = bookingRepository;
+        _damageRepository = damageRepository;
     } // lägg till nullexepctions
 
 
@@ -58,7 +61,7 @@ namespace SeventWebApplication.Models.Maintenance.Services
             {
                 throw new ArgumentException("End date cannot be earlier than start date.");
             }
-            EnsureNotRentedDuring(vehicleId, startDate, endDate);
+            EnsureNoBookingsDuring(vehicleId, startDate, endDate);
 
             var maintenanceRecord = new MaintenanceRecord
             {
@@ -111,14 +114,23 @@ namespace SeventWebApplication.Models.Maintenance.Services
             };
             _maintenanceRepository.Update(updatedRecord);
             _fleetManager.EndMaintenancePeriod(maintenanceId, completedAt);
+            ReleaseIfNoOpenRecord(EnsureVehicleExists(updatedRecord.VehicleId));
             return updatedRecord;
         }
-        
+
+        // Tar bilen ur drift: skapar en öppen post + period och sätter bilen InService.
         public void MarkVehicleOutOfService(Guid vehicleId, string reason, MaintenanceType type = MaintenanceType.Repair)
         {
-            EnsureVehicleExists(vehicleId);
+            var vehicle = EnsureVehicleExists(vehicleId);
+
+            if (vehicle.VehicleStatus == VehicleStatus.InService || HasOpenRecord(vehicleId))
+                throw new InvalidOperationException("The vehicle is already in service, no change needed.");
+
+            if (!vehicle.IsAvailable)
+                throw new InvalidOperationException("The vehicle is rented out and cannot be put in service.");
+
             var now = DateTime.UtcNow;
-            EnsureNotRentedDuring(vehicleId, now, null);
+            EnsureNoBookingsDuring(vehicleId, now, null);
 
 
             var maintenanceRecord = new MaintenanceRecord
@@ -140,12 +152,19 @@ namespace SeventWebApplication.Models.Maintenance.Services
                 EndDate = null, //  maintenance
                 Reason = reason
             });
+
+            vehicle.ChangeStatus(VehicleStatus.InService);
         }
-        
+
+        // Tar bilen tillbaka i drift: avslutar pågående poster och släpper bilen (Active, eller InRepair vid olösta skador).
         public void MarkVehicleActive(Guid vehicleId)
         {
 
-            EnsureVehicleExists(vehicleId);
+            var vehicle = EnsureVehicleExists(vehicleId);
+
+            if (vehicle.VehicleStatus != VehicleStatus.InService && !HasOpenRecord(vehicleId))
+                throw new InvalidOperationException("The vehicle is not out of service.");
+
             var now = DateTime.UtcNow;
 
             var ongoingMaintenance = _maintenanceRepository.GetActiveMaintenanceByVehicleId(vehicleId)
@@ -158,14 +177,21 @@ namespace SeventWebApplication.Models.Maintenance.Services
                 CompleteMaintenance(maintenance.MaintenanceId, now);
             }
 
-            /// Exeption handling if no active maintenance records found? 
+            // Säkerhetsnät: bil som står som InService utan någon post att avsluta
+            ReleaseIfNoOpenRecord(vehicle);
+        }
 
-            //var maintenanceRecord = _maintenanceRepository.GetActiveMaintenanceByVehicleId(vehicleId);
-            //if (maintenanceRecord == null)
-            //{
-            //    throw new ArgumentException("No active maintenance record found for this vehicle.");
-            //}
-            //CompleteMaintenance(maintenanceRecord.MaintenanceId, completedAt, mileage, cost, notes);
+        // Regeln: InService gäller om och bara om bilen har en öppen post (EndDate == null)
+        private bool HasOpenRecord(Guid vehicleId)
+            => _maintenanceRepository.GetByVehicle(vehicleId).Any(r => r.EndDate == null);
+
+        private void ReleaseIfNoOpenRecord(Vehicle vehicle)
+        {
+            if (vehicle.VehicleStatus != VehicleStatus.InService || HasOpenRecord(vehicle.VehicleId))
+                return;
+
+            bool hasOpenDamages = _damageRepository.GetByVehicleId(vehicle.VehicleId).Any(d => !d.IsResolved);
+            vehicle.ChangeStatus(hasOpenDamages ? VehicleStatus.InRepair : VehicleStatus.Active);
         }
 
         public IEnumerable<MaintenanceRecord> GetMaintenanceHistory(Guid vehicleId)
@@ -176,20 +202,23 @@ namespace SeventWebApplication.Models.Maintenance.Services
         /// Unsure of this one.
         /// 
 
-        // En uthyrd bil (Active bokning, inte återlämnad än) kan inte tas ur drift eller bokas för underhåll
-        // under tiden den är uthyrd. end = null betyder tillsvidare. En försenad bil räknas som uthyrd tills den lämnas tillbaka.
-        private void EnsureNotRentedDuring(Guid vehicleId, DateTime start, DateTime? end)
+        // Bilen kan inte tas ur drift eller bokas för underhåll om en Pending-, Confirmed- eller Active-bokning
+        // överlappar perioden. end = null betyder tillsvidare. En försenad Active-bokning räknas som pågående tills bilen lämnas tillbaka.
+        // Felet anger antal krockande bokningar så att admin kan flytta eller avboka dem först.
+        private void EnsureNoBookingsDuring(Guid vehicleId, DateTime start, DateTime? end)
         {
             var now = DateTime.Now;
-            bool rented = _bookingRepository.GetAll().Any(b =>
-                b.Status == BookingStatus.Active
+            int conflicts = _bookingRepository.GetAll().Count(b =>
+                b.Status is BookingStatus.Pending or BookingStatus.Confirmed or BookingStatus.Active
                 && b.Vehicle != null
                 && b.Vehicle.VehicleId == vehicleId
                 && (end == null || b.StartDate < end.Value.ToLocalTime())
-                && start.ToLocalTime() < (b.EndDate > now ? b.EndDate : now));
+                && start.ToLocalTime() < (b.Status == BookingStatus.Active && b.EndDate < now ? now : b.EndDate));
 
-            if (rented)
-                throw new InvalidOperationException("The vehicle is rented out during that time and cannot be put in maintenance. Wait for the return, or choose a period after it.");
+            if (conflicts > 0)
+                throw new InvalidOperationException(
+                    $"The vehicle has {conflicts} pending, confirmed or active booking(s) overlapping the maintenance period. " +
+                    "Move or cancel them first, or choose a period after them.");
         }
 
         public Vehicle EnsureVehicleExists(Guid vehicleId)

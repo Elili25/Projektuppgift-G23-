@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using SeventWebApplication.Models.Admin;
 using SeventWebApplication.Models.Booking;
+using SeventWebApplication.Models.Maintenance;
+using SeventWebApplication.Models.Maintenance.Services;
 using SeventWebApplication.Models.Users;
 using SeventWebApplication.Models.VehicleNS;
 
@@ -17,11 +19,13 @@ namespace SeventWebApplication.Controllers
         private readonly VehicleAssignmentService _assignments;
         private readonly BookingRepository _bookings;
         private readonly IUserRepository _users;
+        private readonly VehicleMaintenanceService _maintenance;
 
         public FleetController(UserSession session, FleetManager fleet, VehicleDamageService damages, ImageUploadService images,
-            VehicleAssignmentService assignments, BookingRepository bookings, IUserRepository users)
+            VehicleAssignmentService assignments, BookingRepository bookings, IUserRepository users, VehicleMaintenanceService maintenance)
             : base(session)
         {
+            _maintenance = maintenance;
             _fleet = fleet;
             _damages = damages;
             _images = images;
@@ -57,36 +61,15 @@ namespace SeventWebApplication.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult MarkInService(Guid id)
         {
-            return RunAndRedirect(_ =>
-            {
-                Vehicle vehicle = _fleet.GetVehicle(id) ?? throw new InvalidOperationException("Vehicle not found.");
-
-                if (vehicle.VehicleStatus != VehicleStatus.Active)
-                    throw new InvalidOperationException($"Vehicle is {vehicle.VehicleStatus}, only active vehicles can be put in service.");
-
-                if (_damages.IsCurrentlyRented(id) || !vehicle.IsAvailable)
-                    throw new InvalidOperationException("Vehicle is rented out right now and cannot be put in service.");
-
-                vehicle.ChangeStatus(VehicleStatus.InService);
-            }, "Vehicle marked as in service.", nameof(Index));
+            return RunAndRedirect(_ => _maintenance.MarkVehicleOutOfService(id, "Taken out of service from the fleet page.", MaintenanceType.Service),
+                "Vehicle marked as in service.", nameof(Index));
         }
 
         // POST /Fleet/EndService – InService → Active (eller InRepair om det finns öppna skador)
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult EndService(Guid id)
         {
-            return RunAndRedirect(_ =>
-            {
-                Vehicle vehicle = _fleet.GetVehicle(id) ?? throw new InvalidOperationException("Vehicle not found.");
-
-                if (vehicle.VehicleStatus != VehicleStatus.InService)
-                    throw new InvalidOperationException("Only vehicles in service can be returned to service.");
-
-                if (_damages.HasOpenDamages(id))
-                    throw new InvalidOperationException("Vehicle has unresolved damages. Resolve them under Returns & inspections → Damages.");
-
-                vehicle.ChangeStatus(VehicleStatus.Active);
-            }, "Vehicle is active again.", nameof(Service));
+            return RunAndRedirect(_ => _maintenance.MarkVehicleActive(id), "Vehicle is active again.", nameof(Service));
         }
 
         // ---- Add vehicle (UC2) ----
