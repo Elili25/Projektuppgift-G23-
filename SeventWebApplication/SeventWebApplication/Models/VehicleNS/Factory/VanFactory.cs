@@ -5,23 +5,15 @@ namespace SeventWebApplication.Models.VehicleNS
     // Factory Method: skapar skåpbilar och validerar indata innan bilen byggs.
     // Create(request) är den gemensamma vägen in (IVehicleFactory).
     // CreateStandard/CreateElectric finns kvar för kod som anropar dem direkt.
-    public class VanFactory : IVehicleFactory<VanCreateRequest>
+    public class VanFactory : VehicleFactoryBase, IVehicleFactory<VanCreateRequest>
     {
-        private readonly IRegNrValidator _regNrValidator;
-        private readonly IBrandModelValidator _brandModelValidator;
-        private readonly IYearValidator _yearValidator;
-        private readonly IHorsePowerValidator _horsePowerValidator;
-
         public VanFactory(
             IRegNrValidator regNrValidator,
             IBrandModelValidator brandModelValidator,
             IYearValidator yearValidator,
             IHorsePowerValidator horsePowerValidator)
+            : base(regNrValidator, brandModelValidator, yearValidator, horsePowerValidator)
         {
-            _regNrValidator = regNrValidator;
-            _brandModelValidator = brandModelValidator;
-            _yearValidator = yearValidator;
-            _horsePowerValidator = horsePowerValidator;
         }
 
         // --- Gemensam väg in (IVehicleFactory) ---
@@ -180,25 +172,6 @@ namespace SeventWebApplication.Models.VehicleNS
 
             if (maxPayloadKg <= 0)
                 throw new ArgumentOutOfRangeException(nameof(maxPayloadKg), "Max payload must be greater than 0.");
-        }
-
-        private void ValidateCommonFields(
-            string regNr,
-            VehicleModel model,
-            int year,
-            int horsePower)
-        {
-            _regNrValidator.ValidateRegNr(regNr);
-
-            if (model?.Brand == null)
-                throw new ArgumentException(
-                    "The model must have a brand.",
-                    nameof(model));
-
-            _brandModelValidator.ValidateBrand(model.Brand.BrandName);
-            _brandModelValidator.ValidateModel(model.ModelName);
-            _yearValidator.ValidateYear(year);
-            _horsePowerValidator.ValidateHorsePower(horsePower);
         }
     }
 }
