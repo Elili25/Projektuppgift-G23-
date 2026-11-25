@@ -390,6 +390,13 @@ button.accept-policy {
 
 .sevent-drawer__links { gap: 2px; }
 
+/* Admin dashboard: egen avdelare under resten av menyn */
+.sevent-drawer__staff {
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
 .sevent-drawer .nav-link {
     padding: 10px 14px;
     border: 1px solid transparent;

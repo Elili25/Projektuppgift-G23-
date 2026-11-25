@@ -117,12 +117,6 @@
                     <li class="nav-item"><a class="@Active("Home", "About")" asp-area="" asp-controller="Home" asp-action="About">@Icon("info")About Sevent</a></li>
                     <li class="nav-item"><a class="@Active("Home", "Contact")" asp-area="" asp-controller="Home" asp-action="Contact">@Icon("mail")Contact</a></li>
 
-                    @if (isStaff)
-                    {
-                        @* Dashboarden syns bara för employee och admin *@
-                        <li class="nav-item"><a class="@Active("Admin", "Index")" asp-area="" asp-controller="Admin" asp-action="Index">@Icon("dashboard")Admin dashboard</a></li>
-                    }
-
                     @if (currentUser is SeventWebApplication.Models.Users.IBookingViewer)
                     {
                         <li class="nav-item"><a class="@Active("Bookings", "Index")" asp-area="" asp-controller="Bookings" asp-action="Index">@Icon("bookings")My bookings</a></li>
@@ -130,6 +124,15 @@
                     @if (currentUser is SeventWebApplication.Models.Users.IBookingCreator)
                     {
                         <li class="nav-item"><a class="@Active("Bookings", "Create")" asp-area="" asp-controller="Bookings" asp-action="Create">@Icon("plus")Book a vehicle</a></li>
+                    }
+
+                    @if (isStaff)
+                    {
+                        @* Dashboarden syns bara för employee och admin, separerad från resten av menyn *@
+                        <li class="nav-item sevent-drawer__staff">
+                            <span class="sevent-drawer__group">Staff</span>
+                            <a class="@Active("Admin", "Index")" asp-area="" asp-controller="Admin" asp-action="Index">@Icon("dashboard")Admin dashboard</a>
+                        </li>
                     }
                 </ul>
 
