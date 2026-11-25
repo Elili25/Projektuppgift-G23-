@@ -48,6 +48,21 @@
     <p class="text-muted">Assign a vehicle under <a asp-controller="BookingManagement" asp-action="Confirmed">Awaiting pickup</a> to start the rental.</p>
 }
 
+@* Anteckningen från bokningen, ovanför detaljerna så den inte missas *@
+<div class="card mb-3 border-warning">
+    <div class="card-body">
+        <h3 class="h6 text-uppercase text-muted mb-2">Notes</h3>
+        @if (!string.IsNullOrWhiteSpace(Model.Notes))
+        {
+            <p class="mb-0" style="white-space:pre-wrap">@Model.Notes</p>
+        }
+        else
+        {
+            <p class="mb-0 text-muted">No notes on this booking.</p>
+        }
+    </div>
+</div>
+
 <div class="card mb-3">
     <div class="card-body">
         <dl class="row mb-0">
@@ -158,12 +173,6 @@
                         <a class="ms-2" asp-action="Index">Pay under My bookings</a>
                     }
                 </dd>
-            }
-
-            @if (!string.IsNullOrWhiteSpace(Model.Notes))
-            {
-                <dt class="col-sm-3">Notes</dt>
-                <dd class="col-sm-9">@Model.Notes</dd>
             }
         </dl>
     </div>

@@ -103,6 +103,15 @@ namespace SeventWebApplication.Models.Users
                 VehicleFamilySeeder.StandardHatchbackId
             };
 
+            // Exempelanteckningar, så att Notes syns på bokningarnas detaljsida
+            var familyNotes = new[]
+            {
+                "Needs a child seat. Two small kids in the back.",
+                "Will pick up late in the evening, please keep the keys at the desk.",
+                null   // en bokning utan anteckning
+            };
+            int familyIndex = 0;
+
             foreach (var familyId in familyIds)
             {
                 var user = allUsers[random.Next(allUsers.Count)];
@@ -114,7 +123,10 @@ namespace SeventWebApplication.Models.Users
                     familyId,
                     start,
                     start.AddDays(3),
-                    RandomAddons(random));   // Status = Pending (standard)
+                    RandomAddons(random))   // Status = Pending (standard)
+                {
+                    Notes = familyNotes[familyIndex++]
+                };
 
                 // Ingen bil än, så priset räknas med en bil ur familjen
                 if (families.GetById(familyId) is { } family
@@ -150,7 +162,8 @@ namespace SeventWebApplication.Models.Users
                 start.AddDays(3),
                 new AddonPackage())
             {
-                Status = BookingStatus.Confirmed
+                Status = BookingStatus.Confirmed,
+                Notes = "Pick-up at 08:00 sharp, I have an early meeting."
             };
 
             if (TryApplyPrice(pricing, booking, car))
