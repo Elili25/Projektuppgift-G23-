@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace SeventWebApplication.Models.VehicleNS
 {
     // Norge: AB 12345
-    public class NorwegianRegNrValidator : IRegNrValidator
+    public class NorweiganRegNrValidator : IRegNrValidator
     {
         public void ValidateRegNr(string regNr)
         {

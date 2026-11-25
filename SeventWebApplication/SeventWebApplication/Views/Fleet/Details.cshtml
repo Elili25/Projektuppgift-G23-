@@ -27,30 +27,34 @@
     {
         <img class="adm-thumb" src="@Model.ImagePath" alt="" style="max-width:240px;height:auto" />
     }
-    <dl>
-        <dt>Registration number</dt><dd>@Model.RegNr</dd>
-        <dt>Type</dt><dd>@Model.Type</dd>
-        <dt>Year</dt><dd>@Model.Year</dd>
-        <dt>Status</dt>
-        <dd>
-            <span class="adm-status adm-status--@Model.Status.ToString().ToLower()">@Model.Status</span>
-            @if (Model.IsRented) { <small> (rented out right now)</small> }
-        </dd>
-        <dt>Family</dt>
-        <dd>
-            @if (Model.FamilyId is Guid fid)
-            {
-                <a asp-controller="Families" asp-action="Details" asp-route-id="@fid">@Model.FamilyLabel</a>
-            }
-            else
-            {
-                <span>Not in any family</span>
-            }
-        </dd>
-        <dt>Transmission</dt><dd>@Model.Transmission</dd>
-        <dt>Fuel type</dt><dd>@Model.FuelType</dd>
-        <dt>Passengers</dt><dd>@Model.PassengerCapacity</dd>
-        <dt>Luggage (l)</dt><dd>@Model.LuggageCapacity</dd>
+    <dl class="adm-infogrid">
+        <div><dt>Registration number</dt><dd>@Model.RegNr</dd></div>
+        <div><dt>Type</dt><dd>@Model.Type</dd></div>
+        <div><dt>Year</dt><dd>@Model.Year</dd></div>
+        <div>
+            <dt>Status</dt>
+            <dd>
+                <span class="adm-status adm-status--@Model.Status.ToString().ToLower()">@Model.Status</span>
+                @if (Model.IsRented) { <small> (rented out right now)</small> }
+            </dd>
+        </div>
+        <div>
+            <dt>Family</dt>
+            <dd>
+                @if (Model.FamilyId is Guid fid)
+                {
+                    <a asp-controller="Families" asp-action="Details" asp-route-id="@fid">@Model.FamilyLabel</a>
+                }
+                else
+                {
+                    <span>Not in any family</span>
+                }
+            </dd>
+        </div>
+        <div><dt>Transmission</dt><dd>@Model.Transmission</dd></div>
+        <div><dt>Fuel type</dt><dd>@Model.FuelType</dd></div>
+        <div><dt>Passengers</dt><dd>@Model.PassengerCapacity</dd></div>
+        <div><dt>Luggage (l)</dt><dd>@Model.LuggageCapacity</dd></div>
     </dl>
 </section>
 

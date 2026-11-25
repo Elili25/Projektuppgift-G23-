@@ -87,14 +87,6 @@ namespace SeventWebApplication.Controllers
             return View(new VehicleForm { Type = type ?? VehicleType.Car });
         }
 
-        // POST /Fleet/AddCatalogEntry – lägger till en märke/modell-kombination i registret (dashboarden)
-        [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult AddCatalogEntry(string brand, string model, VehicleType type)
-        {
-            return RunAndRedirect(_ => _catalog.AddCombination(brand, model, type),
-                $"Added {brand?.Trim()} {model?.Trim()} ({type}) to the brand list.", "Index", "Admin");
-        }
-
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(VehicleForm form)
         {
@@ -111,7 +103,7 @@ namespace SeventWebApplication.Controllers
                 // Märke och modell väljs ur registret (nya kombinationer läggs till på dashboarden)
                 if (!_catalog.IsRegistered(form.Brand, form.ModelName, form.Type))
                     throw new InvalidOperationException(
-                        $"{form.Brand} {form.ModelName} is not in the brand list for {form.Type}. Pick one from the list, or add it on the dashboard first.");
+                        $"{form.Brand} {form.ModelName} is not in the brand list for {form.Type}. Pick one from the list, or add it on the Brands page first.");
 
                 // Kolla bilden först, så fordonet inte läggs till om den är ogiltig
                 if (form.Image is { Length: > 0 })

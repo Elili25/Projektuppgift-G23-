@@ -178,11 +178,12 @@
     --tl-label: 200px;
     --tl-col: 34px;
     min-width: calc(var(--tl-label) + var(--days) * var(--tl-col));
+    width: 100%;   /* fyller hela kortet, dagarna sträcks ut */
 }
 
 .adm-tl__row {
     display: grid;
-    grid-template-columns: var(--tl-label) repeat(var(--days), var(--tl-col));   /* fasta kolumner, så rutorna inte sträcks ut */
+    grid-template-columns: var(--tl-label) repeat(var(--days), minmax(var(--tl-col), 1fr));   /* minst --tl-col, annars delar dagarna på bredden */
     align-items: stretch;
     min-height: 34px;
     border-bottom: 1px solid var(--adm-border);
@@ -487,3 +488,21 @@
 }
 
 .adm-field input[type="file"] { padding: 8px 10px; }
+
+/* Detaljer som rutor bredvid varandra (t.ex. Fleet/Details) */
+.adm-infogrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 12px;
+    margin: 0;
+}
+
+.adm-infogrid > div {
+    padding: 12px 14px;
+    border: 1px solid var(--adm-border);
+    border-radius: 10px;
+    background: var(--adm-surface-soft);
+}
+
+.adm-infogrid dt { margin: 0 0 4px; color: var(--adm-muted); font-size: 0.76rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.adm-infogrid dd { margin: 0; font-weight: 650; }

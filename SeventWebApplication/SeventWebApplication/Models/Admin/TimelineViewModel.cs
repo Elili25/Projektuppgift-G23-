@@ -40,11 +40,14 @@ namespace SeventWebApplication.Models.Admin
         public DateTime Previous { get; init; }
         public DateTime Next { get; init; }
 
-        public string Title => View == "week"
-            ? $"{Start:d MMM} – {End:d MMM yyyy}"
-            : View == "2months"
-                ? $"{Start:MMMM} – {End:MMMM yyyy}"
-                : Start.ToString("MMMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("en-US"));
+        public string Title
+        {
+            get
+            {
+                var en = System.Globalization.CultureInfo.GetCultureInfo("en-US");
+                return $"{Start.ToString("d MMM", en)} – {End.ToString("d MMM yyyy", en)}";
+            }
+        }
 
         public static TimelineViewModel Build(
             IEnumerable<Booking.Booking> bookings,
@@ -60,21 +63,12 @@ namespace SeventWebApplication.Models.Admin
             int days;
             DateTime previous, next;
 
-            if (view == "week")
-            {
-                start = anchor.Date.AddDays(-(((int)anchor.DayOfWeek + 6) % 7)); // måndag
-                days = 7;
-                previous = start.AddDays(-7);
-                next = start.AddDays(7);
-            }
-            else
-            {
-                start = new DateTime(anchor.Year, anchor.Month, 1);
-                int months = view == "2months" ? 2 : 1;
-                days = (start.AddMonths(months) - start).Days;
-                previous = start.AddMonths(-months);
-                next = start.AddMonths(months);
-            }
+            // Rullande intervall som börjar på valt datum (som standard idag): 14, 30 eller 60 dagar framåt.
+            // Pilarna flyttar ett helt intervall bakåt/framåt.
+            start = anchor.Date;
+            days = view == "week" ? 14 : view == "2months" ? 60 : 30;
+            previous = start.AddDays(-days);
+            next = start.AddDays(days);
 
             DateTime last = start.AddDays(days - 1);
             DateTime now = DateTime.Now;

@@ -1,30 +1,27 @@
 @*
     Brands & models – registret som Fleet/Create väljer ur. Här lägger admin till nya märke/modell-kombinationer.
-    Postar till Fleet/AddCatalogEntry, som skickar tillbaka hit.
+    Postar till Brands/Add, som skickar tillbaka hit.
 *@
 @using SeventWebApplication.Models.VehicleNS
-@inject VehicleCatalogService Catalog
-
+@model List<CatalogBrand>
 @{
-    var brands = Catalog.GetCatalog();
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Brands & models";
 }
 
 <section class="adm-card adm-panel" aria-labelledby="adm-catalog-title">
     <div class="adm-panel__head">
-        <h2 id="adm-catalog-title">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" /></svg>
-            Brands &amp; models
-        </h2>
+        <h2 id="adm-catalog-title">Brands &amp; models</h2>
     </div>
 
-    <form method="post" asp-controller="Fleet" asp-action="AddCatalogEntry" class="adm-form">
+    <form method="post" asp-controller="Brands" asp-action="Add" class="adm-form">
         <label class="adm-field">Type
             <select name="type" asp-items="Html.GetEnumSelectList<VehicleType>()"></select>
         </label>
         <label class="adm-field">Brand
             <input name="brand" list="adm-brand-list" required maxlength="40" autocomplete="off" />
             <datalist id="adm-brand-list">
-                @foreach (var b in brands)
+                @foreach (var b in Model)
                 {
                     <option value="@b.Name"></option>
                 }
@@ -37,11 +34,18 @@
             <button class="adm-btn" type="submit">Add</button>
         </div>
     </form>
+</section>
 
-    <ul class="adm-catalog-list" style="margin:12px 0 0; padding:0; list-style:none; max-height:160px; overflow:auto; font-size:.9rem;">
-        @foreach (var b in brands)
-        {
-            <li><strong>@b.Name</strong>: @string.Join(", ", b.Models)</li>
-        }
-    </ul>
+<section class="adm-card adm-panel">
+    <div class="adm-table-wrap">
+        <table class="adm-table">
+            <thead><tr><th>Brand</th><th>Models</th></tr></thead>
+            <tbody>
+                @foreach (var b in Model)
+                {
+                    <tr><td><strong>@b.Name</strong></td><td>@string.Join(", ", b.Models)</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </section>
