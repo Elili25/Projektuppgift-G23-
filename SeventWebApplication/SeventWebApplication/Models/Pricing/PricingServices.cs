@@ -33,7 +33,9 @@ public class PricingServices
     {
         IBasePriceStrategy PriceStrategy = PriceStrategyFactory.ChoiceOfPriceStrategy(priceStrategy);
         
-        return PriceStrategy.CalculateTotalPrice(CalculateBaseRate(vehicle, billableDays)) + _baseCosts.GetBaseFee() + booking.Addon.GetTotalAddonPrice();
+        decimal baseRate = CalculateBaseRate(vehicle, billableDays);
+        
+        return PriceStrategy.CalculateTotalPrice(baseRate + _baseCosts.GetBaseFee() + CalculateDepositFee(baseRate)) + booking.Addon.GetTotalAddonPrice();
     }
     
     // Räknar ut hyrespriset för bokningen med standardpris och sparar det på bokningen (Booking.TotalPrice).
@@ -55,9 +57,9 @@ public class PricingServices
         return hours * _baseCosts.GetDepositFee();
     }
 
-    public decimal CalculateDepositFee(Vehicle vehicle, int billableDays)
+    public decimal CalculateDepositFee(decimal baseRate)
     {
-        return _baseCosts.GetDepositFee() *  (CalculateBaseRate(vehicle, billableDays)/12);
+        return _baseCosts.GetDepositFee() *  baseRate/15;
     }
 }
 
