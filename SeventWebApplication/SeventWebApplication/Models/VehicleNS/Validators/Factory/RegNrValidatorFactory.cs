@@ -9,7 +9,7 @@ namespace SeventWebApplication.Models.VehicleNS
             { CountryCode.SE, new SwedishRegNrValidator() },
             { CountryCode.DE, new GermanRegNrValidator() },
             { CountryCode.UK, new UKRegNrValidator() },
-            { CountryCode.NO, new NorwegianRegNrValidator() },
+            { CountryCode.NO, new NorweiganRegNrValidator() },
             { CountryCode.DK, new DanishRegNrValidator() },
             { CountryCode.FI, new FinnishRegNrValidator() },
         };
