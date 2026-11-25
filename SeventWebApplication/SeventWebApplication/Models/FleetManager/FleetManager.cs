@@ -236,25 +236,6 @@ public class FleetManager
             AddVehicle(vehicle);
     }
 
-    public record VehicleSearchResult
-    {
-        public VehicleSearchResult( string brand, string model )
-        {
-            Brand = brand;
-            Model = model;
-        }
-
-        public VehicleSearchResult( Vehicle vehicle )
-        {
-            Brand = vehicle.Model.Brand.BrandName;
-            Model = vehicle.Model.ModelName;
-        }
-
-        // ÄNDRING: Egenskaper istället för publika fält,
-        // så att JSON-serialiseringen inkluderar värdena.
-        public string Brand { get; init; }
-        public string Model { get; init; }
-    }
     //för families 
     public IEnumerable<Vehicle> GetAllVehicles()
     {
