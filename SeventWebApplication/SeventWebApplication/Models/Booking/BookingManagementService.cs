@@ -346,6 +346,19 @@ namespace SeventWebApplication.Models.Booking
             if (!_assignmentService.CanBeAssigned(booking, vehicle))
                 throw new InvalidOperationException("The vehicle is not available in this booking's vehicle type for the period.");
 
+            // En bokning på en specifik bil (ingen familj) tar en bil ur bilens familj. Den får inte ta den sista
+            // som behövs för familjebokningar som väntar på bil. Byte inom samma familj ändrar inget (en bil frigörs).
+            if (booking.VehicleFamilyId is null)
+            {
+                Guid? newFamily = _assignmentService.GetFamilyOf(vehicle.VehicleId)?.FamilyId;
+                Guid? currentFamily = booking.VehicleId is Guid currentId ? _assignmentService.GetFamilyOf(currentId)?.FamilyId : null;
+                bool swapWithinFamily = newFamily is not null && newFamily == currentFamily;
+
+                if (!swapWithinFamily
+                    && _assignmentService.IsNeededByWaitingFamilyBookings(vehicle, booking.StartDate, booking.EndDate))
+                    throw new InvalidOperationException("The vehicle is the last free one of its type for the period and is needed for bookings waiting for a vehicle.");
+            }
+
             booking.AssignVehicle(vehicle);
         }
 

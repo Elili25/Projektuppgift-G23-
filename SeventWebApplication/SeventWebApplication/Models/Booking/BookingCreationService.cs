@@ -145,6 +145,10 @@ namespace SeventWebApplication.Models.Booking
                     if (!_fleetManager.IsAvailable(vehicle, resolvedRequest.Start, resolvedRequest.End))
                         return Fail(nameof(request.VehicleId), "The vehicle is already booked or out of service during the period.");
 
+                    // Bilen kan vara den sista lediga i sin familj. Då behövs den av familjebokningar som väntar på bil
+                    if (_assignmentService.IsNeededByWaitingFamilyBookings(vehicle, resolvedRequest.Start, resolvedRequest.End))
+                        return Fail(nameof(request.VehicleId), "This is the last free vehicle of its type for the period and is needed for bookings that are waiting for a vehicle. Choose another vehicle or book the vehicle type instead.");
+
                     builder.WithVehicle(vehicle);
                 }
 
