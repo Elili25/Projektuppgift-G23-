@@ -6,7 +6,6 @@ namespace SeventWebApplication.Models.Pricing.PricingCategories;
 
 public class CarRateCatalog
 {
-    // Base day rates per comfort level, for frontend display and for calculating daily price
     public decimal GetBaseDayRate(VehicleComfortType comfort) => _baseDayRates[comfort];
     public decimal GetBodyTypeRate(PassengerCarCategoryType category) => _carBodyTypeRates[category];
 
