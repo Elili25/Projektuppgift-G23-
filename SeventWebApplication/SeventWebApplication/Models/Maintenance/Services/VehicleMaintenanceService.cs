@@ -19,10 +19,12 @@ namespace SeventWebApplication.Models.Maintenance.Services
     private readonly BookingRepository _bookingRepository;
     // Repot (singleton) och inte VehicleDamageService (scoped), annars hamnar ett scoped beroende i en singleton
     private readonly VehicleDamageRepository _damageRepository;
+    private readonly VehicleAssignmentService _assignmentService;
 
 
-    public VehicleMaintenanceService (MaintenanceRepository maintenanceRepository, FleetManager fleetManager, BookingRepository bookingRepository, VehicleDamageRepository damageRepository)
+    public VehicleMaintenanceService (MaintenanceRepository maintenanceRepository, FleetManager fleetManager, BookingRepository bookingRepository, VehicleDamageRepository damageRepository, VehicleAssignmentService assignmentService)
     {
+        _assignmentService = assignmentService;
         _maintenanceRepository = maintenanceRepository;
         _fleetManager = fleetManager;
         _bookingRepository = bookingRepository;
@@ -219,6 +221,20 @@ namespace SeventWebApplication.Models.Maintenance.Services
                 throw new InvalidOperationException(
                     $"The vehicle has {conflicts} pending, confirmed or active booking(s) overlapping the maintenance period. " +
                     "Move or cancel them first, or choose a period after them.");
+
+            // Bokningar på en fordonsklass som väntar på bil har ingen bil än och syns inte ovan, men de behöver
+            // en av klassens bilar. Tas den här bilen ur drift får de kanske ingen.
+            if (_fleetManager.GetVehicle(vehicleId) is { } vehicle)
+            {
+                var stranded = _assignmentService.FindWaitingBookingsLeftWithoutVehicle(
+                    vehicle, start.ToLocalTime(), end?.ToLocalTime());
+
+                if (stranded.Count > 0)
+                    throw new InvalidOperationException(
+                        $"Taking the vehicle out of service would leave {stranded.Count} booking(s) for its vehicle type without a vehicle " +
+                        $"({string.Join(", ", stranded.Take(5).Select(b => "#" + b.BookingId[..8].ToUpper()))}{(stranded.Count > 5 ? $" and {stranded.Count - 5} more" : "")}). " +
+                        "Cancel or reassign them first, or choose another vehicle.");
+            }
         }
 
         public Vehicle EnsureVehicleExists(Guid vehicleId)

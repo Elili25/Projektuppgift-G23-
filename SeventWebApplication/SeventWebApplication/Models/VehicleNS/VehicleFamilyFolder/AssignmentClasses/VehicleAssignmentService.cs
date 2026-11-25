@@ -115,6 +115,57 @@ namespace SeventWebApplication.Models.VehicleNS
             return freeVehicles > CountWaitingFamilyBookings(familyId, start, end, excluding);
         }
 
+        // Skulle en bokning på just den här bilen ta en bil som familjebokningar som väntar på bil behöver?
+        // Samma räkning som IsFamilyAvailable, fast för en specifik bil: tar vi bilen måste det finnas
+        // fler lediga bilar i familjen än väntande bokningar. Förutsätter att bilen själv är ledig under
+        // perioden (det kollar FleetManager.IsAvailable).
+        public bool IsNeededByWaitingFamilyBookings(Vehicle vehicle, DateTime start, DateTime end)
+        {
+            ArgumentNullException.ThrowIfNull(vehicle);
+
+            return GetFamilyOf(vehicle.VehicleId) is { } family
+                && !IsFamilyAvailable(family.FamilyId, start, end);
+        }
+
+        // Familjebokningar som väntar på bil och blir utan bil om den här bilen inte kan användas
+        // från "from" till "until" (null = tillsvidare, t.ex. service eller reparation utan slutdatum).
+        // En familjebokning blir utan bil om familjens övriga lediga bilar inte räcker till alla väntande
+        // bokningar som överlappar den. Samma förenkling som IsFamilyAvailable: överlappande bokningar räknas
+        // som samtidiga, så den kan slå larm i onödan men aldrig missa att det blir fullt.
+        // Bokningar som redan har just den här bilen hanteras av underhållstjänsten och räknas inte här.
+        public List<BookingEntity> FindWaitingBookingsLeftWithoutVehicle(Vehicle vehicle, DateTime from, DateTime? until = null)
+        {
+            ArgumentNullException.ThrowIfNull(vehicle);
+
+            var stranded = new List<BookingEntity>();
+
+            if (GetFamilyOf(vehicle.VehicleId) is not { } family)
+                return stranded;
+
+            DateTime windowEnd = until ?? DateTime.MaxValue;
+
+            List<BookingEntity> waiting = _bookingRepository.GetAll()
+                .Where(b => b.VehicleFamilyId == family.FamilyId
+                            && b.Vehicle == null
+                            && b.Status is BookingStatus.Pending or BookingStatus.Confirmed)
+                .ToList();
+
+            List<Vehicle> otherCars = FindMatchingVehicles(family.FamilyId)
+                .Where(c => c.VehicleId != vehicle.VehicleId)
+                .ToList();
+
+            foreach (BookingEntity booking in waiting.Where(b => b.StartDate < windowEnd && from < b.EndDate))
+            {
+                int carsNeeded = waiting.Count(other => other.StartDate < booking.EndDate && booking.StartDate < other.EndDate);   // inkl. bokningen själv
+                int carsUsable = otherCars.Count(c => _fleetManager.IsAvailable(c, booking.StartDate, booking.EndDate));
+
+                if (carsUsable < carsNeeded)
+                    stranded.Add(booking);
+            }
+
+            return stranded;
+        }
+
         // Väljer en ledig bil ur bokningens familj och sätter den på bokningen
         public bool ConfirmVehicleAssignment(BookingEntity booking)
         {

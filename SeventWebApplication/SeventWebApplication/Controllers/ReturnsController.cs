@@ -15,6 +15,7 @@ namespace SeventWebApplication.Controllers
         private readonly VehicleDamageService _damages;
         private readonly FleetManager _fleet;
         private readonly IUserRepository _users;
+        private readonly VehicleAssignmentService _assignments;
 
         public ReturnsController(
             UserSession session,
@@ -22,8 +23,10 @@ namespace SeventWebApplication.Controllers
             BookingManagementService management,
             VehicleDamageService damages,
             FleetManager fleet,
-            IUserRepository users) : base(session)
+            IUserRepository users,
+            VehicleAssignmentService assignments) : base(session)
         {
+            _assignments = assignments;
             _bookings = bookings;
             _management = management;
             _damages = damages;
@@ -57,6 +60,9 @@ namespace SeventWebApplication.Controllers
                     .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                     .ToList();
 
+                // Bilen noteras innan returen registreras. Skador sätter den i reparation och tar den ur flottan
+                Vehicle? returnedVehicle = _bookings.GetById(form.BookingId)?.Vehicle;
+
                 decimal lateFee = _management.CompleteRental(
                     staff, form.BookingId, form.Mileage, form.FuelLevel, form.BatteryLevel,
                     form.InspectionResult, damages, form.Notes ?? "", form.DamageFee, form.ReturnedAt);
@@ -65,9 +71,22 @@ namespace SeventWebApplication.Controllers
                 if (lateFee > 0) fees.Add($"Late fee: {lateFee:0.##} kr");
                 if (form.DamageFee > 0) fees.Add($"Damage fee: {form.DamageFee:0.##} kr");
 
-                TempData["Success"] = fees.Count > 0
+                string message = fees.Count > 0
                     ? $"Return registered. {string.Join(". ", fees)}. The fees are saved on the booking."
                     : "Return registered.";
+
+                // En skada kan inte nekas, bilen är redan skadad. Men personalen ska veta om bokningar på bilens
+                // fordonsklass nu saknar bil, så de kan flyttas eller avbokas i tid.
+                if (damages.Count > 0 && returnedVehicle is not null)
+                {
+                    var stranded = _assignments.FindWaitingBookingsLeftWithoutVehicle(returnedVehicle, DateTime.Now);
+                    if (stranded.Count > 0)
+                        message += $" Warning: the vehicle is now out of service and {stranded.Count} booking(s) for its vehicle type " +
+                                   $"no longer have a vehicle available ({string.Join(", ", stranded.Take(5).Select(b => "#" + b.BookingId[..8].ToUpper()))}" +
+                                   $"{(stranded.Count > 5 ? $" and {stranded.Count - 5} more" : "")}). Reassign or cancel them.";
+                }
+
+                TempData["Success"] = message;
 
                 return RedirectToAction(nameof(Register));
             }
