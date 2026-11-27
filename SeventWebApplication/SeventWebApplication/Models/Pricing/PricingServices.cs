@@ -35,7 +35,7 @@ public class PricingServices
         
         decimal baseRate = CalculateBaseRate(vehicle, billableDays);
         
-        return PriceStrategy.CalculateTotalPrice(baseRate + _baseCosts.GetBaseFee() + CalculateDepositFee(baseRate)) + booking.Addon.GetTotalAddonPrice();
+        return PriceStrategy.CalculateTotalPrice(baseRate + _baseCosts.GetBaseFee() + booking.Addon.GetTotalAddonPrice();
     }
     
     // Räknar ut hyrespriset för bokningen med standardpris och sparar det på bokningen (Booking.TotalPrice).
