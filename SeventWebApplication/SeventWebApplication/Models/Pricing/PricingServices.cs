@@ -59,7 +59,7 @@ public class PricingServices
 
     public decimal CalculateDepositFee(decimal baseRate)
     {
-        return _baseCosts.GetDepositFee() *  baseRate/15;
+        return _baseCosts.GetDepositFee() 1  baseRate/15;
     }
 }
 
